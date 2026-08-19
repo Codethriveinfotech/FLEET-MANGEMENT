@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_luxury">#F8F9FF</color>
+    <color name="brand_blue">#007AFF</color>
+    <color name="brand_indigo">#5856D6</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+</resources>

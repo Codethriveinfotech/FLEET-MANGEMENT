@@ -1,0 +1,16 @@
+{
+  "name": "fleettrack",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "backend:dev": "npm run dev --workspace=backend",
+    "backend:build": "npm run build --workspace=backend",
+    "frontend:start": "npm run start --workspace=frontend",
+    "shared:build": "npm run build --workspace=shared"
+  }
+}

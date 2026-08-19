@@ -1,0 +1,17 @@
+ktor:
+  deployment:
+    port: 8080
+  application:
+    modules:
+      - com.vehicletrackingapp.backend.ApplicationKt.module
+
+jwt:
+  secret: "your_super_secret_key_here"
+  issuer: "http://0.0.0.0:8080"
+  audience: "http://0.0.0.0:8080"
+  realm: "Access to 'Vehicle Tracking App'"
+
+database:
+  url: "jdbc:postgresql://localhost:5432/neondb"
+  user: "postgres"
+  password: "password"
