@@ -441,7 +441,95 @@ fun TripDetailsTab(driverId: String) {
                     Row(modifier = Modifier.fillMaxWidth()) {
                         EliteTextField(value = endOdo, onValueChange = { endOdo = it; persistDraft() }, label = stringResource(R.string.end_km), leadingIcon = Icons.Default.Speed, keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, enabled = !isLocked, modifier = Modifier.weight(1f))
                         Spacer(modifier = Modifier.width(12.dp))
-                        EliteTextField(value = endHmr, onValueChange = { endHmr = it; persistDraft() }, label = "End HMR", leadingIcon = Icons.Default.Timer, keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, enabled = !isLocked, modifier = Modifier.weight(1f))
+                        EliteTextField(
+                            value = endHmr,
+                            onValueChange = { newValue ->
+                                endHmr = newValue
+                                persistDraft()
+                            },
+                            label = "End HMR",
+                            leadingIcon = Icons.Default.Timer,
+                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
+                            enabled = !isLocked,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    
+                    // HMR Computed Difference with max cap from actual trip time
+                    val sHmr = startHmr.toDoubleOrNull()
+                    val eHmr = endHmr.toDoubleOrNull()
+                    if (sHmr != null && eHmr != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        val hmrDiff = eHmr - sHmr
+                        
+                        // Calculate max allowed HMR from actual trip start/end times
+                        val timeSdf = SimpleDateFormat("hh:mm a", Locale.getDefault())
+                        val dateSdf = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault())
+                        val maxAllowedHmr: Double? = try {
+                            val sdt = dateSdf.parse("$startDate $startTime")
+                            val edt = dateSdf.parse("$endDate $endTime")
+                            if (sdt != null && edt != null) {
+                                val diffMs = edt.time - sdt.time
+                                if (diffMs > 0) diffMs / (1000.0 * 60 * 60) else null
+                            } else null
+                        } catch (e: Exception) { null }
+
+                        val isHmrBelowZero = hmrDiff < 0
+                        val isHmrExceedsMax = maxAllowedHmr != null && hmrDiff > maxAllowedHmr
+                        val isHmrValid = !isHmrBelowZero && !isHmrExceedsMax
+
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (isHmrValid) SuccessEmerald.copy(alpha = 0.08f) else DangerCrimson.copy(alpha = 0.08f)
+                            ),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, if (isHmrValid) SuccessEmerald.copy(alpha = 0.4f) else DangerCrimson.copy(alpha = 0.4f))
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Timer,
+                                    contentDescription = null,
+                                    tint = if (isHmrValid) SuccessEmerald else DangerCrimson,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column {
+                                    when {
+                                        isHmrBelowZero -> Text(
+                                            "END HMR CANNOT BE LESS THAN START HMR ($startHmr)",
+                                            fontWeight = FontWeight.Black,
+                                            color = DangerCrimson,
+                                            fontSize = 12.sp
+                                        )
+                                        isHmrExceedsMax -> Text(
+                                            "HMR EXCEEDS TRIP DURATION — MAX ALLOWED: ${String.format(java.util.Locale.US, "%.2f", maxAllowedHmr)} HRS",
+                                            fontWeight = FontWeight.Black,
+                                            color = DangerCrimson,
+                                            fontSize = 12.sp
+                                        )
+                                        else -> {
+                                            Text(
+                                                "TOTAL HMR WORKED: ${String.format(java.util.Locale.US, "%.2f", hmrDiff)} HRS",
+                                                fontWeight = FontWeight.Black,
+                                                color = SuccessEmerald,
+                                                fontSize = 12.sp
+                                            )
+                                            if (maxAllowedHmr != null) {
+                                                Text(
+                                                    "Max allowed: ${String.format(java.util.Locale.US, "%.2f", maxAllowedHmr)} HRS",
+                                                    color = TextHint,
+                                                    fontSize = 10.sp
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                     Spacer(modifier = Modifier.height(20.dp))
                     CameraOnlyPicker(label = "FINAL ODOMETER EVIDENCE", imageUri = endOdoUri, onImageSelected = { if (!isLocked) { endOdoUri = it; persistDraft() } }, enabled = !isLocked)
@@ -547,30 +635,52 @@ fun TripDetailsTab(driverId: String) {
                                 error = "ERROR: Complete End Mission Data Required (KM or HMR, End Odometer Photo, and Sheet Photo)."
                             } else if (endOdo.isNotBlank() && startOdo.isNotBlank() && eOdo < sOdo) {
                                 error = "INTEGRITY ERROR: End Odometer lower than Start."
-                            } else {
-                                scope.launch {
-                                    val trip = TripEntry(
-                                        id = tripId, driverId = driverId, vehicleId = selectedVehicleId,
-                                        day = dayOfWeek, shift = shiftType, startHmr = startHmr, endHmr = endHmr,
-                                        startDate = startDate, startTime = startTime, startOdometer = startOdo,
-                                        startOdometerPhotoUri = startOdoUri?.toString(), startVehiclePlatePhotoUri = startPlateUri?.toString(),
-                                        endDate = endDate, endTime = endTime, endOdometer = endOdo, endOdometerPhotoUri = endOdoUri?.toString(),
-                                        sheetPhotoUri = sheetUri?.toString(), fuelLevel = fuel, tripPurpose = purpose, notes = notes, status = "submitted"
-                                    )
-                                    val success = AppRepository.upsertTrip(trip)
-                                    if (success) {
-                                        submitted = true
-                                        error = null
-                                        tripStatus = "submitted"
-                                        
-                                        // Auto-reset after short delay to show success state
-                                        delay(2000)
-                                        reInitializeForm()
+                            } else if (endHmr.isNotBlank() && startHmr.isNotBlank()) {
+                                val sH = startHmr.toDoubleOrNull() ?: 0.0
+                                val eH = endHmr.toDoubleOrNull() ?: 0.0
+                                val hmrWorked = eH - sH
+                                if (hmrWorked < 0) {
+                                    error = "HMR ERROR: End HMR ($endHmr) cannot be less than Start HMR ($startHmr)."
+                                } else {
+                                    // Validate against actual trip time duration
+                                    val dateSdf2 = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault())
+                                    val maxHmr: Double? = try {
+                                        val sdt = dateSdf2.parse("$startDate $startTime")
+                                        val edt = dateSdf2.parse("$endDate $endTime")
+                                        if (sdt != null && edt != null) {
+                                            val diffMs = edt.time - sdt.time
+                                            if (diffMs > 0) diffMs / (1000.0 * 60 * 60) else null
+                                        } else null
+                                    } catch (ex: Exception) { null }
+                                    
+                                    if (maxHmr != null && hmrWorked > maxHmr) {
+                                        error = "HMR ERROR: HMR worked (${String.format(java.util.Locale.US, "%.2f", hmrWorked)} hrs) exceeds trip duration (${String.format(java.util.Locale.US, "%.2f", maxHmr)} hrs max)."
                                     } else {
-                                        error = "DATABASE ERROR: Failed to save trip locally."
-                                    }
-                                }
-                            }
+                                        scope.launch {
+                                            val trip = TripEntry(
+                                                id = tripId, driverId = driverId, vehicleId = selectedVehicleId,
+                                                day = dayOfWeek, shift = shiftType, startHmr = startHmr, endHmr = endHmr,
+                                                startDate = startDate, startTime = startTime, startOdometer = startOdo,
+                                                startOdometerPhotoUri = startOdoUri?.toString(), startVehiclePlatePhotoUri = startPlateUri?.toString(),
+                                                endDate = endDate, endTime = endTime, endOdometer = endOdo, endOdometerPhotoUri = endOdoUri?.toString(),
+                                                sheetPhotoUri = sheetUri?.toString(), fuelLevel = fuel, tripPurpose = purpose, notes = notes, status = "submitted"
+                                            )
+                                            val success = AppRepository.upsertTrip(trip)
+                                            if (success) {
+                                                submitted = true
+                                                error = null
+                                                tripStatus = "submitted"
+                                                
+                                                // Auto-reset after short delay to show success state
+                                                delay(2000)
+                                                reInitializeForm()
+                                            } else {
+                                                error = "DATABASE ERROR: Failed to save trip locally."
+                                            }
+                                        }
+                                    } // end maxHmr check
+                                } // end hmrWorked >= 0
+                            } // end else if (hmr block)
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         OutlinedButton(
