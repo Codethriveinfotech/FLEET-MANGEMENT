@@ -3,6 +3,7 @@ package com.vehicletrackingapp
 import android.app.Application
 import android.util.Log
 import com.vehicletrackingapp.data.repo.AppRepository
+import com.vehicletrackingapp.util.DemoSeeder
 import com.vehicletrackingapp.util.LocaleHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -28,6 +29,7 @@ class VehicleTrackingApp : Application() {
             // STEP 2: Background Operations (Non-blocking)
             GlobalScope.launch(Dispatchers.IO) {
                 try {
+                    DemoSeeder.seedIfNeeded(this@VehicleTrackingApp)
                     AppRepository.syncPendingData()
                     Log.d("VehicleTrackingApp", "BACKGROUND_SYNC: Triggered")
                 } catch (e: Exception) {
