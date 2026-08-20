@@ -367,7 +367,7 @@ fun TripDetailsTab(driverId: String) {
                             label = stringResource(R.string.odometer_reading), 
                             leadingIcon = Icons.Default.Speed, 
                             keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, 
-                            enabled = !isOdoFetched,
+                            enabled = false,
                             modifier = Modifier.weight(1f)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
