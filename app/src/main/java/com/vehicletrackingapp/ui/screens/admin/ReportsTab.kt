@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.vehicletrackingapp.R
 import android.net.Uri
+import kotlinx.coroutines.launch
 import com.vehicletrackingapp.data.model.TripEntry
 import com.vehicletrackingapp.data.repo.AppRepository
 import com.vehicletrackingapp.ui.screens.common.*
@@ -163,12 +164,13 @@ fun ReportsTab() {
         }
     }
 
-    if (selectedTrip != null) {
+    val activeTrip = submittedTrips.find { it.id == selectedTrip?.id }
+    if (activeTrip != null) {
         ReportDetailDialog(
-            trip = selectedTrip!!,
-            maintenance = submittedMaintenance.filter { it.tripId == selectedTrip!!.id },
-            driver = drivers.find { it.id == selectedTrip!!.driverId },
-            vehicle = vehicles.find { it.id == selectedTrip!!.vehicleId },
+            trip = activeTrip,
+            maintenance = submittedMaintenance.filter { it.tripId == activeTrip.id },
+            driver = drivers.find { it.id == activeTrip.driverId },
+            vehicle = vehicles.find { it.id == activeTrip.vehicleId },
             onDismiss = { selectedTrip = null }
         )
     }
@@ -772,7 +774,19 @@ fun ReportDetailDialog(
                         EvidenceCard(label = "END ODOMETER", uri = trip.endOdometerPhotoUri, modifier = Modifier.weight(1f))
                     }
                     Spacer(modifier = Modifier.height(16.dp))
-                    EvidenceCard(label = "END TRIP SHEET PHOTO", uri = trip.sheetPhotoUri, modifier = Modifier.fillMaxWidth())
+                    val scope = rememberCoroutineScope()
+                    val sheetImageUri = trip.sheetPhotoUri?.let { Uri.parse(it) }
+                    
+                    CameraGalleryPicker(
+                        label = "END TRIP SHEET PHOTO",
+                        imageUri = sheetImageUri,
+                        onImageSelected = { uri ->
+                            scope.launch {
+                                val updatedTrip = trip.copy(sheetPhotoUri = uri.toString())
+                                AppRepository.upsertTrip(updatedTrip)
+                            }
+                        }
+                    )
                     
                     if (maintenance.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(32.dp))

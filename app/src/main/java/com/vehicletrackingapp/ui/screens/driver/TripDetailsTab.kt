@@ -80,6 +80,7 @@ fun TripDetailsTab(driverId: String) {
     var isLocked = tripStatus == "submitted"
 
     var isInitialized by remember { mutableStateOf(false) }
+    var isOdoFetched by remember { mutableStateOf(false) }
 
     fun reInitializeForm() {
         tripId = UUID.randomUUID().toString().take(8).uppercase()
@@ -100,6 +101,7 @@ fun TripDetailsTab(driverId: String) {
         tripStatus = "draft"
         submitted = false
         error = null
+        isOdoFetched = false
         
         // Refresh Day/Shift
         val now = Date()
@@ -131,6 +133,7 @@ fun TripDetailsTab(driverId: String) {
             purpose = draft.tripPurpose
             notes = draft.notes
             tripStatus = draft.status
+            isOdoFetched = draft.vehicleId != null && draft.startOdometer.isNotBlank()
             isInitialized = true
         } else {
             tripId = UUID.randomUUID().toString().take(8).uppercase()
@@ -283,6 +286,7 @@ fun TripDetailsTab(driverId: String) {
                                                 startOdo = vehicle.mileage.ifBlank { "0" }
                                                 startHmr = "0"
                                             }
+                                            isOdoFetched = startOdo.isNotBlank()
                                             persistDraft()
                                         }
                                     }
@@ -357,7 +361,15 @@ fun TripDetailsTab(driverId: String) {
                     
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(modifier = Modifier.fillMaxWidth()) {
-                        EliteTextField(value = startOdo, onValueChange = { startOdo = it; persistDraft() }, label = stringResource(R.string.odometer_reading), leadingIcon = Icons.Default.Speed, keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, modifier = Modifier.weight(1f))
+                        EliteTextField(
+                            value = startOdo, 
+                            onValueChange = { startOdo = it; persistDraft() }, 
+                            label = stringResource(R.string.odometer_reading), 
+                            leadingIcon = Icons.Default.Speed, 
+                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, 
+                            enabled = !isOdoFetched,
+                            modifier = Modifier.weight(1f)
+                        )
                         Spacer(modifier = Modifier.width(12.dp))
                         EliteTextField(value = startHmr, onValueChange = { startHmr = it; persistDraft() }, label = "Start HMR", leadingIcon = Icons.Default.Timer, keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, modifier = Modifier.weight(1f))
                     }
@@ -467,8 +479,8 @@ fun TripDetailsTab(driverId: String) {
                 StaggeredItem(visible, 4) {
                     Column {
                         GradientButton(text = "START TRIP") {
-                            if (selectedVehicleId == null || (startOdo.isBlank() && startHmr.isBlank()) || startOdoUri == null) {
-                                error = "ERROR: Complete Start Mission Data Required (Asset, KM or HMR, Photo)."
+                            if (selectedVehicleId == null || (startOdo.isBlank() && startHmr.isBlank()) || startOdoUri == null || startPlateUri == null) {
+                                error = "ERROR: Complete Start Mission Data Required (Asset, KM/HMR, Odometer Photo, License Plate Photo)."
                             } else {
                                 scope.launch {
                                     // Retrospective update for previous auto-ended trip
@@ -512,6 +524,7 @@ fun TripDetailsTab(driverId: String) {
                                     endOdoUri = null
                                     sheetUri = null
                                     tripStatus = "draft"
+                                    isOdoFetched = false
                                 }
                             },
                             modifier = Modifier.fillMaxWidth().height(56.dp),
@@ -530,8 +543,8 @@ fun TripDetailsTab(driverId: String) {
                             val sOdo = startOdo.toDoubleOrNull() ?: 0.0
                             val eOdo = endOdo.toDoubleOrNull() ?: 0.0
                             
-                            if ((endOdo.isBlank() && endHmr.isBlank()) || endOdoUri == null) {
-                                error = "ERROR: Complete End Mission Data Required (KM or HMR, and Photo)."
+                            if ((endOdo.isBlank() && endHmr.isBlank()) || endOdoUri == null || sheetUri == null) {
+                                error = "ERROR: Complete End Mission Data Required (KM or HMR, End Odometer Photo, and Sheet Photo)."
                             } else if (endOdo.isNotBlank() && startOdo.isNotBlank() && eOdo < sOdo) {
                                 error = "INTEGRITY ERROR: End Odometer lower than Start."
                             } else {
@@ -581,6 +594,7 @@ fun TripDetailsTab(driverId: String) {
                                     endOdoUri = null
                                     sheetUri = null
                                     tripStatus = "draft"
+                                    isOdoFetched = false
                                 }
                             },
                             modifier = Modifier.fillMaxWidth().height(56.dp),

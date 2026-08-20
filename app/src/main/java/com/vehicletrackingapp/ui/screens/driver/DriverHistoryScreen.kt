@@ -33,13 +33,14 @@ fun DriverHistoryScreen(driverId: String) {
     LaunchedEffect(Unit) { visible = true }
 
     var selectedTrip by remember { mutableStateOf<TripEntry?>(null) }
+    val activeTrip = driverTrips.find { it.id == selectedTrip?.id }
 
-    if (selectedTrip != null) {
+    if (activeTrip != null) {
         com.vehicletrackingapp.ui.screens.admin.ReportDetailDialog(
-            trip = selectedTrip!!,
-            maintenance = submittedMaintenance.filter { it.tripId == selectedTrip!!.id },
-            driver = drivers.find { it.id == selectedTrip!!.driverId },
-            vehicle = vehicles.find { it.id == selectedTrip!!.vehicleId },
+            trip = activeTrip,
+            maintenance = submittedMaintenance.filter { it.tripId == activeTrip.id },
+            driver = drivers.find { it.id == activeTrip.driverId },
+            vehicle = vehicles.find { it.id == activeTrip.vehicleId },
             onDismiss = { selectedTrip = null }
         )
     }
