@@ -164,6 +164,34 @@ fun ReportsTab() {
         }
     }
 
+    val monthFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+    val inputFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    
+    val groupedByMonth = remember(filteredTrips) {
+        filteredTrips.groupBy { trip ->
+            try {
+                val date = inputFormat.parse(trip.startDate)
+                if (date != null) monthFormat.format(date) else "Unknown Month"
+            } catch (e: Exception) {
+                "Unknown Month"
+            }
+        }
+    }
+
+    val groupedByDriver = remember(filteredTrips) {
+        filteredTrips.groupBy { it.driverId }
+    }
+
+    val groupedByVehicle = remember(filteredTrips) {
+        filteredTrips.groupBy { it.vehicleId }
+    }
+
+    var selectedReportType by remember { mutableStateOf("ALL LOGS") }
+    val reportTypes = listOf("ALL LOGS", "MONTHLY-WISE", "DRIVER-WISE", "CAR-WISE")
+    var expandedMonth by remember { mutableStateOf<String?>(null) }
+    var expandedDriver by remember { mutableStateOf<String?>(null) }
+    var expandedVehicle by remember { mutableStateOf<String?>(null) }
+
     val activeTrip = submittedTrips.find { it.id == selectedTrip?.id }
     if (activeTrip != null) {
         ReportDetailDialog(
@@ -179,7 +207,30 @@ fun ReportsTab() {
         SectionTitle(stringResource(R.string.executive_reports).uppercase())
         AttractiveHorizontalDivider()
         
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Report Type Selector Tabs Row
+        LazyRow(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(reportTypes) { type ->
+                FilterChip(
+                    selected = selectedReportType == type,
+                    onClick = { selectedReportType = type },
+                    label = { Text(type, fontWeight = FontWeight.Bold, fontSize = 11.sp) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = BrandYellow,
+                        selectedLabelColor = BrandDark,
+                        containerColor = BrandYellow.copy(alpha = 0.08f),
+                        labelColor = BrandGrey
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Persistent Search Header
         EliteTextField(
@@ -208,146 +259,430 @@ fun ReportsTab() {
                 }
             }
 
-            item {
-                Text("EXCEL REPORT OF TRAVELS", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = TextHint, letterSpacing = 2.sp)
-            }
-
-            if (filteredTrips.isEmpty()) {
-                item {
-                    UltraGlassCard {
-                        Text("NO RECORDS FOUND IN MISSION DATABASE.", color = TextHint, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+            when (selectedReportType) {
+                "ALL LOGS" -> {
+                    item {
+                        Text("EXCEL REPORT OF TRAVELS", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = TextHint, letterSpacing = 2.sp)
                     }
-                }
-            } else {
-                item {
-                    // Enterprise Grid Table Header
-                    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = BrandDark)) {
-                        Row(modifier = Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Text("IDENTIFIER", modifier = Modifier.weight(1.2f), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = BrandYellow)
-                            Text("OPERATOR / ASSET", modifier = Modifier.weight(2f), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = BrandYellow)
-                            Text("DEPLOYMENT", modifier = Modifier.weight(2f), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = BrandYellow)
-                            Text("INTEL", modifier = Modifier.weight(0.6f), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = BrandYellow, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+
+                    if (filteredTrips.isEmpty()) {
+                        item {
+                            UltraGlassCard {
+                                Text("NO RECORDS FOUND IN MISSION DATABASE.", color = TextHint, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                            }
                         }
-                    }
-                }
+                    } else {
+                        item {
+                            // Enterprise Grid Table Header
+                            Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = BrandDark)) {
+                                Row(modifier = Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Text("IDENTIFIER", modifier = Modifier.weight(1.2f), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = BrandYellow)
+                                    Text("OPERATOR / ASSET", modifier = Modifier.weight(2f), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = BrandYellow)
+                                    Text("DEPLOYMENT", modifier = Modifier.weight(2f), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = BrandYellow)
+                                    Text("INTEL", modifier = Modifier.weight(0.6f), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = BrandYellow, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                                }
+                            }
+                        }
 
-                items(filteredTrips, key = { it.id }) { trip ->
-                    val driver = drivers.firstOrNull { it.id == trip.driverId }
-                    val vehicle = vehicles.find { it.id == trip.vehicleId }
-                    val maintenanceCount = submittedMaintenance.count { it.tripId == trip.id }
-                    
-                    StaggeredItem(visible, 2) {
-                        Card(
-                            modifier = Modifier.fillMaxWidth().clickable { selectedTrip = trip },
-                            shape = RoundedCornerShape(20.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
-                            border = androidx.compose.foundation.BorderStroke(1.5.dp, BrandLightGrey)
-                        ) {
-                            Row(modifier = Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Column(modifier = Modifier.weight(1.2f)) {
-                                    Text(trip.startDate, fontWeight = FontWeight.Black, color = BrandDark, fontSize = 13.sp)
-                                    Text("#${trip.id.uppercase()}", color = TextHint, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                                }
-                                Column(modifier = Modifier.weight(2f)) {
-                                    Text(driver?.name ?: "Unknown", fontWeight = FontWeight.Black, color = BrandDark, fontSize = 14.sp)
-                                    Text(trip.startDate, color = TextHint, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
-                                        Icon(Icons.Default.DirectionsCar, null, tint = BrandYellow, modifier = Modifier.size(10.dp))
-                                        Spacer(modifier = Modifier.width(6.dp))
-                                        Text(vehicle?.number ?: "NO ASSET", color = BrandGrey, fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                                    }
-                                }
-                                Column(modifier = Modifier.weight(2f)) {
-                                    Text("${trip.day} • ${trip.shift}", fontWeight = FontWeight.SemiBold, color = BrandGrey, fontSize = 13.sp)
-                                    if (maintenanceCount > 0) {
-                                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
-                                            Box(modifier = Modifier.size(6.dp).background(WarningSunset, CircleShape))
-                                            Spacer(modifier = Modifier.width(6.dp))
-                                            Text("$maintenanceCount MAINT LOGS", color = WarningSunset, fontSize = 10.sp, fontWeight = FontWeight.Black)
+                        items(filteredTrips, key = { it.id }) { trip ->
+                            val driver = drivers.firstOrNull { it.id == trip.driverId }
+                            val vehicle = vehicles.find { it.id == trip.vehicleId }
+                            val maintenanceCount = submittedMaintenance.count { it.tripId == trip.id }
+                            
+                            StaggeredItem(visible, 2) {
+                                Card(
+                                    modifier = Modifier.fillMaxWidth().clickable { selectedTrip = trip },
+                                    shape = RoundedCornerShape(20.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                                    border = androidx.compose.foundation.BorderStroke(1.5.dp, BrandLightGrey)
+                                ) {
+                                    Row(modifier = Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+                                        Column(modifier = Modifier.weight(1.2f)) {
+                                            Text(trip.startDate, fontWeight = FontWeight.Black, color = BrandDark, fontSize = 13.sp)
+                                            Text("#${trip.id.uppercase()}", color = TextHint, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                        Column(modifier = Modifier.weight(2f)) {
+                                            Text(driver?.name ?: "Unknown", fontWeight = FontWeight.Black, color = BrandDark, fontSize = 14.sp)
+                                            Text(trip.startDate, color = TextHint, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
+                                                Icon(Icons.Default.DirectionsCar, null, tint = BrandYellow, modifier = Modifier.size(10.dp))
+                                                Spacer(modifier = Modifier.width(6.dp))
+                                                Text(vehicle?.number ?: "NO ASSET", color = BrandGrey, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                                            }
+                                        }
+                                        Column(modifier = Modifier.weight(2f)) {
+                                            Text("${trip.day} • ${trip.shift}", fontWeight = FontWeight.SemiBold, color = BrandGrey, fontSize = 13.sp)
+                                            if (maintenanceCount > 0) {
+                                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
+                                                    Box(modifier = Modifier.size(6.dp).background(WarningSunset, CircleShape))
+                                                    Spacer(modifier = Modifier.width(6.dp))
+                                                    Text("$maintenanceCount MAINT LOGS", color = WarningSunset, fontSize = 10.sp, fontWeight = FontWeight.Black)
+                                                }
+                                            }
+                                        }
+                                        Box(modifier = Modifier.weight(0.6f), contentAlignment = Alignment.Center) {
+                                            Icon(Icons.AutoMirrored.Filled.OpenInNew, null, tint = BrandYellow, modifier = Modifier.size(18.dp))
                                         }
                                     }
                                 }
-                                Box(modifier = Modifier.weight(0.6f), contentAlignment = Alignment.Center) {
-                                    Icon(Icons.AutoMirrored.Filled.OpenInNew, null, tint = BrandYellow, modifier = Modifier.size(18.dp))
+                            }
+                        }
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            GradientButton(text = "VIEW SPREADSHEET", modifier = Modifier.weight(1f)) {
+                                showSpreadsheetViewer = true
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            GradientButton(text = "EXPORT FILE", modifier = Modifier.weight(1f)) {
+                                showDownloadDialog = true
+                            }
+                        }
+                    }
+
+                    summary?.let { data ->
+                        item {
+                            Spacer(modifier = Modifier.height(32.dp))
+                            Text("MISSION ANALYTICS COMMAND", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = BrandYellow, letterSpacing = 2.sp)
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                        
+                        item {
+                            Row(modifier = Modifier.fillMaxWidth()) {
+                                MiniSummaryCard("WORKING DAYS", "${data.totalDays}", SuccessEmerald, Modifier.weight(1f))
+                                Spacer(modifier = Modifier.width(12.dp))
+                                MiniSummaryCard("BREAKDOWNS", "${data.breakdowns}", DangerCrimson, Modifier.weight(1f))
+                            }
+                        }
+                        item {
+                            Row(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
+                                MiniSummaryCard("DAY SHIFTS", "${data.dayWorks}", BrandYellow, Modifier.weight(1f))
+                                Spacer(modifier = Modifier.width(12.dp))
+                                MiniSummaryCard("NIGHT SHIFTS", "${data.nightWorks}", BrandDark, Modifier.weight(1f))
+                            }
+                        }
+                        item {
+                            Row(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
+                                MiniSummaryCard("SUNDAY WORK", "${data.sundays}", BrandIndigo, Modifier.weight(1f))
+                                Spacer(modifier = Modifier.width(12.dp))
+                                MiniSummaryCard("BILLING DAYS", "${data.billingDays}", SuccessEmerald, Modifier.weight(1f))
+                            }
+                        }
+                        
+                        item {
+                            Spacer(modifier = Modifier.height(32.dp))
+                            Text("OPERATOR PERFORMANCE LEADERBOARD", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = TextHint)
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+
+                        items(data.driverStats) { stat ->
+                            Card(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color.White),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, BrandLightGrey)
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                                        Text(stat.name, fontWeight = FontWeight.Black, color = BrandDark)
+                                        Row {
+                                            Text("${stat.uniqueDays} DAYS", fontWeight = FontWeight.Bold, color = BrandGrey, fontSize = 12.sp)
+                                            if (stat.sundays > 0) {
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Text("(${stat.sundays} SUNDAYS)", fontWeight = FontWeight.Black, color = SuccessEmerald, fontSize = 11.sp)
+                                            }
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        DriverStatChip("DAY: ${stat.dayShifts}", BrandYellow)
+                                        DriverStatChip("NIGHT: ${stat.nightShifts}", BrandDark)
+                                        if (stat.breakdowns > 0) {
+                                            DriverStatChip("BREAKDOWN: ${stat.breakdowns}", DangerCrimson)
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
+                "MONTHLY-WISE" -> {
+                    item {
+                        Text("MONTHLY SUMMARY BREAKDOWN", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = TextHint, letterSpacing = 2.sp)
+                    }
 
-            item {
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    GradientButton(text = "VIEW SPREADSHEET", modifier = Modifier.weight(1f)) {
-                        showSpreadsheetViewer = true
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    GradientButton(text = "EXPORT FILE", modifier = Modifier.weight(1f)) {
-                        showDownloadDialog = true
-                    }
-                }
-            }
-
-            summary?.let { data ->
-                item {
-                    Spacer(modifier = Modifier.height(32.dp))
-                    Text("MISSION ANALYTICS COMMAND", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = BrandYellow, letterSpacing = 2.sp)
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-                
-                item {
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        MiniSummaryCard("WORKING DAYS", "${data.totalDays}", SuccessEmerald, Modifier.weight(1f))
-                        Spacer(modifier = Modifier.width(12.dp))
-                        MiniSummaryCard("BREAKDOWNS", "${data.breakdowns}", DangerCrimson, Modifier.weight(1f))
-                    }
-                }
-                item {
-                    Row(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
-                        MiniSummaryCard("DAY SHIFTS", "${data.dayWorks}", BrandYellow, Modifier.weight(1f))
-                        Spacer(modifier = Modifier.width(12.dp))
-                        MiniSummaryCard("NIGHT SHIFTS", "${data.nightWorks}", BrandDark, Modifier.weight(1f))
-                    }
-                }
-                item {
-                    Row(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
-                        MiniSummaryCard("SUNDAY WORK", "${data.sundays}", BrandIndigo, Modifier.weight(1f))
-                        Spacer(modifier = Modifier.width(12.dp))
-                        MiniSummaryCard("BILLING DAYS", "${data.billingDays}", SuccessEmerald, Modifier.weight(1f))
-                    }
-                }
-                
-                item {
-                    Spacer(modifier = Modifier.height(32.dp))
-                    Text("OPERATOR PERFORMANCE LEADERBOARD", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = TextHint)
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
-
-                items(data.driverStats) { stat ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, BrandLightGrey)
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                                Text(stat.name, fontWeight = FontWeight.Black, color = BrandDark)
-                                Row {
-                                    Text("${stat.uniqueDays} DAYS", fontWeight = FontWeight.Bold, color = BrandGrey, fontSize = 12.sp)
-                                    if (stat.sundays > 0) {
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text("($stat.sundays SUNDAYS)", fontWeight = FontWeight.Black, color = SuccessEmerald, fontSize = 11.sp)
+                    if (groupedByMonth.isEmpty()) {
+                        item {
+                            UltraGlassCard {
+                                Text("NO RECORDS FOUND FOR MONTHLY ANALYSIS.", color = TextHint, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    } else {
+                        groupedByMonth.forEach { (month, tripsInMonth) ->
+                            val isExpanded = expandedMonth == month
+                            item {
+                                Card(
+                                    modifier = Modifier.fillMaxWidth().clickable { expandedMonth = if (isExpanded) null else month },
+                                    shape = RoundedCornerShape(20.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                                    border = androidx.compose.foundation.BorderStroke(1.5.dp, BrandLightGrey)
+                                ) {
+                                    Column(modifier = Modifier.padding(18.dp)) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Column {
+                                                Text(month.uppercase(), fontWeight = FontWeight.Black, color = BrandDark, fontSize = 16.sp)
+                                                Text("${tripsInMonth.size} Trips Deployed", color = TextHint, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                            }
+                                            Icon(
+                                                imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                                contentDescription = null,
+                                                tint = BrandYellow
+                                            )
+                                        }
+                                        
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        
+                                        val breakdowns = tripsInMonth.count { it.isBreakdown }
+                                        val workingDays = tripsInMonth.map { it.startDate }.distinct().size
+                                        val billingDays = workingDays - tripsInMonth.filter { it.isBreakdown }.map { it.startDate }.distinct().size
+                                        val totalHmr = tripsInMonth.sumOf {
+                                            val s = it.startHmr.toDoubleOrNull() ?: 0.0
+                                            val e = it.endHmr.toDoubleOrNull() ?: 0.0
+                                            if (e >= s) e - s else 0.0
+                                        }
+                                        
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            DriverStatChip("BILLING: $billingDays DAYS", SuccessEmerald)
+                                            DriverStatChip("BREAKDOWN: $breakdowns", DangerCrimson)
+                                            DriverStatChip("HMR: ${String.format(Locale.US, "%.1f", totalHmr)} H", BrandBlue)
+                                        }
+                                        
+                                        if (isExpanded) {
+                                            Spacer(modifier = Modifier.height(16.dp))
+                                            HorizontalDivider(color = BrandLightGrey)
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                            
+                                            tripsInMonth.forEach { trip ->
+                                                val driver = drivers.firstOrNull { it.id == trip.driverId }?.name ?: "Unknown"
+                                                val vehicle = vehicles.find { it.id == trip.vehicleId }?.number ?: "NO ASSET"
+                                                Row(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .clickable { selectedTrip = trip }
+                                                        .padding(vertical = 8.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Column(modifier = Modifier.weight(1f)) {
+                                                        Text(trip.startDate, fontWeight = FontWeight.Bold, color = BrandDark, fontSize = 12.sp)
+                                                        Text("#${trip.id.uppercase()} • $driver", color = TextHint, fontSize = 10.sp)
+                                                    }
+                                                    Text(vehicle, fontWeight = FontWeight.Black, color = BrandBlue, fontSize = 12.sp)
+                                                    Spacer(modifier = Modifier.width(12.dp))
+                                                    Icon(Icons.AutoMirrored.Filled.OpenInNew, null, tint = BrandYellow, modifier = Modifier.size(14.dp))
+                                                }
+                                                HorizontalDivider(color = BrandLightGrey.copy(alpha = 0.5f))
+                                            }
+                                        }
                                     }
                                 }
                             }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                DriverStatChip("DAY: ${stat.dayShifts}", BrandYellow)
-                                DriverStatChip("NIGHT: ${stat.nightShifts}", BrandDark)
-                                if (stat.breakdowns > 0) {
-                                    DriverStatChip("BREAKDOWN: ${stat.breakdowns}", DangerCrimson)
+                        }
+                    }
+                }
+                "DRIVER-WISE" -> {
+                    item {
+                        Text("DRIVER SUMMARY BREAKDOWN", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = TextHint, letterSpacing = 2.sp)
+                    }
+
+                    if (groupedByDriver.isEmpty()) {
+                        item {
+                            UltraGlassCard {
+                                Text("NO RECORDS FOUND FOR DRIVER ANALYSIS.", color = TextHint, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    } else {
+                        groupedByDriver.forEach { (driverId, tripsForDriver) ->
+                            val driverName = drivers.firstOrNull { it.id == driverId }?.name ?: "Unknown Operator"
+                            val isExpanded = expandedDriver == driverId
+                            item {
+                                Card(
+                                    modifier = Modifier.fillMaxWidth().clickable { expandedDriver = if (isExpanded) null else driverId },
+                                    shape = RoundedCornerShape(20.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                                    border = androidx.compose.foundation.BorderStroke(1.5.dp, BrandLightGrey)
+                                ) {
+                                    Column(modifier = Modifier.padding(18.dp)) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Column {
+                                                Text(driverName.uppercase(), fontWeight = FontWeight.Black, color = BrandDark, fontSize = 16.sp)
+                                                Text("${tripsForDriver.size} Missions Completed", color = TextHint, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                            }
+                                            Icon(
+                                                imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                                contentDescription = null,
+                                                tint = BrandYellow
+                                            )
+                                        }
+                                        
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        
+                                        val breakdowns = tripsForDriver.count { it.isBreakdown }
+                                        val workingDays = tripsForDriver.map { it.startDate }.distinct().size
+                                        val billingDays = workingDays - tripsForDriver.filter { it.isBreakdown }.map { it.startDate }.distinct().size
+                                        val totalHmr = tripsForDriver.sumOf {
+                                            val s = it.startHmr.toDoubleOrNull() ?: 0.0
+                                            val e = it.endHmr.toDoubleOrNull() ?: 0.0
+                                            if (e >= s) e - s else 0.0
+                                        }
+                                        
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            DriverStatChip("BILLING: $billingDays DAYS", SuccessEmerald)
+                                            DriverStatChip("BREAKDOWN: $breakdowns", DangerCrimson)
+                                            DriverStatChip("HMR: ${String.format(Locale.US, "%.1f", totalHmr)} H", BrandBlue)
+                                        }
+                                        
+                                        if (isExpanded) {
+                                            Spacer(modifier = Modifier.height(16.dp))
+                                            HorizontalDivider(color = BrandLightGrey)
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                            
+                                            tripsForDriver.forEach { trip ->
+                                                val vehicle = vehicles.find { it.id == trip.vehicleId }?.number ?: "NO ASSET"
+                                                Row(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .clickable { selectedTrip = trip }
+                                                        .padding(vertical = 8.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Column(modifier = Modifier.weight(1f)) {
+                                                        Text(trip.startDate, fontWeight = FontWeight.Bold, color = BrandDark, fontSize = 12.sp)
+                                                        Text("#${trip.id.uppercase()} • ${trip.day} • ${trip.shift}", color = TextHint, fontSize = 10.sp)
+                                                    }
+                                                    Text(vehicle, fontWeight = FontWeight.Black, color = BrandBlue, fontSize = 12.sp)
+                                                    Spacer(modifier = Modifier.width(12.dp))
+                                                    Icon(Icons.AutoMirrored.Filled.OpenInNew, null, tint = BrandYellow, modifier = Modifier.size(14.dp))
+                                                }
+                                                HorizontalDivider(color = BrandLightGrey.copy(alpha = 0.5f))
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                "CAR-WISE" -> {
+                    item {
+                        Text("VEHICLE SUMMARY BREAKDOWN", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = TextHint, letterSpacing = 2.sp)
+                    }
+
+                    if (groupedByVehicle.isEmpty()) {
+                        item {
+                            UltraGlassCard {
+                                Text("NO RECORDS FOUND FOR VEHICLE ANALYSIS.", color = TextHint, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    } else {
+                        groupedByVehicle.forEach { (vehicleId, tripsForVehicle) ->
+                            val vehicle = vehicles.find { it.id == vehicleId }
+                            val vehiclePlate = vehicle?.number ?: "Unknown Asset"
+                            val vehicleModel = vehicle?.model ?: "Unknown Model"
+                            val isExpanded = expandedVehicle == vehicleId
+                            item {
+                                Card(
+                                    modifier = Modifier.fillMaxWidth().clickable { expandedVehicle = if (isExpanded) null else vehicleId },
+                                    shape = RoundedCornerShape(20.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                                    border = androidx.compose.foundation.BorderStroke(1.5.dp, BrandLightGrey)
+                                ) {
+                                    Column(modifier = Modifier.padding(18.dp)) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Column {
+                                                Text(vehiclePlate.uppercase(), fontWeight = FontWeight.Black, color = BrandDark, fontSize = 16.sp)
+                                                Text("$vehicleModel • ${tripsForVehicle.size} Missions Deployed", color = TextHint, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                            }
+                                            Icon(
+                                                imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                                contentDescription = null,
+                                                tint = BrandYellow
+                                            )
+                                        }
+                                        
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        
+                                        val breakdowns = tripsForVehicle.count { it.isBreakdown }
+                                        val workingDays = tripsForVehicle.map { it.startDate }.distinct().size
+                                        val billingDays = workingDays - tripsForVehicle.filter { it.isBreakdown }.map { it.startDate }.distinct().size
+                                        val totalHmr = tripsForVehicle.sumOf {
+                                            val s = it.startHmr.toDoubleOrNull() ?: 0.0
+                                            val e = it.endHmr.toDoubleOrNull() ?: 0.0
+                                            if (e >= s) e - s else 0.0
+                                        }
+                                        val totalDistance = tripsForVehicle.sumOf {
+                                            val s = it.startOdometer.toDoubleOrNull() ?: 0.0
+                                            val e = it.endOdometer.toDoubleOrNull() ?: 0.0
+                                            if (e >= s) e - s else 0.0
+                                        }
+                                        
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            DriverStatChip("DISTANCE: ${String.format(Locale.US, "%.0f", totalDistance)} KM", SuccessEmerald)
+                                            DriverStatChip("BREAKDOWN: $breakdowns", DangerCrimson)
+                                            DriverStatChip("HMR: ${String.format(Locale.US, "%.1f", totalHmr)} H", BrandBlue)
+                                        }
+                                        
+                                        if (isExpanded) {
+                                            Spacer(modifier = Modifier.height(16.dp))
+                                            HorizontalDivider(color = BrandLightGrey)
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                            
+                                            tripsForVehicle.forEach { trip ->
+                                                val driver = drivers.firstOrNull { it.id == trip.driverId }?.name ?: "Unknown Operator"
+                                                Row(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .clickable { selectedTrip = trip }
+                                                        .padding(vertical = 8.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Column(modifier = Modifier.weight(1f)) {
+                                                        Text(trip.startDate, fontWeight = FontWeight.Bold, color = BrandDark, fontSize = 12.sp)
+                                                        Text("#${trip.id.uppercase()} • $driver • ${trip.day} • ${trip.shift}", color = TextHint, fontSize = 10.sp)
+                                                    }
+                                                    val sOdo = trip.startOdometer.toDoubleOrNull() ?: 0.0
+                                                    val eOdo = trip.endOdometer.toDoubleOrNull() ?: 0.0
+                                                    val diff = if (eOdo >= sOdo) eOdo - sOdo else 0.0
+                                                    Text("${String.format(Locale.US, "%.0f", diff)} KM", fontWeight = FontWeight.Black, color = BrandBlue, fontSize = 12.sp)
+                                                    Spacer(modifier = Modifier.width(12.dp))
+                                                    Icon(Icons.AutoMirrored.Filled.OpenInNew, null, tint = BrandYellow, modifier = Modifier.size(14.dp))
+                                                }
+                                                HorizontalDivider(color = BrandLightGrey.copy(alpha = 0.5f))
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
