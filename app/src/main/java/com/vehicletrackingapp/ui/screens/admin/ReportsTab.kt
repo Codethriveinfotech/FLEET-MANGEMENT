@@ -200,6 +200,76 @@ fun ReportsTab() {
     var expandedMonth by remember { mutableStateOf<String?>(null) }
     var expandedDriver by remember { mutableStateOf<String?>(null) }
     var expandedVehicle by remember { mutableStateOf<String?>(null) }
+    var showExportTypeDialog by remember { mutableStateOf(false) }
+
+    val availableMonths = remember(submittedTrips) {
+        submittedTrips.mapNotNull { trip ->
+            try {
+                val date = inputFormat.parse(trip.startDate)
+                if (date != null) monthFormat.format(date) else null
+            } catch (e: Exception) { null }
+        }.distinct()
+    }
+
+    if (showExportTypeDialog) {
+        ExcelReportSelectionDialog(
+            trips = submittedTrips,
+            maintenance = submittedMaintenance,
+            drivers = drivers,
+            vehicles = vehicles,
+            months = availableMonths,
+            onDismiss = { showExportTypeDialog = false },
+            onExport = { reportType, selDriverId, selVehicleId, selMonth ->
+                val uri = when (reportType) {
+                    "ALL" -> ExportUtils.exportAllInOne(
+                        context, submittedTrips, submittedMaintenance, drivers, vehicles
+                    )
+                    "DRIVER" -> ExportUtils.exportCustomReport(
+                        context = context,
+                        trips = submittedTrips,
+                        drivers = drivers,
+                        vehicles = vehicles,
+                        selectedDriverId = selDriverId,
+                        selectedVehicleId = null,
+                        monthFilter = "All Time"
+                    )
+                    "VEHICLE" -> ExportUtils.exportCustomReport(
+                        context = context,
+                        trips = submittedTrips,
+                        drivers = drivers,
+                        vehicles = vehicles,
+                        selectedDriverId = null,
+                        selectedVehicleId = selVehicleId,
+                        monthFilter = "All Time"
+                    )
+                    "MONTH" -> ExportUtils.exportCustomReport(
+                        context = context,
+                        trips = submittedTrips,
+                        drivers = drivers,
+                        vehicles = vehicles,
+                        selectedDriverId = null,
+                        selectedVehicleId = null,
+                        monthFilter = selMonth ?: "All Time"
+                    )
+                    "BREAKDOWN" -> {
+                        val breakdownTrips = submittedTrips.filter { it.isBreakdown }
+                        ExportUtils.exportTripsToExcel(
+                            context = context,
+                            trips = if (breakdownTrips.isNotEmpty()) breakdownTrips else submittedTrips,
+                            maintenance = submittedMaintenance,
+                            drivers = drivers,
+                            vehicles = vehicles,
+                            summary = summary
+                        )
+                    }
+                    else -> ExportUtils.exportAllInOne(
+                        context, submittedTrips, submittedMaintenance, drivers, vehicles
+                    )
+                }
+                uri?.let { ExportUtils.openInSpreadsheetApp(context, it) }
+            }
+        )
+    }
 
     val activeTrip = submittedTrips.find { it.id == selectedTrip?.id }
     if (activeTrip != null) {
@@ -213,7 +283,29 @@ fun ReportsTab() {
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
-        SectionTitle(stringResource(R.string.executive_reports).uppercase())
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SectionTitle(stringResource(R.string.executive_reports).uppercase())
+            
+            Surface(
+                onClick = { showExportTypeDialog = true },
+                shape = RoundedCornerShape(12.dp),
+                color = SuccessEmerald,
+                shadowElevation = 3.dp
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.TableChart, contentDescription = "Excel", tint = Color.White, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("EXPORT EXCEL", color = Color.White, fontWeight = FontWeight.Black, fontSize = 11.sp)
+                }
+            }
+        }
         AttractiveHorizontalDivider()
         
         Spacer(modifier = Modifier.height(16.dp))
@@ -355,14 +447,7 @@ fun ReportsTab() {
                             }
                             Spacer(modifier = Modifier.width(12.dp))
                             GradientButton(text = "EXPORT EXCEL", modifier = Modifier.weight(1f)) {
-                                val uri = ExportUtils.exportAllInOne(
-                                    context,
-                                    submittedTrips,
-                                    submittedMaintenance,
-                                    drivers,
-                                    vehicles
-                                )
-                                uri?.let { ExportUtils.openInSpreadsheetApp(context, it) }
+                                showExportTypeDialog = true
                             }
                         }
                     }
@@ -1474,4 +1559,184 @@ fun EvidenceCard(label: String, uri: String?, modifier: Modifier = Modifier) {
     if (showFullscreen && imageUri != null) {
         FullscreenImageViewer(imageUri = imageUri, onDismiss = { showFullscreen = false })
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ExcelReportSelectionDialog(
+    trips: List<TripEntry>,
+    maintenance: List<MaintenanceRecord>,
+    drivers: List<Driver>,
+    vehicles: List<Vehicle>,
+    months: List<String>,
+    onDismiss: () -> Unit,
+    onExport: (reportType: String, selectedDriverId: String?, selectedVehicleId: String?, selectedMonth: String?) -> Unit
+) {
+    var selectedType by remember { mutableStateOf("ALL") }
+    
+    var selectedDriverId by remember { mutableStateOf<String?>(null) }
+    var selectedVehicleId by remember { mutableStateOf<String?>(null) }
+    var selectedMonth by remember { mutableStateOf<String?>(null) }
+    
+    var driverDropdownExpanded by remember { mutableStateOf(false) }
+    var vehicleDropdownExpanded by remember { mutableStateOf(false) }
+    var monthDropdownExpanded by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(24.dp),
+        containerColor = Color.White,
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(SuccessEmerald.copy(alpha = 0.15f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.TableChart, contentDescription = null, tint = SuccessEmerald, modifier = Modifier.size(22.dp))
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text("Export Excel Report", fontWeight = FontWeight.Black, fontSize = 18.sp, color = BrandDark)
+                    Text("Select type of report to download", color = TextHint, fontSize = 12.sp)
+                }
+            }
+        },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                
+                val options = listOf(
+                    Triple("ALL", "📊 Full Report", "Complete readings for all vehicles & operators"),
+                    Triple("DRIVER", "👤 Driver Report", "Filter readings by specific driver or all drivers"),
+                    Triple("VEHICLE", "🚗 Vehicle Report", "Filter readings by specific vehicle or all vehicles")
+                )
+
+                options.forEach { (typeKey, title, subtitle) ->
+                    val isSelected = selectedType == typeKey
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                            .clickable { selectedType = typeKey },
+                        shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isSelected) BrandYellow.copy(alpha = 0.15f) else BrandLightGrey.copy(alpha = 0.3f)
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(
+                            width = if (isSelected) 2.dp else 1.dp,
+                            color = if (isSelected) BrandYellow else BrandLightGrey
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = isSelected,
+                                onClick = { selectedType = typeKey },
+                                colors = RadioButtonDefaults.colors(selectedColor = BrandDark)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(title, fontWeight = FontWeight.Black, fontSize = 14.sp, color = BrandDark)
+                                Text(subtitle, fontSize = 11.sp, color = TextHint, fontWeight = FontWeight.Medium)
+                            }
+                        }
+                    }
+                }
+
+                if (selectedType == "DRIVER") {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text("Select Operator / Driver:", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = BrandDark)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    ExposedDropdownMenuBox(
+                        expanded = driverDropdownExpanded,
+                        onExpandedChange = { driverDropdownExpanded = !driverDropdownExpanded }
+                    ) {
+                        val selDriverName = drivers.find { it.id == selectedDriverId }?.name ?: "All Drivers"
+                        OutlinedTextField(
+                            value = selDriverName,
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = driverDropdownExpanded) },
+                            modifier = Modifier.menuAnchor().fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        ExposedDropdownMenu(
+                            expanded = driverDropdownExpanded,
+                            onDismissRequest = { driverDropdownExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("All Drivers", fontWeight = FontWeight.Bold) },
+                                onClick = { selectedDriverId = null; driverDropdownExpanded = false }
+                            )
+                            drivers.forEach { drv ->
+                                DropdownMenuItem(
+                                    text = { Text(drv.name) },
+                                    onClick = { selectedDriverId = drv.id; driverDropdownExpanded = false }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                if (selectedType == "VEHICLE") {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text("Select Vehicle / Asset:", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = BrandDark)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    ExposedDropdownMenuBox(
+                        expanded = vehicleDropdownExpanded,
+                        onExpandedChange = { vehicleDropdownExpanded = !vehicleDropdownExpanded }
+                    ) {
+                        val selVehicleNo = vehicles.find { it.id == selectedVehicleId }?.number ?: "All Vehicles"
+                        OutlinedTextField(
+                            value = selVehicleNo,
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = vehicleDropdownExpanded) },
+                            modifier = Modifier.menuAnchor().fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        ExposedDropdownMenu(
+                            expanded = vehicleDropdownExpanded,
+                            onDismissRequest = { vehicleDropdownExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("All Vehicles", fontWeight = FontWeight.Bold) },
+                                onClick = { selectedVehicleId = null; vehicleDropdownExpanded = false }
+                            )
+                            vehicles.forEach { v ->
+                                DropdownMenuItem(
+                                    text = { Text("${v.number} (${v.model})") },
+                                    onClick = { selectedVehicleId = v.id; vehicleDropdownExpanded = false }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onExport(selectedType, selectedDriverId, selectedVehicleId, selectedMonth)
+                    onDismiss()
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = SuccessEmerald),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(Icons.Default.Download, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("EXPORT EXCEL", fontWeight = FontWeight.Black, color = Color.White)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("CANCEL", fontWeight = FontWeight.Bold, color = BrandGrey)
+            }
+        }
+    )
 }
