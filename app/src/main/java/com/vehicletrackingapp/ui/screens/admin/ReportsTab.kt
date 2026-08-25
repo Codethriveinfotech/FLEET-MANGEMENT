@@ -59,7 +59,18 @@ fun ReportsTab() {
 
     var showDownloadDialog by remember { mutableStateOf(false) }
     var showSpreadsheetViewer by remember { mutableStateOf(false) }
-    var hasDownloadedOnce by remember { mutableStateOf(false) }
+
+    var exportReportType by remember { mutableStateOf("Master Report") }
+    var selectedExportDriverId by remember { mutableStateOf<String?>(null) }
+    var selectedExportVehicleId by remember { mutableStateOf<String?>(null) }
+    var exportReadingType by remember { mutableStateOf("HMR") }
+    var exportPeriod by remember { mutableStateOf("All Time") }
+
+    var reportTypeDropdownExpanded by remember { mutableStateOf(false) }
+    var driverDropdownExpanded by remember { mutableStateOf(false) }
+    var vehicleDropdownExpanded by remember { mutableStateOf(false) }
+    var readingTypeDropdownExpanded by remember { mutableStateOf(false) }
+    var periodDropdownExpanded by remember { mutableStateOf(false) }
 
     val filteredTrips = submittedTrips.filter { trip ->
         val driverName = drivers.find { it.id == trip.driverId }?.name ?: ""
@@ -496,6 +507,12 @@ fun ReportsTab() {
                                 }
                             }
                         }
+                        item {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            GradientButton(text = "EXPORT REPORT", modifier = Modifier.fillMaxWidth()) {
+                                showDownloadDialog = true
+                            }
+                        }
                     }
                 }
                 "DRIVER-WISE" -> {
@@ -584,6 +601,12 @@ fun ReportsTab() {
                                         }
                                     }
                                 }
+                            }
+                        }
+                        item {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            GradientButton(text = "EXPORT REPORT", modifier = Modifier.fillMaxWidth()) {
+                                showDownloadDialog = true
                             }
                         }
                     }
@@ -686,6 +709,12 @@ fun ReportsTab() {
                                 }
                             }
                         }
+                        item {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            GradientButton(text = "EXPORT REPORT", modifier = Modifier.fillMaxWidth()) {
+                                showDownloadDialog = true
+                            }
+                        }
                     }
                 }
             }
@@ -693,23 +722,258 @@ fun ReportsTab() {
     }
 
     if (showDownloadDialog) {
+        val availableMonths = remember(submittedTrips) {
+            val months = mutableListOf("All Time")
+            val dialogInputFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val dialogMonthFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+            submittedTrips.mapNotNull { trip ->
+                try {
+                    val date = dialogInputFormat.parse(trip.startDate)
+                    if (date != null) dialogMonthFormat.format(date) else null
+                } catch (e: Exception) {
+                    null
+                }
+            }.distinct().forEach { months.add(it) }
+            months
+        }
+
+        // Initialize selections if needed
+        LaunchedEffect(showDownloadDialog) {
+            if (selectedExportDriverId == null && drivers.isNotEmpty()) {
+                selectedExportDriverId = drivers.first().id
+            }
+            if (selectedExportVehicleId == null && vehicles.isNotEmpty()) {
+                selectedExportVehicleId = vehicles.first().id
+            }
+        }
+
         AlertDialog(
             onDismissRequest = { showDownloadDialog = false },
-            title = { Text(text = if (hasDownloadedOnce) "DOWNLOAD AGAIN?" else "EXPORT REPORT", fontWeight = FontWeight.Black) },
-            text = { Text(text = if (hasDownloadedOnce) "This master report was already generated. Would you like to download it again to your Downloads folder?" else "Do you want to download the current mission report with full HMR and driver analytics as an Excel file?") },
+            title = {
+                Text(
+                    text = "EXPORT CONFIGURATION",
+                    fontWeight = FontWeight.Black,
+                    color = BrandDark
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        "Configure the details of the report you wish to export to your device storage.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = BrandGrey
+                    )
+
+                    // 1. Report Type Dropdown
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        OutlinedTextField(
+                            value = exportReportType,
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text("Report Type", fontWeight = FontWeight.Bold, color = TextHint) },
+                            trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, tint = BrandYellow) },
+                            shape = RoundedCornerShape(16.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = BrandYellow,
+                                unfocusedBorderColor = Color.Black.copy(alpha = 0.1f)
+                            )
+                        )
+                        Box(modifier = Modifier.matchParentSize().clickable { reportTypeDropdownExpanded = true })
+                        DropdownMenu(
+                            expanded = reportTypeDropdownExpanded,
+                            onDismissRequest = { reportTypeDropdownExpanded = false }
+                        ) {
+                            listOf("Master Report", "Driver-wise Report", "Car-wise Report").forEach { type ->
+                                DropdownMenuItem(
+                                    text = { Text(type, fontWeight = FontWeight.Black) },
+                                    onClick = {
+                                        exportReportType = type
+                                        reportTypeDropdownExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    // 2. Driver Selection (if Driver-wise)
+                    if (exportReportType == "Driver-wise Report") {
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            val currentDriver = drivers.find { it.id == selectedExportDriverId }
+                            val driverLabel = currentDriver?.let { "${it.name} (${it.id})" } ?: "Select Driver"
+                            OutlinedTextField(
+                                value = driverLabel,
+                                onValueChange = {},
+                                readOnly = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                label = { Text("Select Driver", fontWeight = FontWeight.Bold, color = TextHint) },
+                                trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, tint = BrandYellow) },
+                                shape = RoundedCornerShape(16.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = BrandYellow,
+                                    unfocusedBorderColor = Color.Black.copy(alpha = 0.1f)
+                                )
+                            )
+                            Box(modifier = Modifier.matchParentSize().clickable { driverDropdownExpanded = true })
+                            DropdownMenu(
+                                expanded = driverDropdownExpanded,
+                                onDismissRequest = { driverDropdownExpanded = false }
+                            ) {
+                                drivers.forEach { driver ->
+                                    DropdownMenuItem(
+                                        text = { Text("${driver.name} (${driver.id})", fontWeight = FontWeight.Black) },
+                                        onClick = {
+                                            selectedExportDriverId = driver.id
+                                            driverDropdownExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // 3. Vehicle Selection (if Car-wise)
+                    if (exportReportType == "Car-wise Report") {
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            val currentVehicle = vehicles.find { it.id == selectedExportVehicleId }
+                            val vehicleLabel = currentVehicle?.let { "${it.number} (${it.model})" } ?: "Select Car"
+                            OutlinedTextField(
+                                value = vehicleLabel,
+                                onValueChange = {},
+                                readOnly = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                label = { Text("Select Car / Vehicle", fontWeight = FontWeight.Bold, color = TextHint) },
+                                trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, tint = BrandYellow) },
+                                shape = RoundedCornerShape(16.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = BrandYellow,
+                                    unfocusedBorderColor = Color.Black.copy(alpha = 0.1f)
+                                )
+                            )
+                            Box(modifier = Modifier.matchParentSize().clickable { vehicleDropdownExpanded = true })
+                            DropdownMenu(
+                                expanded = vehicleDropdownExpanded,
+                                onDismissRequest = { vehicleDropdownExpanded = false }
+                            ) {
+                                vehicles.forEach { vehicle ->
+                                    DropdownMenuItem(
+                                        text = { Text("${vehicle.number} - ${vehicle.model}", fontWeight = FontWeight.Black) },
+                                        onClick = {
+                                            selectedExportVehicleId = vehicle.id
+                                            vehicleDropdownExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // 4. Reading Type (HMR / Odometer) for Driver-wise and Car-wise
+                    if (exportReportType != "Master Report") {
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            val label = if (exportReadingType == "HMR") "HMR (Hours Worked)" else "Odometer (KM Traveled)"
+                            OutlinedTextField(
+                                value = label,
+                                onValueChange = {},
+                                readOnly = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                label = { Text("Reading Type", fontWeight = FontWeight.Bold, color = TextHint) },
+                                trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, tint = BrandYellow) },
+                                shape = RoundedCornerShape(16.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = BrandYellow,
+                                    unfocusedBorderColor = Color.Black.copy(alpha = 0.1f)
+                                )
+                            )
+                            Box(modifier = Modifier.matchParentSize().clickable { readingTypeDropdownExpanded = true })
+                            DropdownMenu(
+                                expanded = readingTypeDropdownExpanded,
+                                onDismissRequest = { readingTypeDropdownExpanded = false }
+                            ) {
+                                listOf("HMR", "Odometer").forEach { rType ->
+                                    val rLabel = if (rType == "HMR") "HMR (Hours Worked)" else "Odometer (KM Traveled)"
+                                    DropdownMenuItem(
+                                        text = { Text(rLabel, fontWeight = FontWeight.Black) },
+                                        onClick = {
+                                            exportReadingType = rType
+                                            readingTypeDropdownExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // 5. Time Period Selection
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        OutlinedTextField(
+                            value = exportPeriod,
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text("Time Period / Month", fontWeight = FontWeight.Bold, color = TextHint) },
+                            trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, tint = BrandYellow) },
+                            shape = RoundedCornerShape(16.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = BrandYellow,
+                                unfocusedBorderColor = Color.Black.copy(alpha = 0.1f)
+                            )
+                        )
+                        Box(modifier = Modifier.matchParentSize().clickable { periodDropdownExpanded = true })
+                        DropdownMenu(
+                            expanded = periodDropdownExpanded,
+                            onDismissRequest = { periodDropdownExpanded = false }
+                        ) {
+                            availableMonths.forEach { period ->
+                                DropdownMenuItem(
+                                    text = { Text(period, fontWeight = FontWeight.Black) },
+                                    onClick = {
+                                        exportPeriod = period
+                                        periodDropdownExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            },
             confirmButton = {
                 TextButton(onClick = {
-                    val fileUri = ExportUtils.exportTripsToExcel(context, filteredTrips, submittedMaintenance, drivers, vehicles, summary)
-                    hasDownloadedOnce = true
                     showDownloadDialog = false
+                    val fileUri = if (exportReportType == "Master Report") {
+                        ExportUtils.exportTripsToExcel(
+                            context,
+                            filteredTrips,
+                            submittedMaintenance,
+                            drivers,
+                            vehicles,
+                            summary
+                        )
+                    } else {
+                        ExportUtils.exportCustomReport(
+                            context = context,
+                            trips = submittedTrips,
+                            drivers = drivers,
+                            vehicles = vehicles,
+                            selectedDriverId = if (exportReportType == "Driver-wise Report") selectedExportDriverId else null,
+                            selectedVehicleId = if (exportReportType == "Car-wise Report") selectedExportVehicleId else null,
+                            readingType = exportReadingType,
+                            monthFilter = exportPeriod
+                        )
+                    }
                     fileUri?.let { ExportUtils.openInSpreadsheetApp(context, it) }
                 }) {
-                    Text("YES", fontWeight = FontWeight.Black, color = BrandYellow)
+                    Text("EXPORT", fontWeight = FontWeight.Black, color = BrandYellow)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDownloadDialog = false }) {
-                    Text("NO", fontWeight = FontWeight.Bold, color = BrandGrey)
+                    Text("CANCEL", fontWeight = FontWeight.Bold, color = BrandGrey)
                 }
             },
             containerColor = Color.White,

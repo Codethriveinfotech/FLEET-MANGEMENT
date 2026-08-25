@@ -17,7 +17,24 @@ object DatabaseConfig {
         val dotenv = dotenv {
             ignoreIfMissing = true
         }
-        val url = dotenv["DATABASE_URL"] ?: System.getenv("DATABASE_URL") ?: config.property("database.url").getString()
+        val rawUrl = dotenv["DATABASE_URL"] ?: System.getenv("DATABASE_URL") ?: config.property("database.url").getString()
+        var url = if (rawUrl.startsWith("jdbc:")) {
+            rawUrl
+        } else {
+            rawUrl.replace("postgresql://", "jdbc:postgresql://")
+                  .replace("postgres://", "jdbc:postgresql://")
+        }
+        if (url.contains("@")) {
+            val parts = url.split("://")
+            if (parts.size == 2) {
+                val protocol = parts[0]
+                val remainder = parts[1]
+                val atIndex = remainder.indexOf("@")
+                if (atIndex != -1) {
+                    url = "$protocol://${remainder.substring(atIndex + 1)}"
+                }
+            }
+        }
         val user = dotenv["DATABASE_USER"] ?: System.getenv("DATABASE_USER") ?: config.propertyOrNull("database.user")?.getString() ?: ""
         val password = dotenv["DATABASE_PASSWORD"] ?: System.getenv("DATABASE_PASSWORD") ?: config.propertyOrNull("database.password")?.getString() ?: ""
 
