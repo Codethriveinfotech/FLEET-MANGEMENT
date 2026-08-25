@@ -33,7 +33,7 @@ import coil.compose.AsyncImage
 import com.vehicletrackingapp.R
 import android.net.Uri
 import kotlinx.coroutines.launch
-import com.vehicletrackingapp.data.model.TripEntry
+import com.vehicletrackingapp.data.model.*
 import com.vehicletrackingapp.data.repo.AppRepository
 import com.vehicletrackingapp.ui.screens.common.*
 import com.vehicletrackingapp.ui.theme.*
@@ -60,16 +60,14 @@ fun ReportsTab() {
     var showDownloadDialog by remember { mutableStateOf(false) }
     var showSpreadsheetViewer by remember { mutableStateOf(false) }
 
-    var exportReportType by remember { mutableStateOf("Master Report") }
+    var exportReportType by remember { mutableStateOf("Total Report") }
     var selectedExportDriverId by remember { mutableStateOf<String?>(null) }
     var selectedExportVehicleId by remember { mutableStateOf<String?>(null) }
-    var exportReadingType by remember { mutableStateOf("HMR") }
     var exportPeriod by remember { mutableStateOf("All Time") }
 
     var reportTypeDropdownExpanded by remember { mutableStateOf(false) }
     var driverDropdownExpanded by remember { mutableStateOf(false) }
     var vehicleDropdownExpanded by remember { mutableStateOf(false) }
-    var readingTypeDropdownExpanded by remember { mutableStateOf(false) }
     var periodDropdownExpanded by remember { mutableStateOf(false) }
 
     val filteredTrips = submittedTrips.filter { trip ->
@@ -197,8 +195,8 @@ fun ReportsTab() {
         filteredTrips.groupBy { it.vehicleId }
     }
 
-    var selectedReportType by remember { mutableStateOf("ALL LOGS") }
-    val reportTypes = listOf("ALL LOGS", "MONTHLY-WISE", "DRIVER-WISE", "CAR-WISE")
+    var selectedReportType by remember { mutableStateOf("TOTAL") }
+    val reportTypes = listOf("TOTAL", "DRIVER-WISE", "CAR-WISE")
     var expandedMonth by remember { mutableStateOf<String?>(null) }
     var expandedDriver by remember { mutableStateOf<String?>(null) }
     var expandedVehicle by remember { mutableStateOf<String?>(null) }
@@ -271,7 +269,7 @@ fun ReportsTab() {
             }
 
             when (selectedReportType) {
-                "ALL LOGS" -> {
+                "TOTAL" -> {
                     item {
                         Text("EXCEL REPORT OF TRAVELS", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = TextHint, letterSpacing = 2.sp)
                     }
@@ -300,6 +298,14 @@ fun ReportsTab() {
                             val vehicle = vehicles.find { it.id == trip.vehicleId }
                             val maintenanceCount = submittedMaintenance.count { it.tripId == trip.id }
                             
+                            val sHmr = trip.getHmrStart()
+                            val eHmr = trip.getHmrEnd()
+                            val hmrWorked = trip.getHmrWorked()
+
+                            val sOdo = trip.startOdometer.toDoubleOrNull() ?: 0.0
+                            val eOdo = trip.endOdometer.toDoubleOrNull() ?: sOdo
+                            val kmDiff = if (eOdo >= sOdo) eOdo - sOdo else 0.0
+
                             StaggeredItem(visible, 2) {
                                 Card(
                                     modifier = Modifier.fillMaxWidth().clickable { selectedTrip = trip },
@@ -307,31 +313,32 @@ fun ReportsTab() {
                                     colors = CardDefaults.cardColors(containerColor = Color.White),
                                     border = androidx.compose.foundation.BorderStroke(1.5.dp, BrandLightGrey)
                                 ) {
-                                    Row(modifier = Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                                         Column(modifier = Modifier.weight(1.2f)) {
                                             Text(trip.startDate, fontWeight = FontWeight.Black, color = BrandDark, fontSize = 13.sp)
                                             Text("#${trip.id.uppercase()}", color = TextHint, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                         }
                                         Column(modifier = Modifier.weight(2f)) {
                                             Text(driver?.name ?: "Unknown", fontWeight = FontWeight.Black, color = BrandDark, fontSize = 14.sp)
-                                            Text(trip.startDate, color = TextHint, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                            Text("${trip.day} • ${trip.shift}", color = TextHint, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
                                                 Icon(Icons.Default.DirectionsCar, null, tint = BrandYellow, modifier = Modifier.size(10.dp))
                                                 Spacer(modifier = Modifier.width(6.dp))
                                                 Text(vehicle?.number ?: "NO ASSET", color = BrandGrey, fontWeight = FontWeight.Bold, fontSize = 10.sp)
                                             }
                                         }
-                                        Column(modifier = Modifier.weight(2f)) {
-                                            Text("${trip.day} • ${trip.shift}", fontWeight = FontWeight.SemiBold, color = BrandGrey, fontSize = 13.sp)
+                                        Column(modifier = Modifier.weight(2.2f)) {
+                                            Text("KM: ${trip.startOdometer} ➔ ${trip.endOdometer} (${String.format(Locale.US, "%.0f", kmDiff)} KM)", fontWeight = FontWeight.SemiBold, color = BrandGrey, fontSize = 11.sp)
+                                            Text("HMR: ${String.format(Locale.US, "%.1f", sHmr)} ➔ ${String.format(Locale.US, "%.1f", eHmr)} (${String.format(Locale.US, "%.1f", hmrWorked)} H)", fontWeight = FontWeight.Black, color = BrandBlue, fontSize = 11.sp)
                                             if (maintenanceCount > 0) {
-                                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
+                                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
                                                     Box(modifier = Modifier.size(6.dp).background(WarningSunset, CircleShape))
                                                     Spacer(modifier = Modifier.width(6.dp))
                                                     Text("$maintenanceCount MAINT LOGS", color = WarningSunset, fontSize = 10.sp, fontWeight = FontWeight.Black)
                                                 }
                                             }
                                         }
-                                        Box(modifier = Modifier.weight(0.6f), contentAlignment = Alignment.Center) {
+                                        Box(modifier = Modifier.weight(0.5f), contentAlignment = Alignment.Center) {
                                             Icon(Icons.AutoMirrored.Filled.OpenInNew, null, tint = BrandYellow, modifier = Modifier.size(18.dp))
                                         }
                                     }
@@ -347,8 +354,15 @@ fun ReportsTab() {
                                 showSpreadsheetViewer = true
                             }
                             Spacer(modifier = Modifier.width(12.dp))
-                            GradientButton(text = "EXPORT FILE", modifier = Modifier.weight(1f)) {
-                                showDownloadDialog = true
+                            GradientButton(text = "EXPORT EXCEL", modifier = Modifier.weight(1f)) {
+                                val uri = ExportUtils.exportAllInOne(
+                                    context,
+                                    submittedTrips,
+                                    submittedMaintenance,
+                                    drivers,
+                                    vehicles
+                                )
+                                uri?.let { ExportUtils.openInSpreadsheetApp(context, it) }
                             }
                         }
                     }
@@ -419,7 +433,7 @@ fun ReportsTab() {
                         }
                     }
                 }
-                "MONTHLY-WISE" -> {
+                "__REMOVED__" -> {
                     item {
                         Text("MONTHLY SUMMARY BREAKDOWN", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = TextHint, letterSpacing = 2.sp)
                     }
@@ -462,11 +476,7 @@ fun ReportsTab() {
                                         val breakdowns = tripsInMonth.count { it.isBreakdown }
                                         val workingDays = tripsInMonth.map { it.startDate }.distinct().size
                                         val billingDays = workingDays - tripsInMonth.filter { it.isBreakdown }.map { it.startDate }.distinct().size
-                                        val totalHmr = tripsInMonth.sumOf {
-                                            val s = it.startHmr.toDoubleOrNull() ?: 0.0
-                                            val e = it.endHmr.toDoubleOrNull() ?: 0.0
-                                            if (e >= s) e - s else 0.0
-                                        }
+                                        val totalHmr = tripsInMonth.sumOf { it.getHmrWorked() }
                                         
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
@@ -559,11 +569,7 @@ fun ReportsTab() {
                                         val breakdowns = tripsForDriver.count { it.isBreakdown }
                                         val workingDays = tripsForDriver.map { it.startDate }.distinct().size
                                         val billingDays = workingDays - tripsForDriver.filter { it.isBreakdown }.map { it.startDate }.distinct().size
-                                        val totalHmr = tripsForDriver.sumOf {
-                                            val s = it.startHmr.toDoubleOrNull() ?: 0.0
-                                            val e = it.endHmr.toDoubleOrNull() ?: 0.0
-                                            if (e >= s) e - s else 0.0
-                                        }
+                                        val totalHmr = tripsForDriver.sumOf { it.getHmrWorked() }
                                         
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
@@ -581,6 +587,14 @@ fun ReportsTab() {
                                             
                                             tripsForDriver.forEach { trip ->
                                                 val vehicle = vehicles.find { it.id == trip.vehicleId }?.number ?: "NO ASSET"
+                                                val sHmr = trip.getHmrStart()
+                                                val eHmr = trip.getHmrEnd()
+                                                val hmrWorked = trip.getHmrWorked()
+
+                                                val sOdo = trip.startOdometer.toDoubleOrNull() ?: 0.0
+                                                val eOdo = trip.endOdometer.toDoubleOrNull() ?: sOdo
+                                                val kmDiff = if (eOdo >= sOdo) eOdo - sOdo else 0.0
+
                                                 Row(
                                                     modifier = Modifier
                                                         .fillMaxWidth()
@@ -591,8 +605,12 @@ fun ReportsTab() {
                                                     Column(modifier = Modifier.weight(1f)) {
                                                         Text(trip.startDate, fontWeight = FontWeight.Bold, color = BrandDark, fontSize = 12.sp)
                                                         Text("#${trip.id.uppercase()} • ${trip.day} • ${trip.shift}", color = TextHint, fontSize = 10.sp)
+                                                        Text("HMR: ${String.format(Locale.US, "%.1f", sHmr)} ➔ ${String.format(Locale.US, "%.1f", eHmr)} (${String.format(Locale.US, "%.1f", hmrWorked)} H)", color = BrandBlue, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                                     }
-                                                    Text(vehicle, fontWeight = FontWeight.Black, color = BrandBlue, fontSize = 12.sp)
+                                                    Column(horizontalAlignment = Alignment.End) {
+                                                        Text(vehicle, fontWeight = FontWeight.Black, color = BrandDark, fontSize = 12.sp)
+                                                        Text("${String.format(Locale.US, "%.0f", kmDiff)} KM", fontWeight = FontWeight.Bold, color = BrandGrey, fontSize = 11.sp)
+                                                    }
                                                     Spacer(modifier = Modifier.width(12.dp))
                                                     Icon(Icons.AutoMirrored.Filled.OpenInNew, null, tint = BrandYellow, modifier = Modifier.size(14.dp))
                                                 }
@@ -657,14 +675,10 @@ fun ReportsTab() {
                                         val breakdowns = tripsForVehicle.count { it.isBreakdown }
                                         val workingDays = tripsForVehicle.map { it.startDate }.distinct().size
                                         val billingDays = workingDays - tripsForVehicle.filter { it.isBreakdown }.map { it.startDate }.distinct().size
-                                        val totalHmr = tripsForVehicle.sumOf {
-                                            val s = it.startHmr.toDoubleOrNull() ?: 0.0
-                                            val e = it.endHmr.toDoubleOrNull() ?: 0.0
-                                            if (e >= s) e - s else 0.0
-                                        }
+                                        val totalHmr = tripsForVehicle.sumOf { it.getHmrWorked() }
                                         val totalDistance = tripsForVehicle.sumOf {
                                             val s = it.startOdometer.toDoubleOrNull() ?: 0.0
-                                            val e = it.endOdometer.toDoubleOrNull() ?: 0.0
+                                            val e = it.endOdometer.toDoubleOrNull() ?: s
                                             if (e >= s) e - s else 0.0
                                         }
                                         
@@ -684,6 +698,14 @@ fun ReportsTab() {
                                             
                                             tripsForVehicle.forEach { trip ->
                                                 val driver = drivers.firstOrNull { it.id == trip.driverId }?.name ?: "Unknown Operator"
+                                                val sHmr = trip.getHmrStart()
+                                                val eHmr = trip.getHmrEnd()
+                                                val hmrWorked = trip.getHmrWorked()
+
+                                                val sOdo = trip.startOdometer.toDoubleOrNull() ?: 0.0
+                                                val eOdo = trip.endOdometer.toDoubleOrNull() ?: sOdo
+                                                val diff = if (eOdo >= sOdo) eOdo - sOdo else 0.0
+
                                                 Row(
                                                     modifier = Modifier
                                                         .fillMaxWidth()
@@ -694,11 +716,9 @@ fun ReportsTab() {
                                                     Column(modifier = Modifier.weight(1f)) {
                                                         Text(trip.startDate, fontWeight = FontWeight.Bold, color = BrandDark, fontSize = 12.sp)
                                                         Text("#${trip.id.uppercase()} • $driver • ${trip.day} • ${trip.shift}", color = TextHint, fontSize = 10.sp)
+                                                        Text("HMR: ${String.format(Locale.US, "%.1f", sHmr)} ➔ ${String.format(Locale.US, "%.1f", eHmr)} (${String.format(Locale.US, "%.1f", hmrWorked)} H)", color = BrandBlue, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                                     }
-                                                    val sOdo = trip.startOdometer.toDoubleOrNull() ?: 0.0
-                                                    val eOdo = trip.endOdometer.toDoubleOrNull() ?: 0.0
-                                                    val diff = if (eOdo >= sOdo) eOdo - sOdo else 0.0
-                                                    Text("${String.format(Locale.US, "%.0f", diff)} KM", fontWeight = FontWeight.Black, color = BrandBlue, fontSize = 12.sp)
+                                                    Text("${String.format(Locale.US, "%.0f", diff)} KM", fontWeight = FontWeight.Black, color = BrandDark, fontSize = 12.sp)
                                                     Spacer(modifier = Modifier.width(12.dp))
                                                     Icon(Icons.AutoMirrored.Filled.OpenInNew, null, tint = BrandYellow, modifier = Modifier.size(14.dp))
                                                 }
@@ -789,7 +809,7 @@ fun ReportsTab() {
                             expanded = reportTypeDropdownExpanded,
                             onDismissRequest = { reportTypeDropdownExpanded = false }
                         ) {
-                            listOf("Master Report", "Driver-wise Report", "Car-wise Report").forEach { type ->
+                            listOf("Total Report", "Driver-wise Report", "Car-wise Report").forEach { type ->
                                 DropdownMenuItem(
                                     text = { Text(type, fontWeight = FontWeight.Black) },
                                     onClick = {
@@ -873,42 +893,6 @@ fun ReportsTab() {
                         }
                     }
 
-                    // 4. Reading Type (HMR / Odometer) for Driver-wise and Car-wise
-                    if (exportReportType != "Master Report") {
-                        Box(modifier = Modifier.fillMaxWidth()) {
-                            val label = if (exportReadingType == "HMR") "HMR (Hours Worked)" else "Odometer (KM Traveled)"
-                            OutlinedTextField(
-                                value = label,
-                                onValueChange = {},
-                                readOnly = true,
-                                modifier = Modifier.fillMaxWidth(),
-                                label = { Text("Reading Type", fontWeight = FontWeight.Bold, color = TextHint) },
-                                trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, tint = BrandYellow) },
-                                shape = RoundedCornerShape(16.dp),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = BrandYellow,
-                                    unfocusedBorderColor = Color.Black.copy(alpha = 0.1f)
-                                )
-                            )
-                            Box(modifier = Modifier.matchParentSize().clickable { readingTypeDropdownExpanded = true })
-                            DropdownMenu(
-                                expanded = readingTypeDropdownExpanded,
-                                onDismissRequest = { readingTypeDropdownExpanded = false }
-                            ) {
-                                listOf("HMR", "Odometer").forEach { rType ->
-                                    val rLabel = if (rType == "HMR") "HMR (Hours Worked)" else "Odometer (KM Traveled)"
-                                    DropdownMenuItem(
-                                        text = { Text(rLabel, fontWeight = FontWeight.Black) },
-                                        onClick = {
-                                            exportReadingType = rType
-                                            readingTypeDropdownExpanded = false
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    }
-
                     // 5. Time Period Selection
                     Box(modifier = Modifier.fillMaxWidth()) {
                         OutlinedTextField(
@@ -945,24 +929,32 @@ fun ReportsTab() {
             confirmButton = {
                 TextButton(onClick = {
                     showDownloadDialog = false
-                    val fileUri = if (exportReportType == "Master Report") {
-                        ExportUtils.exportTripsToExcel(
-                            context,
-                            filteredTrips,
-                            submittedMaintenance,
-                            drivers,
-                            vehicles,
-                            summary
-                        )
-                    } else {
-                        ExportUtils.exportCustomReport(
+                    val fileUri = when (exportReportType) {
+                        "Total Report" -> ExportUtils.exportCustomReport(
                             context = context,
                             trips = submittedTrips,
                             drivers = drivers,
                             vehicles = vehicles,
-                            selectedDriverId = if (exportReportType == "Driver-wise Report") selectedExportDriverId else null,
-                            selectedVehicleId = if (exportReportType == "Car-wise Report") selectedExportVehicleId else null,
-                            readingType = exportReadingType,
+                            selectedDriverId = null,
+                            selectedVehicleId = null,
+                            monthFilter = exportPeriod
+                        )
+                        "Driver-wise Report" -> ExportUtils.exportCustomReport(
+                            context = context,
+                            trips = submittedTrips,
+                            drivers = drivers,
+                            vehicles = vehicles,
+                            selectedDriverId = selectedExportDriverId,
+                            selectedVehicleId = null,
+                            monthFilter = exportPeriod
+                        )
+                        else -> ExportUtils.exportCustomReport(
+                            context = context,
+                            trips = submittedTrips,
+                            drivers = drivers,
+                            vehicles = vehicles,
+                            selectedDriverId = null,
+                            selectedVehicleId = selectedExportVehicleId,
                             monthFilter = exportPeriod
                         )
                     }
@@ -1077,9 +1069,9 @@ fun SpreadsheetViewerDialog(
                                 val vehicle = vehicles.find { it.id == trip.vehicleId }?.number ?: "Unknown"
                                 val workingStatus = if (trip.isBreakdown) "BREAKDOWN" else "YES"
 
-                                val sHmr = trip.startHmr.toDoubleOrNull() ?: 0.0
-                                val eHmr = trip.endHmr.toDoubleOrNull() ?: 0.0
-                                val hmrWorked = String.format(Locale.US, "%.1f", if (eHmr >= sHmr) eHmr - sHmr else 0.0)
+                                val sHmr = trip.getHmrStart()
+                                val eHmr = trip.getHmrEnd()
+                                val hmrWorked = String.format(Locale.US, "%.1f", trip.getHmrWorked())
 
                                 val relatedMaint = maintenance.filter { it.tripId == trip.id }
                                 val maintDetails = if (relatedMaint.isEmpty()) "None" else {
@@ -1103,8 +1095,8 @@ fun SpreadsheetViewerDialog(
                                     SheetDataCell(vehicle, 120.dp)
                                     SheetDataCell(trip.startOdometer, 100.dp)
                                     SheetDataCell(trip.endOdometer, 100.dp)
-                                    SheetDataCell(trip.startHmr, 100.dp)
-                                    SheetDataCell(trip.endHmr, 100.dp)
+                                    SheetDataCell(String.format(Locale.US, "%.1f", sHmr), 100.dp)
+                                    SheetDataCell(String.format(Locale.US, "%.1f", eHmr), 100.dp)
                                     SheetDataCell(hmrWorked, 110.dp)
                                     SheetDataCell(
                                         workingStatus, 
@@ -1328,7 +1320,7 @@ fun ReportDetailDialog(
                                     Text("Date: ${trip.startDate.ifBlank { "N/A" }}", fontWeight = FontWeight.Bold, color = BrandDark, fontSize = 12.sp)
                                     Text("Time: ${trip.startTime.ifBlank { "N/A" }}", fontWeight = FontWeight.Bold, color = BrandDark, fontSize = 12.sp)
                                     Text("Odometer: ${trip.startOdometer.ifBlank { "0" }} KM", fontWeight = FontWeight.Bold, color = BrandDark, fontSize = 12.sp)
-                                    Text("HMR: ${trip.startHmr.ifBlank { "0" }}", fontWeight = FontWeight.Bold, color = BrandDark, fontSize = 12.sp)
+                                    Text("HMR: ${String.format(Locale.US, "%.1f", trip.getHmrStart())}", fontWeight = FontWeight.Bold, color = BrandDark, fontSize = 12.sp)
                                 }
                                 Box(modifier = Modifier.width(1.dp).height(90.dp).background(Color.Black.copy(alpha = 0.05f)))
                                 Spacer(modifier = Modifier.width(16.dp))
@@ -1338,7 +1330,7 @@ fun ReportDetailDialog(
                                     Text("Date: ${trip.endDate.ifBlank { "N/A" }}", fontWeight = FontWeight.Bold, color = BrandDark, fontSize = 12.sp)
                                     Text("Time: ${trip.endTime.ifBlank { "N/A" }}", fontWeight = FontWeight.Bold, color = BrandDark, fontSize = 12.sp)
                                     Text("Odometer: ${trip.endOdometer.ifBlank { "0" }} KM", fontWeight = FontWeight.Bold, color = BrandDark, fontSize = 12.sp)
-                                    Text("HMR: ${trip.endHmr.ifBlank { "0" }}", fontWeight = FontWeight.Bold, color = BrandDark, fontSize = 12.sp)
+                                    Text("HMR: ${String.format(Locale.US, "%.1f", trip.getHmrEnd())}", fontWeight = FontWeight.Bold, color = BrandDark, fontSize = 12.sp)
                                 }
                             }
                             Spacer(modifier = Modifier.height(12.dp))

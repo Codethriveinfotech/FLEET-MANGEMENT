@@ -20,6 +20,9 @@ interface AppDao {
     @Query("SELECT * FROM trips WHERE status = 'submitted' ORDER BY startDate DESC, startTime DESC")
     fun getSubmittedTrips(): Flow<List<TripEntry>>
 
+    @Query("SELECT * FROM trips")
+    suspend fun getAllTripsOnce(): List<TripEntry>
+
     @Query("DELETE FROM trips WHERE status = 'submitted'")
     suspend fun deleteSubmittedTrips()
 

@@ -11,6 +11,228 @@ import com.vehicletrackingapp.data.model.Vehicle
 object DemoSeeder {
 
     private const val PREF_KEY = "demo_seeded_v1"
+    private const val CLEAN_PREF_KEY = "clean_dirty_data_v5"
+
+    suspend fun cleanDirtyDataIfNeeded(context: Context) {
+        val prefs = context.getSharedPreferences("fleet_prefs", Context.MODE_PRIVATE)
+        if (prefs.getBoolean(CLEAN_PREF_KEY, false)) return
+
+        val dao = AppDatabase.getDatabase(context).dao()
+
+        try {
+            val updates = mapOf(
+                "4B3DABD5" to mapOf(
+                    "vehicleId" to "3990999b",
+                    "sourceLocation" to "Chennai",
+                    "destinationLocation" to "Bangalore",
+                    "fuelLevel" to "20",
+                    "notes" to "Normal trip"
+                ),
+                "9C9ADD31" to mapOf(
+                    "vehicleId" to "3990999b",
+                    "sourceLocation" to "Bangalore",
+                    "destinationLocation" to "Mysore",
+                    "fuelLevel" to "40",
+                    "notes" to "Trip auto-closed [AUTO_CLOSED_SYNCED]"
+                ),
+                "D92493C1" to mapOf(
+                    "vehicleId" to "3990999b",
+                    "sourceLocation" to "Mysore",
+                    "destinationLocation" to "Chennai",
+                    "fuelLevel" to "21",
+                    "notes" to "Cargo delivery"
+                ),
+                "A95063C1" to mapOf(
+                    "vehicleId" to "3990999b",
+                    "startOdometer" to "2600",
+                    "endOdometer" to "6920",
+                    "sourceLocation" to "Chennai",
+                    "destinationLocation" to "Madurai",
+                    "fuelLevel" to "58",
+                    "notes" to "Fleet transport"
+                ),
+                "0A49CEA3" to mapOf(
+                    "vehicleId" to "3990999b",
+                    "startOdometer" to "6920",
+                    "endOdometer" to "7264",
+                    "sourceLocation" to "Madurai",
+                    "destinationLocation" to "Trichy",
+                    "fuelLevel" to "12",
+                    "notes" to "Delivery finished"
+                ),
+                "D2B33CB3" to mapOf(
+                    "vehicleId" to "bc71b0e1",
+                    "startOdometer" to "5000",
+                    "endOdometer" to "5100",
+                    "sourceLocation" to "Salem",
+                    "destinationLocation" to "Erode",
+                    "fuelLevel" to "10",
+                    "notes" to "Completed route"
+                ),
+                "978ADB92" to mapOf(
+                    "vehicleId" to "d38af549",
+                    "startOdometer" to "1000",
+                    "endOdometer" to "1015",
+                    "sourceLocation" to "Coimbatore",
+                    "destinationLocation" to "Palakkad",
+                    "fuelLevel" to "50",
+                    "notes" to "Active delivery"
+                ),
+                "4D96D941" to mapOf(
+                    "vehicleId" to "d38af549",
+                    "startOdometer" to "1015",
+                    "endOdometer" to "1030",
+                    "sourceLocation" to "Palakkad",
+                    "destinationLocation" to "Thrissur",
+                    "fuelLevel" to "45",
+                    "notes" to "Regular route"
+                ),
+                "B89915B4" to mapOf(
+                    "vehicleId" to "d38af549",
+                    "startOdometer" to "1030",
+                    "endOdometer" to "1045",
+                    "sourceLocation" to "Thrissur",
+                    "destinationLocation" to "Kochi",
+                    "fuelLevel" to "40",
+                    "notes" to "Logistics transport"
+                ),
+                "9F3C809C" to mapOf(
+                    "vehicleId" to "d38af549",
+                    "startOdometer" to "1045",
+                    "endOdometer" to "1060",
+                    "sourceLocation" to "Kochi",
+                    "destinationLocation" to "Alappuzha",
+                    "fuelLevel" to "35",
+                    "notes" to "Day supply run"
+                ),
+                "5F9F0A72" to mapOf(
+                    "vehicleId" to "d38af549",
+                    "startOdometer" to "1060",
+                    "endOdometer" to "1120",
+                    "sourceLocation" to "Alappuzha",
+                    "destinationLocation" to "Kollam",
+                    "fuelLevel" to "30",
+                    "notes" to "Trip auto-closed [AUTO_CLOSED]"
+                ),
+                "AB3BBB1E" to mapOf(
+                    "vehicleId" to "56f12147",
+                    "startOdometer" to "500",
+                    "endOdometer" to "1000",
+                    "sourceLocation" to "Kollam",
+                    "destinationLocation" to "Trivandrum",
+                    "fuelLevel" to "20",
+                    "notes" to "Standard delivery"
+                ),
+                "4ABD9DB6" to mapOf(
+                    "vehicleId" to "033f82c9",
+                    "startOdometer" to "100",
+                    "endOdometer" to "200",
+                    "sourceLocation" to "Trivandrum",
+                    "destinationLocation" to "Nagercoil",
+                    "fuelLevel" to "55",
+                    "notes" to "Cargo hauling"
+                ),
+                "F74ADFEF" to mapOf(
+                    "vehicleId" to "033f82c9",
+                    "startOdometer" to "200",
+                    "endOdometer" to "300",
+                    "sourceLocation" to "Nagercoil",
+                    "destinationLocation" to "Kanyakumari",
+                    "fuelLevel" to "50",
+                    "notes" to "Supply delivery"
+                ),
+                "E30ACD32" to mapOf(
+                    "vehicleId" to "56f12147",
+                    "startOdometer" to "1000",
+                    "endOdometer" to "8259",
+                    "sourceLocation" to "Kanyakumari",
+                    "destinationLocation" to "Madurai",
+                    "fuelLevel" to "65",
+                    "notes" to "Highway route"
+                ),
+                "E510CAE7" to mapOf(
+                    "vehicleId" to "033f82c9",
+                    "startOdometer" to "300",
+                    "endOdometer" to "400",
+                    "sourceLocation" to "Madurai",
+                    "destinationLocation" to "Trichy",
+                    "fuelLevel" to "60",
+                    "notes" to "Trip auto-closed [AUTO_CLOSED_SYNCED_SYNCED]"
+                ),
+                "598EE82F" to mapOf(
+                    "vehicleId" to "033f82c9",
+                    "startOdometer" to "400",
+                    "endOdometer" to "500",
+                    "startHmr" to "1226",
+                    "endHmr" to "1230",
+                    "sourceLocation" to "Trichy",
+                    "destinationLocation" to "Tanjore",
+                    "fuelLevel" to "20",
+                    "notes" to "Final trip"
+                )
+            )
+
+            updates.forEach { (tripId, fields) ->
+                val trip = dao.getTripById(tripId)
+                if (trip != null) {
+                    val updatedTrip = trip.copy(
+                        vehicleId = fields["vehicleId"] ?: trip.vehicleId,
+                        startOdometer = fields["startOdometer"] ?: trip.startOdometer,
+                        endOdometer = fields["endOdometer"] ?: trip.endOdometer,
+                        sourceLocation = fields["sourceLocation"] ?: trip.sourceLocation,
+                        destinationLocation = fields["destinationLocation"] ?: trip.destinationLocation,
+                        fuelLevel = fields["fuelLevel"] ?: trip.fuelLevel,
+                        notes = fields["notes"] ?: trip.notes,
+                        startHmr = fields["startHmr"] ?: trip.startHmr,
+                        endHmr = fields["endHmr"] ?: trip.endHmr
+                    )
+                    dao.upsertTrip(updatedTrip)
+                }
+            }
+
+            // Repair missing HMR for all existing trips in Room database
+            val trips = dao.getAllTripsOnce()
+            trips.forEach { trip ->
+                val sOdo = trip.startOdometer.toDoubleOrNull() ?: 0.0
+                val eOdo = trip.endOdometer.toDoubleOrNull() ?: sOdo
+                val odoDiff = if (eOdo >= sOdo) eOdo - sOdo else 0.0
+
+                var sHmr = trip.startHmr
+                var eHmr = trip.endHmr
+
+                if (sHmr.isBlank() || sHmr == "0" || sHmr == "0.0") {
+                    sHmr = if (sOdo > 0) String.format(java.util.Locale.US, "%.0f", sOdo / 15.0) else "500"
+                }
+                if (eHmr.isBlank() || eHmr == "0" || eHmr == "0.0") {
+                    val sVal = sHmr.toDoubleOrNull() ?: 500.0
+                    val hmrWorked = (odoDiff / 15.0).coerceAtLeast(if (odoDiff > 0) 1.0 else 0.0)
+                    eHmr = String.format(java.util.Locale.US, "%.0f", sVal + hmrWorked)
+                }
+
+                if (sHmr != trip.startHmr || eHmr != trip.endHmr) {
+                    dao.upsertTrip(trip.copy(startHmr = sHmr, endHmr = eHmr))
+                }
+            }
+
+            val vehicleMileages = mapOf(
+                "bc71b0e1" to "5100",
+                "d38af549" to "1120",
+                "56f12147" to "8259",
+                "033f82c9" to "500",
+                "3990999b" to "257200"
+            )
+            vehicleMileages.forEach { (vId, mileage) ->
+                dao.getVehicleById(vId)?.let { vehicle ->
+                    dao.upsertVehicle(vehicle.copy(mileage = mileage))
+                }
+            }
+
+            prefs.edit().putBoolean(CLEAN_PREF_KEY, true).apply()
+            Log.d("DemoSeeder", "✅ Clean dirty data and HMR repair complete")
+        } catch (e: Exception) {
+            Log.e("DemoSeeder", "❌ Clean dirty data failed", e)
+        }
+    }
 
     suspend fun seedIfNeeded(context: Context) {
         val prefs = context.getSharedPreferences("fleet_prefs", Context.MODE_PRIVATE)

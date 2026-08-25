@@ -31,7 +31,6 @@ import com.vehicletrackingapp.data.repo.AppRepository
 import com.vehicletrackingapp.ui.components.SpatialBackground
 import com.vehicletrackingapp.ui.screens.common.*
 import com.vehicletrackingapp.ui.theme.*
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -117,7 +116,6 @@ fun AdminLoginScreen(onLoginSuccess: () -> Unit, onBack: () -> Unit) {
                                 if (username.isNotBlank() && password.isNotBlank()) {
                                     loading = true
                                     scope.launch {
-                                        delay(600) 
                                         val repository = AppRepository
                                         if (repository.loginAdmin(username, password)) {
                                             error = null
@@ -144,7 +142,6 @@ fun AdminLoginScreen(onLoginSuccess: () -> Unit, onBack: () -> Unit) {
                                 if (username.isNotBlank() && password.isNotBlank()) {
                                     loading = true
                                     scope.launch {
-                                        delay(600) 
                                         val repository = AppRepository
                                         if (repository.loginAdmin(username, password)) {
                                             error = null

@@ -122,7 +122,6 @@ fun DriverLoginScreen(
                                 loading = true
                                 scope.launch {
                                     val driver = AppRepository.findDriver(identity, password)
-                                    delay(600) 
                                     if (driver != null) {
                                         error = null
                                         onLoginSuccess(driver.id)
@@ -149,7 +148,6 @@ fun DriverLoginScreen(
                                 loading = true
                                 scope.launch {
                                     val driver = AppRepository.findDriver(identity, password)
-                                    delay(600) 
                                     if (driver != null) {
                                         error = null
                                         onLoginSuccess(driver.id)

@@ -68,6 +68,30 @@ data class TripEntry(
     var isBreakdown: Boolean = false
 )
 
+fun TripEntry.getHmrStart(): Double {
+    val raw = startHmr.toDoubleOrNull() ?: 0.0
+    if (raw > 0.0) return raw
+    val sOdo = startOdometer.toDoubleOrNull() ?: 0.0
+    return if (sOdo > 0.0) (sOdo / 15.0) else 500.0
+}
+
+fun TripEntry.getHmrEnd(): Double {
+    val start = getHmrStart()
+    val rawEnd = endHmr.toDoubleOrNull() ?: 0.0
+    if (rawEnd > start) return rawEnd
+    
+    val sOdo = startOdometer.toDoubleOrNull() ?: 0.0
+    val eOdo = endOdometer.toDoubleOrNull() ?: sOdo
+    val diff = if (eOdo >= sOdo) eOdo - sOdo else 0.0
+    return start + (diff / 15.0).coerceAtLeast(if (diff > 0) 1.0 else 0.5)
+}
+
+fun TripEntry.getHmrWorked(): Double {
+    val e = getHmrEnd()
+    val s = getHmrStart()
+    return (e - s).coerceAtLeast(0.0)
+}
+
 @Entity(tableName = "maintenance")
 data class MaintenanceRecord(
     @PrimaryKey var id: String = "",

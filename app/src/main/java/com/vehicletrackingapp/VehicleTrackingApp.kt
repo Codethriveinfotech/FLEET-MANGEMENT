@@ -29,6 +29,7 @@ class VehicleTrackingApp : Application() {
             // STEP 2: Background Operations (Non-blocking)
             GlobalScope.launch(Dispatchers.IO) {
                 try {
+                    DemoSeeder.cleanDirtyDataIfNeeded(this@VehicleTrackingApp)
                     DemoSeeder.seedIfNeeded(this@VehicleTrackingApp)
                     AppRepository.syncPendingData()
                     Log.d("VehicleTrackingApp", "BACKGROUND_SYNC: Triggered")
