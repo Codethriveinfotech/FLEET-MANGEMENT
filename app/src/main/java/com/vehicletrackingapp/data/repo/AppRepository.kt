@@ -327,6 +327,16 @@ object AppRepository {
     suspend fun upsertTrip(trip: TripEntry): Boolean { 
         return try { 
             dao.upsertTrip(trip)
+            val vehicleId = trip.vehicleId
+            if (trip.status == "submitted" && vehicleId != null && trip.endOdometer.isNotBlank()) {
+                try {
+                    dao.getVehicleById(vehicleId)?.let { vehicle ->
+                        dao.upsertVehicle(vehicle.copy(mileage = trip.endOdometer))
+                    }
+                } catch (e: Exception) {
+                    Log.e("AppRepository", "Failed to update local vehicle mileage", e)
+                }
+            }
             if (trip.status == "started") {
                 try {
                     api.createTrip(trip)

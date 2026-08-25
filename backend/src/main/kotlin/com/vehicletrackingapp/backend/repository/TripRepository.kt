@@ -1,6 +1,7 @@
 package com.vehicletrackingapp.backend.repository
 
 import com.vehicletrackingapp.backend.database.Trips
+import com.vehicletrackingapp.backend.database.Vehicles
 import com.vehicletrackingapp.backend.models.Trip
 import com.vehicletrackingapp.backend.utils.dbQuery
 import org.jetbrains.exposed.sql.*
@@ -77,6 +78,11 @@ class TripRepositoryImpl : TripRepository {
             it[status] = trip.status
             it[isBreakdown] = trip.isBreakdown
         }
+        if (trip.status == "submitted" && trip.vehicleId != null && trip.endOdometer.isNotBlank()) {
+            Vehicles.update({ Vehicles.id eq trip.vehicleId }) {
+                it[mileage] = trip.endOdometer
+            }
+        }
         insertStatement.resultedValues?.singleOrNull()?.let(::resultRowToTrip)
     }
 
@@ -97,7 +103,7 @@ class TripRepositoryImpl : TripRepository {
     }
 
     override suspend fun updateTrip(trip: Trip): Boolean = dbQuery {
-        Trips.update({ Trips.id eq trip.id }) {
+        val updated = Trips.update({ Trips.id eq trip.id }) {
             it[vehicleId] = trip.vehicleId
             it[startDate] = trip.startDate
             it[startTime] = trip.startTime
@@ -124,6 +130,12 @@ class TripRepositoryImpl : TripRepository {
             it[status] = trip.status
             it[isBreakdown] = trip.isBreakdown
         } > 0
+        if (updated && trip.status == "submitted" && trip.vehicleId != null && trip.endOdometer.isNotBlank()) {
+            Vehicles.update({ Vehicles.id eq trip.vehicleId }) {
+                it[mileage] = trip.endOdometer
+            }
+        }
+        updated
     }
 
     override suspend fun deleteTrip(id: String): Boolean = dbQuery {

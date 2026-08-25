@@ -55,6 +55,9 @@ interface AppDao {
     @Query("SELECT * FROM vehicles")
     fun getAllVehicles(): Flow<List<Vehicle>>
 
+    @Query("SELECT * FROM vehicles WHERE id = :id LIMIT 1")
+    suspend fun getVehicleById(id: String): Vehicle?
+
     @Query("DELETE FROM vehicles")
     suspend fun deleteAllVehicles()
 
