@@ -23,5 +23,5 @@ dist/
 dist-desktop/
 **/dist-desktop/
 .expo/
-**/ .expo/
-
+**/.expo/
+*.exe
