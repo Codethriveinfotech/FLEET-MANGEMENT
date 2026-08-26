@@ -99,7 +99,7 @@ fun DriverDashboardScreen(driverId: String, onLogout: () -> Unit) {
                                 contentAlignment = Alignment.Center
                             ) {
                                 if (driver?.photoUri != null) {
-                                    AsyncImage(model = driver.photoUri, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                                    AsyncImage(model = com.vehicletrackingapp.util.ImageWatermarkUtils.parseImageModel(driver.photoUri), contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
                                 } else {
                                     Icon(Icons.Default.Person, contentDescription = null, tint = BrandYellow, modifier = Modifier.size(36.dp))
                                 }

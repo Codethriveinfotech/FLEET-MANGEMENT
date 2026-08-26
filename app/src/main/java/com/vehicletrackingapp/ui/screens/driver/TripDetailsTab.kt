@@ -555,8 +555,22 @@ fun TripDetailsTab(driverId: String) {
             Spacer(modifier = Modifier.height(24.dp))
         }
 
-        error?.let {
-            Text(it, color = DangerCrimson, fontWeight = FontWeight.Black, modifier = Modifier.padding(horizontal = 12.dp))
+        error?.let { errText ->
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(containerColor = DangerCrimson.copy(alpha = 0.12f)),
+                border = androidx.compose.foundation.BorderStroke(1.5.dp, DangerCrimson)
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.Error, contentDescription = null, tint = DangerCrimson, modifier = Modifier.size(24.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(errText, color = DangerCrimson, fontWeight = FontWeight.Black, fontSize = 13.sp)
+                }
+            }
             Spacer(modifier = Modifier.height(20.dp))
         }
 
@@ -630,57 +644,65 @@ fun TripDetailsTab(driverId: String) {
                         GradientButton(text = stringResource(R.string.validate_submit).uppercase()) {
                             val sOdo = startOdo.toDoubleOrNull() ?: 0.0
                             val eOdo = endOdo.toDoubleOrNull() ?: 0.0
-                            
+                            val sH = startHmr.toDoubleOrNull()
+                            val eH = endHmr.toDoubleOrNull()
+
                             if ((endOdo.isBlank() && endHmr.isBlank()) || endOdoUri == null || sheetUri == null) {
                                 error = "ERROR: Complete End Mission Data Required (KM or HMR, End Odometer Photo, and Sheet Photo)."
-                            } else if (endOdo.isNotBlank() && startOdo.isNotBlank() && eOdo < sOdo) {
-                                error = "INTEGRITY ERROR: End Odometer lower than Start."
-                            } else if (endHmr.isNotBlank() && startHmr.isNotBlank()) {
-                                val sH = startHmr.toDoubleOrNull() ?: 0.0
-                                val eH = endHmr.toDoubleOrNull() ?: 0.0
+                                return@GradientButton
+                            }
+
+                            if (endOdo.isNotBlank() && startOdo.isNotBlank() && eOdo < sOdo) {
+                                error = "INTEGRITY ERROR: End Odometer ($endOdo KM) lower than Start ($startOdo KM)."
+                                return@GradientButton
+                            }
+
+                            if (sH != null && eH != null) {
                                 val hmrWorked = eH - sH
                                 if (hmrWorked < 0) {
                                     error = "HMR ERROR: End HMR ($endHmr) cannot be less than Start HMR ($startHmr)."
-                                } else {
-                                    // Validate against actual trip time duration
-                                    val dateSdf2 = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault())
-                                    val maxHmr: Double? = try {
-                                        val sdt = dateSdf2.parse("$startDate $startTime")
-                                        val edt = dateSdf2.parse("$endDate $endTime")
-                                        if (sdt != null && edt != null) {
-                                            val diffMs = edt.time - sdt.time
-                                            if (diffMs > 0) diffMs / (1000.0 * 60 * 60) else null
-                                        } else null
-                                    } catch (ex: Exception) { null }
+                                    return@GradientButton
+                                }
+                                
+                                val dateSdf2 = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault())
+                                val maxHmr: Double? = try {
+                                    val sdt = dateSdf2.parse("$startDate $startTime")
+                                    val edt = dateSdf2.parse("$endDate $endTime")
+                                    if (sdt != null && edt != null) {
+                                        val diffMs = edt.time - sdt.time
+                                        if (diffMs > 0) diffMs / (1000.0 * 60 * 60) else null
+                                    } else null
+                                } catch (ex: Exception) { null }
+
+                                if (maxHmr != null && hmrWorked > maxHmr) {
+                                    error = "HMR ERROR: HMR worked (${String.format(java.util.Locale.US, "%.2f", hmrWorked)} hrs) exceeds trip duration (${String.format(java.util.Locale.US, "%.2f", maxHmr)} hrs max)."
+                                    return@GradientButton
+                                }
+                            }
+
+                            // All validations passed - submit trip:
+                            scope.launch {
+                                val trip = TripEntry(
+                                    id = tripId, driverId = driverId, vehicleId = selectedVehicleId,
+                                    day = dayOfWeek, shift = shiftType, startHmr = startHmr, endHmr = endHmr,
+                                    startDate = startDate, startTime = startTime, startOdometer = startOdo,
+                                    startOdometerPhotoUri = startOdoUri?.toString(), startVehiclePlatePhotoUri = startPlateUri?.toString(),
+                                    endDate = endDate, endTime = endTime, endOdometer = endOdo, endOdometerPhotoUri = endOdoUri?.toString(),
+                                    sheetPhotoUri = sheetUri?.toString(), fuelLevel = fuel, tripPurpose = purpose, notes = notes, status = "submitted"
+                                )
+                                val success = AppRepository.upsertTrip(trip)
+                                if (success) {
+                                    submitted = true
+                                    error = null
+                                    tripStatus = "submitted"
                                     
-                                    if (maxHmr != null && hmrWorked > maxHmr) {
-                                        error = "HMR ERROR: HMR worked (${String.format(java.util.Locale.US, "%.2f", hmrWorked)} hrs) exceeds trip duration (${String.format(java.util.Locale.US, "%.2f", maxHmr)} hrs max)."
-                                    } else {
-                                        scope.launch {
-                                            val trip = TripEntry(
-                                                id = tripId, driverId = driverId, vehicleId = selectedVehicleId,
-                                                day = dayOfWeek, shift = shiftType, startHmr = startHmr, endHmr = endHmr,
-                                                startDate = startDate, startTime = startTime, startOdometer = startOdo,
-                                                startOdometerPhotoUri = startOdoUri?.toString(), startVehiclePlatePhotoUri = startPlateUri?.toString(),
-                                                endDate = endDate, endTime = endTime, endOdometer = endOdo, endOdometerPhotoUri = endOdoUri?.toString(),
-                                                sheetPhotoUri = sheetUri?.toString(), fuelLevel = fuel, tripPurpose = purpose, notes = notes, status = "submitted"
-                                            )
-                                            val success = AppRepository.upsertTrip(trip)
-                                            if (success) {
-                                                submitted = true
-                                                error = null
-                                                tripStatus = "submitted"
-                                                
-                                                // Auto-reset after short delay to show success state
-                                                delay(2000)
-                                                reInitializeForm()
-                                            } else {
-                                                error = "DATABASE ERROR: Failed to save trip locally."
-                                            }
-                                        }
-                                    } // end maxHmr check
-                                } // end hmrWorked >= 0
-                            } // end else if (hmr block)
+                                    // Auto-reset after short delay to show success state
+                                    delay(2000)
+                                    reInitializeForm()
+                                } else {
+                                    error = "DATABASE ERROR: Failed to save trip locally."
+                                }
+                            }
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         OutlinedButton(

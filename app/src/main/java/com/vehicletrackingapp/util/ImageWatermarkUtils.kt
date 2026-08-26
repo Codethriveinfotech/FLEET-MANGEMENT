@@ -421,4 +421,69 @@ object ImageWatermarkUtils {
         }
         return null
     }
+
+    fun uriToBase64(context: Context, imageUri: Uri): String? {
+        if (imageUri.scheme == "data" || imageUri.toString().startsWith("data:image/")) {
+            return imageUri.toString()
+        }
+        return try {
+            val inputStream = try {
+                if (imageUri.scheme == "content" && imageUri.authority == "com.vehicletrackingapp.fileprovider") {
+                    val filename = imageUri.lastPathSegment
+                    if (filename != null) {
+                        val file = File(File(context.filesDir, "images"), filename)
+                        if (file.exists()) FileInputStream(file) else context.contentResolver.openInputStream(imageUri)
+                    } else {
+                        context.contentResolver.openInputStream(imageUri)
+                    }
+                } else if (imageUri.scheme == "file") {
+                    imageUri.path?.let { FileInputStream(File(it)) } ?: context.contentResolver.openInputStream(imageUri)
+                } else {
+                    context.contentResolver.openInputStream(imageUri)
+                }
+            } catch (e: Exception) {
+                context.contentResolver.openInputStream(imageUri)
+            } ?: return null
+
+            val bytes = inputStream.use { it.readBytes() }
+            if (bytes.isEmpty()) return null
+            "data:image/jpeg;base64," + android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun watermarkAndConvertToBase64(context: Context, imageUri: Uri): String? {
+        try {
+            watermarkCapturedImage(context, imageUri)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return uriToBase64(context, imageUri)
+    }
+
+    fun parseImageModel(input: Any?): Any? {
+        if (input == null) return null
+        val str = input.toString()
+        if (str.isBlank()) return null
+        return if (str.startsWith("data:image/")) {
+            try {
+                val base64Data = str.substringAfter(",")
+                android.util.Base64.decode(base64Data, android.util.Base64.NO_WRAP)
+            } catch (e: Exception) {
+                input
+            }
+        } else if (str.length > 500 && !str.startsWith("content:") && !str.startsWith("file:") && !str.startsWith("http")) {
+            try {
+                android.util.Base64.decode(str, android.util.Base64.NO_WRAP)
+            } catch (e: Exception) {
+                input
+            }
+        } else {
+            input
+        }
+    }
 }
+
+

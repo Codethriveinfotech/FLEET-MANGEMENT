@@ -16,3 +16,12 @@ local.properties
 *.env
 .artifacts/
 **/build/
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+dist-desktop/
+**/dist-desktop/
+.expo/
+**/ .expo/
+

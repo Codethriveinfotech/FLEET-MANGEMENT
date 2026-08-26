@@ -1516,7 +1516,7 @@ fun EvidenceCard(label: String, uri: String?, modifier: Modifier = Modifier) {
             if (imageUri != null) {
                 AsyncImage(
                     model = coil.request.ImageRequest.Builder(LocalContext.current)
-                        .data(imageUri)
+                        .data(com.vehicletrackingapp.util.ImageWatermarkUtils.parseImageModel(uri))
                         .memoryCachePolicy(coil.request.CachePolicy.DISABLED)
                         .diskCachePolicy(coil.request.CachePolicy.DISABLED)
                         .build(),

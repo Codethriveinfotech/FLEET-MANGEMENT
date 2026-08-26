@@ -1,0 +1,17 @@
+{
+  "appId": "com.fleettrack.desktop",
+  "productName": "FleetTrack Central",
+  "directories": {
+    "output": "dist-desktop"
+  },
+  "files": [
+    "dist/**/*",
+    "electron-main.js"
+  ],
+  "win": {
+    "target": [
+      "portable",
+      "nsis"
+    ]
+  }
+}

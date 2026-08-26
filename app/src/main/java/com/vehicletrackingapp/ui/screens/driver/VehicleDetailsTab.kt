@@ -73,7 +73,7 @@ fun VehicleDetailsTab(driverId: String) {
                                         contentAlignment = Alignment.Center
                                     ) {
                                         if (vehicle.imageUri != null) {
-                                            AsyncImage(model = vehicle.imageUri, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                                            AsyncImage(model = com.vehicletrackingapp.util.ImageWatermarkUtils.parseImageModel(vehicle.imageUri), contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
                                         } else {
                                             Icon(Icons.Default.LocalShipping, null, tint = BrandDark, modifier = Modifier.size(40.dp))
                                         }
@@ -105,7 +105,7 @@ fun VehicleDetailsTab(driverId: String) {
                                     contentAlignment = Alignment.Center
                                 ) {
                                     if (vehicle.imageUri != null) {
-                                        AsyncImage(model = vehicle.imageUri, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                                        AsyncImage(model = com.vehicletrackingapp.util.ImageWatermarkUtils.parseImageModel(vehicle.imageUri), contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
                                     } else {
                                         Icon(Icons.Default.DirectionsCar, null, tint = BrandGrey)
                                     }

@@ -347,17 +347,28 @@ fun CameraGalleryPicker(
         if (success && pendingUri != null) {
             isProcessing = true
             coroutineScope.launch(Dispatchers.IO) {
-                ImageWatermarkUtils.watermarkCapturedImage(context, pendingUri!!)
+                val base64Str = ImageWatermarkUtils.watermarkAndConvertToBase64(context, pendingUri!!)
                 withContext(Dispatchers.Main) {
                     isProcessing = false
-                    onImageSelected(pendingUri!!)
+                    val finalUri = base64Str?.let { Uri.parse(it) } ?: pendingUri!!
+                    onImageSelected(finalUri)
                 }
             }
         }
     }
     
     val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        if (uri != null) onImageSelected(uri)
+        if (uri != null) {
+            isProcessing = true
+            coroutineScope.launch(Dispatchers.IO) {
+                val base64Str = ImageWatermarkUtils.watermarkAndConvertToBase64(context, uri)
+                withContext(Dispatchers.Main) {
+                    isProcessing = false
+                    val finalUri = base64Str?.let { Uri.parse(it) } ?: uri
+                    onImageSelected(finalUri)
+                }
+            }
+        }
     }
 
     val permissionsLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
@@ -368,6 +379,7 @@ fun CameraGalleryPicker(
             Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
         }
     }
+
 
     Column {
         Text(label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Black, color = BrandText)
@@ -384,7 +396,7 @@ fun CameraGalleryPicker(
                 if (imageUri != null) {
                     AsyncImage(
                         model = coil.request.ImageRequest.Builder(context)
-                            .data(imageUri)
+                            .data(ImageWatermarkUtils.parseImageModel(imageUri))
                             .memoryCachePolicy(coil.request.CachePolicy.DISABLED)
                             .diskCachePolicy(coil.request.CachePolicy.DISABLED)
                             .build(),
@@ -484,10 +496,11 @@ fun CameraOnlyPicker(
         if (success && pendingUri != null) {
             isProcessing = true
             coroutineScope.launch(Dispatchers.IO) {
-                ImageWatermarkUtils.watermarkCapturedImage(context, pendingUri!!)
+                val base64Str = ImageWatermarkUtils.watermarkAndConvertToBase64(context, pendingUri!!)
                 withContext(Dispatchers.Main) {
                     isProcessing = false
-                    onImageSelected(pendingUri!!)
+                    val finalUri = base64Str?.let { Uri.parse(it) } ?: pendingUri!!
+                    onImageSelected(finalUri)
                 }
             }
         }
@@ -537,7 +550,7 @@ fun CameraOnlyPicker(
                     Box(modifier = Modifier.fillMaxSize()) {
                         AsyncImage(
                             model = coil.request.ImageRequest.Builder(context)
-                                .data(imageUri)
+                                .data(ImageWatermarkUtils.parseImageModel(imageUri))
                                 .memoryCachePolicy(coil.request.CachePolicy.DISABLED)
                                 .diskCachePolicy(coil.request.CachePolicy.DISABLED)
                                 .build(),
@@ -635,7 +648,7 @@ fun FullscreenImageViewer(imageUri: Uri, onDismiss: () -> Unit) {
         ) {
             AsyncImage(
                 model = coil.request.ImageRequest.Builder(context)
-                    .data(imageUri)
+                    .data(ImageWatermarkUtils.parseImageModel(imageUri))
                     .memoryCachePolicy(coil.request.CachePolicy.DISABLED)
                     .diskCachePolicy(coil.request.CachePolicy.DISABLED)
                     .build(),
