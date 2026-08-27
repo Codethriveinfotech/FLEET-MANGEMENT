@@ -3,7 +3,9 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './store/auth';
-import { ActivityIndicator, StyleSheet, View, Text } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import AdminLogin from './screens/admin/AdminLogin';
+import AdminDashboard from './screens/admin/AdminDashboard';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,7 +26,7 @@ export default function App() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0F172A" />
+        <ActivityIndicator size="large" color="#00F0FF" />
       </View>
     );
   }
@@ -33,12 +35,11 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
         <StatusBar style="auto" />
-        <View style={styles.container}>
-          <Text style={styles.title}>FleetTrack Engine Initialized</Text>
-          <Text style={styles.status}>
-            Auth Status: {isAuthenticated ? `Signed in as ${user?.role}` : 'Signed out'}
-          </Text>
-        </View>
+        {isAuthenticated && user?.phone === 'admin' ? (
+          <AdminDashboard />
+        ) : (
+          <AdminLogin />
+        )}
       </SafeAreaProvider>
     </QueryClientProvider>
   );
@@ -49,23 +50,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    padding: 24,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#0F172A',
-    marginBottom: 8,
-  },
-  status: {
-    fontSize: 14,
-    color: '#64748B',
+    backgroundColor: '#090D1A',
   },
 });

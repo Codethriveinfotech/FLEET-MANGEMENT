@@ -2,60 +2,91 @@ export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'DRIVER';
 
 export interface User {
   id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
+  name: string;
+  phone: string;
+  email?: string;
+  licenseNumber?: string;
+  photoUri?: string;
   role: UserRole;
-  phoneNumber?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  password?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Vehicle {
   id: string;
-  plateNumber: string;
-  make: string;
+  number: string;
   model: string;
-  year: number;
-  status: 'ACTIVE' | 'MAINTENANCE' | 'INACTIVE';
-  fuelType: 'PETROL' | 'DIESEL' | 'ELECTRIC' | 'HYBRID';
-  currentMileage: number;
-  createdAt: Date;
-  updatedAt: Date;
+  imageUri?: string;
+  assignedUserId?: string; // matches Ktor database column name
+  type: string;
+  registrationNumber: string;
+  fuelType: string;
+  status: string;
+  mileage: string;
+  insuranceStatus: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export interface DriverLog {
+export interface TripEntry {
   id: string;
   driverId: string;
-  vehicleId: string;
-  startTime: Date;
-  endTime?: Date;
-  startMileage: number;
-  endMileage?: number;
-  status: 'ACTIVE' | 'COMPLETED';
-  notes?: string;
+  vehicleId?: string;
+  
+  // Start Trip
+  startDate: string;
+  startTime: string;
+  startOdometer: string;
+  startOdometerPhotoUri?: string;
+  startVehiclePhotoUri?: string;
+  startVehiclePlatePhotoUri?: string;
+  day: string;
+  shift: string;
+  startHmr: string;
+  
+  // End Trip
+  endDate: string;
+  endTime: string;
+  endOdometer: string;
+  endOdometerPhotoUri?: string;
+  endVehiclePhotoUri?: string;
+  endVehiclePlatePhotoUri?: string;
+  sheetPhotoUri?: string;
+  endHmr: string;
+  
+  // Details
+  sourceLocation: string;
+  destinationLocation: string;
+  fuelLevel: string;
+  tripPurpose: string;
+  notes: string;
+  
+  status: string; // draft | submitted | started
+  isBreakdown: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export interface FuelLog {
+export interface MaintenanceRecord {
   id: string;
   vehicleId: string;
   driverId: string;
-  date: Date;
-  gallonsOrLiters: number;
-  cost: number;
-  odometerReading: number;
-  receiptUrl?: string;
-}
-
-export interface MaintenanceLog {
-  id: string;
-  vehicleId: string;
-  reportedById: string;
+  tripId?: string;
+  maintenanceType: string;
   description: string;
-  status: 'REPORTED' | 'IN_PROGRESS' | 'RESOLVED';
-  cost?: number;
-  scheduledDate?: Date;
-  completedDate?: Date;
+  date: string;
+  time: string;
+  cost: string;
+  serviceNotes: string;
+  billImageUri?: string;
+  status: string; // draft | submitted
+  oilChangeDone: boolean;
+  tyreStatusOk: boolean;
+  batteryStatusOk: boolean;
+  isBreakdownReport: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // API Response Formats
@@ -64,7 +95,7 @@ export interface ApiResponse<T = any> {
   message: string;
   data?: T;
   errors?: string[];
-  timestamp: string;
+  timestamp?: string;
 }
 
 export interface PaginatedResponse<T> {
