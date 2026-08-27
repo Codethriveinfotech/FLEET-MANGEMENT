@@ -1,17 +1,18 @@
 {
   "appId": "com.fleettrack.desktop",
   "productName": "FleetTrack Central",
+  "compression": "store",
   "directories": {
     "output": "dist-desktop"
   },
   "files": [
     "dist/**/*",
-    "electron-main.js"
+    "electron-main.js",
+    "package.json"
   ],
   "win": {
     "target": [
-      "portable",
-      "nsis"
+      "portable"
     ]
   }
 }
