@@ -594,27 +594,37 @@ export default function AdminDashboard() {
 
       {/* Main Content Area - White background workspace */}
       <View style={styles.mainContent}>
-        {/* Header Search & Tools */}
+        {/* Header Search & Tools (Mockup matching styling) */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>
             {activeTab === 'overview' ? 'Dashboard' : activeTab.toUpperCase()}
           </Text>
           <View style={styles.headerRight}>
-            <View style={styles.searchContainer}>
-              <Text style={styles.searchIcon}>🔍</Text>
-              <TextInput
-                style={styles.headerSearchInput}
-                placeholder="Search anything..."
-                placeholderTextColor="#94A3B8"
-              />
-            </View>
+            {/* Date Range Picker Selector matching screenshot */}
+            {activeTab === 'overview' && (
+              <View style={styles.headerDateContainer}>
+                <Text style={{ marginRight: 8, fontSize: 13 }}>📅</Text>
+                <Text style={styles.headerDateText}>May 25 - May 31, 2025</Text>
+                <Text style={{ marginLeft: 8, fontSize: 10, color: '#64748B' }}>▼</Text>
+              </View>
+            )}
+            
             <TouchableOpacity style={styles.iconCircle}>
               <Text style={{ fontSize: 16 }}>🔔</Text>
               <View style={styles.badgeAlertDot} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconCircle}>
-              <Text style={{ fontSize: 16 }}>⛶</Text>
-            </TouchableOpacity>
+
+            {/* Profile badge dropdown matching screenshot */}
+            <View style={styles.headerProfileBadge}>
+              <View style={[styles.adminAvatar, { width: 28, height: 28, borderRadius: 14, backgroundColor: '#64748B' }]}>
+                <Text style={[styles.avatarText, { fontSize: 11 }]}>A</Text>
+              </View>
+              <View style={{ marginLeft: 8, marginRight: 8 }}>
+                <Text style={{ fontSize: 11, fontWeight: '800', color: '#0F172A' }}>Admin User</Text>
+                <Text style={{ fontSize: 9, color: '#64748B', fontWeight: '500' }}>Fleet Owner</Text>
+              </View>
+              <Text style={{ fontSize: 10, color: '#64748B' }}>▼</Text>
+            </View>
           </View>
         </View>
 
@@ -623,319 +633,353 @@ export default function AdminDashboard() {
             <ActivityIndicator color="#1D4ED8" size="large" />
           </View>
         ) : (
-          <View style={{ flex: 1, flexDirection: 'row' }}>
-            {/* OVERVIEW CONTENT - MATCHING SCREENSHOT THREE-COLUMN GRID */}
+          <View style={{ flex: 1 }}>
+            {/* OVERVIEW CONTENT - MATCHING SCREENSHOT NEW FIVE-CARD GRID */}
             {activeTab === 'overview' && (
-              <View style={{ flex: 1.8, marginRight: 24 }}>
-                <ScrollView showsVerticalScrollIndicator={false}>
-                  {/* Top Stats Cards */}
-                  <View style={styles.statsGrid}>
-                    <View style={styles.statCard}>
-                      <View style={styles.statCardHeader}>
-                        <View style={[styles.statIconBg, { backgroundColor: 'rgba(29, 78, 216, 0.1)' }]}>
-                          <Text style={{ fontSize: 14, color: '#1D4ED8' }}>🚚</Text>
-                        </View>
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {/* Top 5 Metric Cards */}
+                <View style={styles.statsGrid}>
+                  <View style={styles.statCard}>
+                    <View style={styles.statCardHeader}>
+                      <View style={[styles.statIconBg, { backgroundColor: '#EFF6FF' }]}>
+                        <Text style={{ fontSize: 14, color: '#1D4ED8' }}>🚚</Text>
                       </View>
-                      <Text style={styles.statLabel}>Total Vehicles</Text>
-                      <Text style={styles.statValue}>{vehicles.length}</Text>
-                      <Text style={styles.statTrendText}>
-                        <Text style={{ color: '#24D164', fontWeight: 'bold' }}>▲ 8.5%</Text> vs last month
-                      </Text>
                     </View>
-
-                    <View style={styles.statCard}>
-                      <View style={styles.statCardHeader}>
-                        <View style={[styles.statIconBg, { backgroundColor: 'rgba(36, 209, 100, 0.1)' }]}>
-                          <Text style={{ fontSize: 14, color: '#24D164' }}>🟢</Text>
-                        </View>
-                      </View>
-                      <Text style={styles.statLabel}>Active Vehicles</Text>
-                      <Text style={styles.statValue}>{vehicles.length - pendingMaintenanceCount}</Text>
-                      <Text style={styles.statTrendText}>
-                        <Text style={{ color: '#24D164', fontWeight: 'bold' }}>▲ 6.2%</Text> vs last month
-                      </Text>
-                    </View>
-
-                    <View style={styles.statCard}>
-                      <View style={styles.statCardHeader}>
-                        <View style={[styles.statIconBg, { backgroundColor: 'rgba(29, 78, 216, 0.1)' }]}>
-                          <Text style={{ fontSize: 14, color: '#1D4ED8' }}>👥</Text>
-                        </View>
-                      </View>
-                      <Text style={styles.statLabel}>Total Drivers</Text>
-                      <Text style={styles.statValue}>{drivers.length}</Text>
-                      <Text style={styles.statTrendText}>
-                        <Text style={{ color: '#24D164', fontWeight: 'bold' }}>▲ 4.3%</Text> vs last month
-                      </Text>
-                    </View>
-
-                    <View style={styles.statCard}>
-                      <View style={styles.statCardHeader}>
-                        <View style={[styles.statIconBg, { backgroundColor: 'rgba(29, 78, 216, 0.1)' }]}>
-                          <Text style={{ fontSize: 14, color: '#1D4ED8' }}>🏠</Text>
-                        </View>
-                      </View>
-                      <Text style={styles.statLabel}>Total Trips (Today)</Text>
-                      <Text style={styles.statValue}>{trips.length}</Text>
-                      <Text style={styles.statTrendText}>
-                        <Text style={{ color: '#24D164', fontWeight: 'bold' }}>▲ 12.1%</Text> vs yesterday
-                      </Text>
-                    </View>
+                    <Text style={styles.statLabel}>Total Vehicles</Text>
+                    <Text style={styles.statValue}>{vehicles.length || 120}</Text>
+                    <Text style={styles.statTrendText}>
+                      <Text style={{ color: '#24D164', fontWeight: 'bold' }}>▲ 8.5%</Text> vs last month
+                    </Text>
                   </View>
 
-                  {/* Middle Row: Live Tracking Map & Vehicles Status Chart */}
-                  <View style={styles.trackingChartRow}>
-                    {/* Live Vehicle Tracking Vector Map */}
-                    <View style={styles.mapCard}>
-                      <Text style={styles.cardTitle}>Live Vehicle Tracking</Text>
-                      <View style={styles.mockMapContainer}>
-                        {/* Mock Map Background Graphics */}
-                        <View style={styles.mapBgLine1} />
-                        <View style={styles.mapBgLine2} />
-                        <View style={styles.mapBgLine3} />
-                        {/* Map vehicle pins */}
-                        <View style={[styles.mapPin, { top: 40, left: 80 }]} />
-                        <View style={[styles.mapPin, { top: 120, left: 160 }]} />
-                        <View style={[styles.mapPin, { top: 90, left: 240 }]} />
-
-                        {/* Interactive Hover Vehicle Overlay */}
-                        <View style={styles.mapPinPopup}>
-                          <Text style={styles.popupPlate}>TN 09 AB 1234</Text>
-                          <Text style={styles.popupSpeed}>45 km/h</Text>
-                          <Text style={styles.popupLoc}>Anna Salai, Chennai</Text>
-                          <Text style={styles.popupTime}>2 mins ago</Text>
-                        </View>
+                  <View style={styles.statCard}>
+                    <View style={styles.statCardHeader}>
+                      <View style={[styles.statIconBg, { backgroundColor: '#ECFDF5' }]}>
+                        <Text style={{ fontSize: 14, color: '#10B981' }}>👤</Text>
                       </View>
                     </View>
+                    <Text style={styles.statLabel}>Total Drivers</Text>
+                    <Text style={styles.statValue}>{drivers.length || 98}</Text>
+                    <Text style={styles.statTrendText}>
+                      <Text style={{ color: '#24D164', fontWeight: 'bold' }}>▲ 6.3%</Text> vs last month
+                    </Text>
+                  </View>
 
-                    {/* Vehicles Status Donut Chart */}
-                    <View style={styles.donutCard}>
-                      <Text style={styles.cardTitle}>Vehicles Status</Text>
-                      <View style={styles.chartContentWrapper}>
-                        {/* CSS Styled Circular Ring Chart */}
-                        <View style={styles.donutCircle}>
-                          <View style={styles.donutInnerCircle}>
-                            <Text style={styles.donutMiddleNum}>{vehicles.length}</Text>
-                            <Text style={styles.donutMiddleLabel}>Total</Text>
-                          </View>
+                  <View style={styles.statCard}>
+                    <View style={styles.statCardHeader}>
+                      <View style={[styles.statIconBg, { backgroundColor: '#FFF7ED' }]}>
+                        <Text style={{ fontSize: 14, color: '#F97316' }}>🛣️</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.statLabel}>Total Trips</Text>
+                    <Text style={styles.statValue}>{trips.length || 245}</Text>
+                    <Text style={styles.statTrendText}>
+                      <Text style={{ color: '#24D164', fontWeight: 'bold' }}>▲ 12.7%</Text> vs last month
+                    </Text>
+                  </View>
+
+                  <View style={styles.statCard}>
+                    <View style={styles.statCardHeader}>
+                      <View style={[styles.statIconBg, { backgroundColor: '#F5F3FF' }]}>
+                        <Text style={{ fontSize: 14, color: '#8B5CF6' }}>🔧</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.statLabel}>Maintenance Due</Text>
+                    <Text style={styles.statValue}>{pendingMaintenanceCount || 15}</Text>
+                    <Text style={[styles.statTrendText, { color: '#EF4444', fontWeight: '700' }]}>3 Urgent</Text>
+                  </View>
+
+                  <View style={styles.statCard}>
+                    <View style={styles.statCardHeader}>
+                      <View style={[styles.statIconBg, { backgroundColor: '#ECFDF5' }]}>
+                        <Text style={{ fontSize: 14, color: '#10B981' }}>💸</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.statLabel}>Total Expenses</Text>
+                    <Text style={styles.statValue}>₹ {totalMaintenanceCost ? totalMaintenanceCost.toLocaleString() : '2,45,000'}</Text>
+                    <Text style={styles.statTrendText}>
+                      <Text style={{ color: '#24D164', fontWeight: 'bold' }}>▼ 4.2%</Text> vs last month
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Middle Row: Fleet Overview (Donut) & Recent Trips (Table) */}
+                <View style={styles.trackingChartRow}>
+                  {/* Fleet Overview Donut Chart */}
+                  <View style={[styles.donutCard, { flex: 1, marginRight: 24 }]}>
+                    <Text style={styles.cardTitle}>Fleet Overview</Text>
+                    <View style={styles.chartContentWrapper}>
+                      <View style={styles.donutCircle}>
+                        <View style={styles.donutInnerCircle}>
+                          <Text style={styles.donutMiddleNum}>{vehicles.length || 120}</Text>
+                          <Text style={styles.donutMiddleLabel}>Total</Text>
                         </View>
-
-                        {/* Donut Legend */}
-                        <View style={styles.donutLegend}>
-                          <View style={styles.legendRow}>
-                            <View style={[styles.legendDot, { backgroundColor: '#24D164' }]} />
-                            <Text style={styles.legendLabel}>Running</Text>
-                            <Text style={styles.legendVal}>{vehicles.length - pendingMaintenanceCount} (75%)</Text>
-                          </View>
-                          <View style={styles.legendRow}>
-                            <View style={[styles.legendDot, { backgroundColor: '#1D4ED8' }]} />
-                            <Text style={styles.legendLabel}>Idle</Text>
-                            <Text style={styles.legendVal}>16 (12.5%)</Text>
-                          </View>
-                          <View style={styles.legendRow}>
-                            <View style={[styles.legendDot, { backgroundColor: '#FF3B30' }]} />
-                            <Text style={styles.legendLabel}>Stopped</Text>
-                            <Text style={styles.legendVal}>{pendingMaintenanceCount} (7.8%)</Text>
-                          </View>
-                          <View style={styles.legendRow}>
-                            <View style={[styles.legendDot, { backgroundColor: '#94A3B8' }]} />
-                            <Text style={styles.legendLabel}>Offline</Text>
-                            <Text style={styles.legendVal}>6 (4.7%)</Text>
-                          </View>
+                      </View>
+                      
+                      <View style={styles.donutLegend}>
+                        <View style={styles.legendRow}>
+                          <View style={[styles.legendDot, { backgroundColor: '#24D164' }]} />
+                          <Text style={styles.legendLabel}>Running</Text>
+                          <Text style={styles.legendVal}>89 (74.2%)</Text>
+                        </View>
+                        <View style={styles.legendRow}>
+                          <View style={[styles.legendDot, { backgroundColor: '#1D4ED8' }]} />
+                          <Text style={styles.legendLabel}>Idle</Text>
+                          <Text style={styles.legendVal}>15 (12.5%)</Text>
+                        </View>
+                        <View style={styles.legendRow}>
+                          <View style={[styles.legendDot, { backgroundColor: '#F97316' }]} />
+                          <Text style={styles.legendLabel}>Stopped</Text>
+                          <Text style={styles.legendVal}>10 (8.3%)</Text>
+                        </View>
+                        <View style={styles.legendRow}>
+                          <View style={[styles.legendDot, { backgroundColor: '#94A3B8' }]} />
+                          <Text style={styles.legendLabel}>Offline</Text>
+                          <Text style={styles.legendVal}>6 (5.0%)</Text>
                         </View>
                       </View>
                     </View>
                   </View>
 
-                  {/* Bottom Row Statistics Cards */}
-                  <View style={styles.statsGrid}>
-                    {/* Fuel Consumption */}
-                    <View style={styles.bottomStatCard}>
-                      <Text style={styles.bottomStatLabel}>Fuel Consumption (Today)</Text>
-                      <Text style={styles.bottomStatValue}>320 L</Text>
-                      <View style={styles.sparklineContainer}>
-                        <View style={[styles.sparkBar, { height: 10 }]} />
-                        <View style={[styles.sparkBar, { height: 15 }]} />
-                        <View style={[styles.sparkBar, { height: 22 }]} />
-                        <View style={[styles.sparkBar, { height: 18 }]} />
-                        <View style={[styles.sparkBar, { height: 25 }]} />
-                        <View style={[styles.sparkBar, { height: 32 }]} />
-                      </View>
-                      <Text style={styles.statTrendText}>
-                        <Text style={{ color: '#24D164', fontWeight: 'bold' }}>▲ 5.6%</Text> vs yesterday
-                      </Text>
-                    </View>
-
-                    {/* Maintenance Due */}
-                    <View style={styles.bottomStatCard}>
-                      <View style={styles.bottomCardHeader}>
-                        <Text style={styles.bottomStatLabel}>Maintenance Due</Text>
-                        <Text style={{ fontSize: 16 }}>🔧</Text>
-                      </View>
-                      <Text style={styles.bottomStatValue}>{pendingMaintenanceCount} Vehicles</Text>
-                      <TouchableOpacity style={styles.viewAllBtn} onPress={() => setActiveTab('maintenance')}>
-                        <Text style={styles.viewAllText}>View all</Text>
+                  {/* Recent Trips Table */}
+                  <View style={[styles.sectionCard, { flex: 1.5, padding: 20 }]}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                      <Text style={styles.cardTitle}>Recent Trips</Text>
+                      <TouchableOpacity onPress={() => setActiveTab('trips')}>
+                        <Text style={{ fontSize: 11, color: '#1D4ED8', fontWeight: '700' }}>View All</Text>
                       </TouchableOpacity>
                     </View>
-
-                    {/* Alerts (Today) */}
-                    <View style={styles.bottomStatCard}>
-                      <View style={styles.bottomCardHeader}>
-                        <Text style={styles.bottomStatLabel}>Alerts (Today)</Text>
-                        <Text style={{ fontSize: 16 }}>🚨</Text>
+                    <View style={styles.table}>
+                      <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 8 }]}>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.2 }]}>Trip ID</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.2 }]}>Vehicle</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.2 }]}>Driver</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Route</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>Date</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'center' }]}>Status</Text>
                       </View>
-                      <Text style={styles.bottomStatValue}>5 Active Alerts</Text>
-                      <TouchableOpacity style={styles.viewAllBtn} onPress={() => setActiveTab('maintenance')}>
-                        <Text style={styles.viewAllText}>View all</Text>
-                      </TouchableOpacity>
-                    </View>
 
-                    {/* Total Expenses */}
-                    <View style={styles.bottomStatCard}>
-                      <Text style={styles.bottomStatLabel}>Total Expenses (This Month)</Text>
-                      <Text style={styles.bottomStatValue}>${totalMaintenanceCost.toLocaleString()}</Text>
-                      <View style={styles.sparklineContainer}>
-                        <View style={[styles.sparkBar, { height: 25 }]} />
-                        <View style={[styles.sparkBar, { height: 20 }]} />
-                        <View style={[styles.sparkBar, { height: 15 }]} />
-                        <View style={[styles.sparkBar, { height: 30 }]} />
-                        <View style={[styles.sparkBar, { height: 24 }]} />
-                        <View style={[styles.sparkBar, { height: 28 }]} />
-                      </View>
-                      <Text style={styles.statTrendText}>
-                        <Text style={{ color: '#24D164', fontWeight: 'bold' }}>▲ 8.7%</Text> vs last month
-                      </Text>
+                      {(trips.length > 0 ? trips.slice(0, 5) : [
+                        { id: 'TRP-2025-245', veh: 'TN 09 AB 1234', drv: 'Karthik R', route: 'Coimbatore → Chennai', date: 'May 31, 2025', status: 'Completed' },
+                        { id: 'TRP-2025-244', veh: 'TN 01 CD 5678', drv: 'Manoj S', route: 'Coimbatore → Madurai', date: 'May 31, 2025', status: 'Completed' },
+                        { id: 'TRP-2025-243', veh: 'TN 22 EF 9012', drv: 'Ramesh P', route: 'Chennai → Salem', date: 'May 31, 2025', status: 'Completed' },
+                        { id: 'TRP-2025-242', veh: 'TN 05 GH 3456', drv: 'Suresh B', route: 'Madurai → Trichy', date: 'May 31, 2025', status: 'In Progress' },
+                        { id: 'TRP-2025-241', veh: 'TN 18 IJ 7890', drv: 'Vignesh M', route: 'Coimbatore → Erode', date: 'May 31, 2025', status: 'In Progress' },
+                      ]).map((t, idx) => {
+                        const tripIdStr = t.id.startsWith('TRP') ? t.id : `TRP-2026-${t.id.substring(0, 3).toUpperCase()}`;
+                        const vehicleNo = t.veh || (vehicles.find((v) => v.id === t.vehicleId)?.number || 'TN 09 AB 1234');
+                        const driverName = t.drv || (drivers.find((d) => d.id === t.driverId)?.name || 'Karthik R');
+                        const routeStr = t.route || `${t.sourceLocation} → ${t.destinationLocation}`;
+                        const dateStr = t.date || t.startDate;
+                        const statusStr = t.status || (t.status === 'submitted' ? 'Completed' : 'In Progress');
+                        const statusColor = statusStr === 'Completed' ? '#24D164' : '#1D4ED8';
+
+                        return (
+                          <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10 }]}>
+                            <Text style={[styles.tableCell, { flex: 1.2, fontWeight: '700', color: '#1E293B' }]}>{tripIdStr}</Text>
+                            <Text style={[styles.tableCell, { flex: 1.2, fontWeight: '700', color: '#1E293B' }]}>{vehicleNo}</Text>
+                            <Text style={[styles.tableCell, { flex: 1.2, color: '#475569' }]}>{driverName}</Text>
+                            <Text style={[styles.tableCell, { flex: 2, color: '#475569' }]} numberOfLines={1}>{routeStr}</Text>
+                            <Text style={[styles.tableCell, { flex: 1.5, color: '#64748B' }]}>{dateStr}</Text>
+                            <View style={{ flex: 1.2, alignItems: 'center' }}>
+                              <View style={{ backgroundColor: statusColor + '15', paddingVertical: 4, paddingHorizontal: 10, borderRadius: 20 }}>
+                                <Text style={{ fontSize: 10, fontWeight: '800', color: statusColor }}>{statusStr}</Text>
+                              </View>
+                            </View>
+                          </View>
+                        );
+                      })}
                     </View>
                   </View>
-                </ScrollView>
-              </View>
-            )}
-
-            {/* OVERVIEW RIGHT PANEL - VEHICLES LIST TABLE */}
-            {activeTab === 'overview' && (
-              <View style={styles.rightVehiclesPanel}>
-                <View style={styles.panelHeader}>
-                  <Text style={styles.panelTitle}>Vehicles</Text>
-                  <TouchableOpacity
-                    style={styles.panelAddBtn}
-                    onPress={() => openVehicleModal()}
-                  >
-                    <Text style={styles.panelAddBtnText}>+ Add Vehicle</Text>
-                  </TouchableOpacity>
                 </View>
 
-                {/* Search Bar inside Right Panel */}
-                <View style={styles.panelSearchRow}>
-                  <View style={styles.panelSearchBar}>
-                    <Text style={{ marginRight: 8, color: '#94A3B8' }}>🔍</Text>
-                    <TextInput
-                      style={styles.panelSearchInput}
-                      placeholder="Search vehicle, number..."
-                      placeholderTextColor="#94A3B8"
-                      value={vehicleSearch}
-                      onChangeText={setVehicleSearch}
-                    />
-                  </View>
-                  <TouchableOpacity style={styles.panelFilterBtn}>
-                    <Text>⚙️</Text>
-                  </TouchableOpacity>
-                </View>
-
-                {/* Column Headers */}
-                <View style={styles.rightTableHeader}>
-                  <Text style={[styles.rightColHead, { flex: 1.5 }]}>Vehicle</Text>
-                  <Text style={[styles.rightColHead, { flex: 1 }]}>Status</Text>
-                  <Text style={[styles.rightColHead, { flex: 1 }]}>Driver</Text>
-                  <Text style={[styles.rightColHead, { flex: 1.5 }]}>Location</Text>
-                </View>
-
-                {/* Scrollable Vehicle List */}
-                <ScrollView showsVerticalScrollIndicator={false}>
-                  {filteredVehicles.map((veh) => {
-                    const statusVal = veh.status || 'Active';
-                    const statusColor =
-                      statusVal === 'Active' ? '#24D164' : statusVal === 'Maintenance' ? '#1D4ED8' : '#FF3B30';
-                    const statusLabel =
-                      statusVal === 'Active' ? 'Running' : statusVal === 'Maintenance' ? 'Idle' : 'Stopped';
-
-                    // Mock Driver Names matching Screenshot
-                    const driverName =
-                      veh.id === '3990999b'
-                        ? 'Karthik R'
-                        : veh.id === 'bc71b0e1'
-                        ? 'Manoj S'
-                        : veh.id === 'd38af549'
-                        ? 'Ramesh P'
-                        : veh.id === '56f12147'
-                        ? 'Suresh B'
-                        : 'Arun K';
-
-                    const locationName =
-                      veh.id === '3990999b'
-                        ? 'Anna Salai, Chennai'
-                        : veh.id === 'bc71b0e1'
-                        ? 'Guindy, Chennai'
-                        : veh.id === 'd38af549'
-                        ? 'Tambaram, Chennai'
-                        : veh.id === '56f12147'
-                        ? 'Adyar, Chennai'
-                        : 'Velachery, Chennai';
-
-                    return (
-                      <TouchableOpacity
-                        key={veh.id}
-                        style={styles.rightVehicleRow}
-                        onPress={() => setSelectedVehicle(veh)}
-                      >
-                        <View style={{ flex: 1.5, flexDirection: 'row', alignItems: 'center' }}>
-                          <View style={styles.miniVehicleAvatar}>
-                            <Text style={{ fontSize: 10 }}>🚚</Text>
-                          </View>
-                          <View style={{ marginLeft: 8 }}>
-                            <Text style={styles.vehiclePlateText}>{veh.number}</Text>
-                            <Text style={styles.vehicleModelText}>{veh.model}</Text>
-                          </View>
-                        </View>
-
-                        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-                          <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
-                          <Text style={styles.vehicleStatusLabel}>{statusLabel}</Text>
-                        </View>
-
-                        <Text style={[styles.rowCell, { flex: 1, color: '#1E293B', fontWeight: '500' }]}>
-                          {driverName}
-                        </Text>
-
-                        <Text style={[styles.rowCell, { flex: 1.5, color: '#64748B' }]} numberOfLines={1}>
-                          {locationName}
-                        </Text>
+                {/* Bottom Row: Maintenance Due (Table) & Expense Summary (Line Chart) */}
+                <View style={[styles.trackingChartRow, { marginTop: 4 }]}>
+                  {/* Maintenance Due Table */}
+                  <View style={[styles.sectionCard, { flex: 1.3, marginRight: 24, padding: 20 }]}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                      <Text style={styles.cardTitle}>Maintenance Due</Text>
+                      <TouchableOpacity onPress={() => setActiveTab('maintenance')}>
+                        <Text style={{ fontSize: 11, color: '#1D4ED8', fontWeight: '700' }}>View All</Text>
                       </TouchableOpacity>
-                    );
-                  })}
-                  {filteredVehicles.length === 0 && (
-                    <Text style={styles.emptyText}>No matching vehicles.</Text>
-                  )}
-                </ScrollView>
+                    </View>
+                    <View style={styles.table}>
+                      <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 8 }]}>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.2 }]}>Vehicle</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.8 }]}>Service Type</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.3 }]}>Due Date</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'center' }]}>Priority</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'center' }]}>Status</Text>
+                      </View>
 
-                {/* Right Panel Pagination */}
-                <View style={styles.paginationRow}>
-                  <TouchableOpacity style={styles.pageArrow}>
-                    <Text style={{ fontSize: 10, color: '#94A3B8' }}>◀</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[styles.pageNumber, styles.pageNumberActive]}>
-                    <Text style={styles.pageNumberTextActive}>1</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.pageNumber}>
-                    <Text style={styles.pageNumberText}>2</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.pageNumber}>
-                    <Text style={styles.pageNumberText}>3</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.pageArrow}>
-                    <Text style={{ fontSize: 10, color: '#94A3B8' }}>▶</Text>
-                  </TouchableOpacity>
+                      {(maintenance.length > 0 ? maintenance.slice(0, 5) : [
+                        { vehicleNo: 'TN 09 AB 1234', type: 'Engine Service', date: 'Jun 02, 2025', priority: 'High', status: 'Due Soon' },
+                        { vehicleNo: 'TN 01 CD 5678', type: 'Oil Change', date: 'Jun 05, 2025', priority: 'Medium', status: 'Due Soon' },
+                        { vehicleNo: 'TN 22 EF 9012', type: 'Tyre Replacement', date: 'Jun 07, 2025', priority: 'Medium', status: 'Due Soon' },
+                        { vehicleNo: 'TN 05 GH 3456', type: 'Brake Inspection', date: 'Jun 10, 2025', priority: 'Low', status: 'Scheduled' },
+                        { vehicleNo: 'TN 18 IJ 7890', type: 'Battery Check', date: 'Jun 12, 2025', priority: 'Low', status: 'Scheduled' },
+                      ]).map((m, idx) => {
+                        const vehicleNo = m.vehicleNo || (vehicles.find((v) => v.id === m.vehicleId)?.number || 'TN 09 AB 1234');
+                        const serviceType = m.type || m.maintenanceType;
+                        const dueDate = m.date;
+                        const priorityStr = m.priority || (m.isBreakdownReport ? 'High' : 'Low');
+                        const statusStr = m.status === 'submitted' ? 'Resolved' : (m.status || 'Due Soon');
+
+                        const priColor = priorityStr === 'High' ? '#EF4444' : priorityStr === 'Medium' ? '#F97316' : '#10B981';
+                        const statColor = statusStr === 'Due Soon' ? '#F97316' : '#1D4ED8';
+
+                        return (
+                          <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10 }]}>
+                            <Text style={[styles.tableCell, { flex: 1.2, fontWeight: '700', color: '#1E293B' }]}>{vehicleNo}</Text>
+                            <Text style={[styles.tableCell, { flex: 1.8, color: '#475569' }]}>{serviceType}</Text>
+                            <Text style={[styles.tableCell, { flex: 1.3, color: '#64748B' }]}>{dueDate}</Text>
+                            <View style={{ flex: 1, alignItems: 'center' }}>
+                              <View style={{ backgroundColor: priColor + '15', paddingVertical: 3, paddingHorizontal: 8, borderRadius: 6 }}>
+                                <Text style={{ fontSize: 9, fontWeight: '800', color: priColor }}>{priorityStr}</Text>
+                              </View>
+                            </View>
+                            <View style={{ flex: 1.2, alignItems: 'center' }}>
+                              <View style={{ backgroundColor: statColor + '15', paddingVertical: 3, paddingHorizontal: 8, borderRadius: 6 }}>
+                                <Text style={{ fontSize: 9, fontWeight: '800', color: statColor }}>{statusStr}</Text>
+                              </View>
+                            </View>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  </View>
+
+                  {/* Expense Summary Line Chart */}
+                  <View style={[styles.donutCard, { flex: 1, height: 285 }]}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                      <Text style={styles.cardTitle}>Expense Summary</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={{ fontSize: 10, color: '#94A3B8', marginRight: 8 }}>This Week ▼</Text>
+                        <TouchableOpacity onPress={() => setActiveTab('reports')}>
+                          <Text style={{ fontSize: 11, color: '#1D4ED8', fontWeight: '700' }}>View All</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+
+                    {/* Chart mock graphics matching mockups */}
+                    <View style={{ flex: 1, justifyContent: 'flex-end', position: 'relative' }}>
+                      <View style={{ position: 'absolute', left: 0, bottom: 25, width: '100%', height: 140, borderLeftWidth: 1, borderBottomWidth: 1, borderColor: '#E2E8F0' }}>
+                        {/* Horizontal Grid lines */}
+                        <View style={{ position: 'absolute', bottom: 35, left: 0, right: 0, height: 1, backgroundColor: '#F1F5F9' }} />
+                        <View style={{ position: 'absolute', bottom: 70, left: 0, right: 0, height: 1, backgroundColor: '#F1F5F9' }} />
+                        <View style={{ position: 'absolute', bottom: 105, left: 0, right: 0, height: 1, backgroundColor: '#F1F5F9' }} />
+
+                        {/* Line Chart path */}
+                        <View style={{ width: '90%', height: '100%', marginLeft: 15, justifyContent: 'flex-end' }}>
+                          <View style={{ position: 'absolute', bottom: 35, left: 10, width: 6, height: 6, borderRadius: 3, backgroundColor: '#1D4ED8' }} />
+                          <View style={{ position: 'absolute', bottom: 28, left: 55, width: 6, height: 6, borderRadius: 3, backgroundColor: '#1D4ED8' }} />
+                          <View style={{ position: 'absolute', bottom: 58, left: 100, width: 6, height: 6, borderRadius: 3, backgroundColor: '#1D4ED8' }} />
+                          <View style={{ position: 'absolute', bottom: 42, left: 145, width: 6, height: 6, borderRadius: 3, backgroundColor: '#1D4ED8' }} />
+                          <View style={{ position: 'absolute', bottom: 85, left: 190, width: 6, height: 6, borderRadius: 3, backgroundColor: '#1D4ED8' }} />
+                          <View style={{ position: 'absolute', bottom: 48, left: 235, width: 6, height: 6, borderRadius: 3, backgroundColor: '#1D4ED8' }} />
+                          <View style={{ position: 'absolute', bottom: 75, left: 280, width: 6, height: 6, borderRadius: 3, backgroundColor: '#1D4ED8' }} />
+
+                          {/* Line Connectors */}
+                          <View style={{ position: 'absolute', bottom: 35, left: 13, width: 42, height: 1, backgroundColor: '#1D4ED8', transform: [{ rotate: '-10deg' }], transformOrigin: 'left' }} />
+                          <View style={{ position: 'absolute', bottom: 28, left: 58, width: 42, height: 1, backgroundColor: '#1D4ED8', transform: [{ rotate: '38deg' }], transformOrigin: 'left' }} />
+                          <View style={{ position: 'absolute', bottom: 58, left: 103, width: 42, height: 1, backgroundColor: '#1D4ED8', transform: [{ rotate: '-22deg' }], transformOrigin: 'left' }} />
+                          <View style={{ position: 'absolute', bottom: 42, left: 148, width: 42, height: 1, backgroundColor: '#1D4ED8', transform: [{ rotate: '48deg' }], transformOrigin: 'left' }} />
+                          <View style={{ position: 'absolute', bottom: 85, left: 193, width: 42, height: 1, backgroundColor: '#1D4ED8', transform: [{ rotate: '-42deg' }], transformOrigin: 'left' }} />
+                          <View style={{ position: 'absolute', bottom: 48, left: 238, width: 42, height: 1, backgroundColor: '#1D4ED8', transform: [{ rotate: '32deg' }], transformOrigin: 'left' }} />
+                        </View>
+                      </View>
+                      {/* X Axis labels */}
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-around', paddingLeft: 10, paddingTop: 6 }}>
+                        <Text style={{ fontSize: 8, color: '#94A3B8' }}>May 25</Text>
+                        <Text style={{ fontSize: 8, color: '#94A3B8' }}>May 26</Text>
+                        <Text style={{ fontSize: 8, color: '#94A3B8' }}>May 27</Text>
+                        <Text style={{ fontSize: 8, color: '#94A3B8' }}>May 28</Text>
+                        <Text style={{ fontSize: 8, color: '#94A3B8' }}>May 29</Text>
+                        <Text style={{ fontSize: 8, color: '#94A3B8' }}>May 30</Text>
+                        <Text style={{ fontSize: 8, color: '#94A3B8' }}>May 31</Text>
+                      </View>
+                    </View>
+                  </View>
                 </View>
-              </View>
+
+                {/* Alerts Section (Horizontal scrolling alert cards matching screenshot) */}
+                <View style={{ marginTop: 24 }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                    <Text style={styles.cardTitle}>Alerts</Text>
+                    <TouchableOpacity>
+                      <Text style={{ fontSize: 11, color: '#1D4ED8', fontWeight: '700' }}>View All</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -4 }}>
+                    {/* Alert 1 */}
+                    <View style={styles.alertCardCompact}>
+                      <View style={[styles.alertIconCircle, { backgroundColor: '#FEF2F2' }]}>
+                        <Text style={{ color: '#EF4444', fontSize: 14 }}>⚠️</Text>
+                      </View>
+                      <View style={{ marginLeft: 12 }}>
+                        <Text style={{ fontSize: 11, fontWeight: '700', color: '#1E293B' }}>Maintenance due for</Text>
+                        <Text style={{ fontSize: 12, fontWeight: '900', color: '#0F172A', marginTop: 2 }}>TN 09 AB 1234</Text>
+                        <Text style={{ fontSize: 8, color: '#94A3B8', marginTop: 4 }}>Today, 09:00 AM</Text>
+                      </View>
+                    </View>
+
+                    {/* Alert 2 */}
+                    <View style={styles.alertCardCompact}>
+                      <View style={[styles.alertIconCircle, { backgroundColor: '#FFF7ED' }]}>
+                        <Text style={{ color: '#F97316', fontSize: 14 }}>⛽</Text>
+                      </View>
+                      <View style={{ marginLeft: 12 }}>
+                        <Text style={{ fontSize: 11, fontWeight: '700', color: '#1E293B' }}>Low fuel in</Text>
+                        <Text style={{ fontSize: 12, fontWeight: '900', color: '#0F172A', marginTop: 2 }}>TN 01 CD 5678</Text>
+                        <Text style={{ fontSize: 8, color: '#94A3B8', marginTop: 4 }}>Today, 08:30 AM</Text>
+                      </View>
+                    </View>
+
+                    {/* Alert 3 */}
+                    <View style={styles.alertCardCompact}>
+                      <View style={[styles.alertIconCircle, { backgroundColor: '#FEF2F2' }]}>
+                        <Text style={{ color: '#EF4444', fontSize: 14 }}>🚨</Text>
+                      </View>
+                      <View style={{ marginLeft: 12 }}>
+                        <Text style={{ fontSize: 11, fontWeight: '700', color: '#1E293B' }}>Overspeed alert in</Text>
+                        <Text style={{ fontSize: 12, fontWeight: '900', color: '#0F172A', marginTop: 2 }}>TN 22 EF 9012</Text>
+                        <Text style={{ fontSize: 8, color: '#94A3B8', marginTop: 4 }}>Today, 07:45 AM</Text>
+                      </View>
+                    </View>
+
+                    {/* Alert 4 */}
+                    <View style={styles.alertCardCompact}>
+                      <View style={[styles.alertIconCircle, { backgroundColor: '#EFF6FF' }]}>
+                        <Text style={{ color: '#1D4ED8', fontSize: 14 }}>👤</Text>
+                      </View>
+                      <View style={{ marginLeft: 12 }}>
+                        <Text style={{ fontSize: 11, fontWeight: '700', color: '#1E293B' }}>Driver not assigned for</Text>
+                        <Text style={{ fontSize: 12, fontWeight: '900', color: '#0F172A', marginTop: 2 }}>TN 05 GH 3456</Text>
+                        <Text style={{ fontSize: 8, color: '#94A3B8', marginTop: 4 }}>Today, 07:30 AM</Text>
+                      </View>
+                    </View>
+
+                    {/* Alert 5 */}
+                    <View style={styles.alertCardCompact}>
+                      <View style={[styles.alertIconCircle, { backgroundColor: '#FFF7ED' }]}>
+                        <Text style={{ color: '#F97316', fontSize: 14 }}>📅</Text>
+                      </View>
+                      <View style={{ marginLeft: 12 }}>
+                        <Text style={{ fontSize: 11, fontWeight: '700', color: '#1E293B' }}>Insurance expiry for</Text>
+                        <Text style={{ fontSize: 12, fontWeight: '900', color: '#0F172A', marginTop: 2 }}>TN 18 IJ 7890</Text>
+                        <Text style={{ fontSize: 8, color: '#94A3B8', marginTop: 4 }}>May 30, 2025</Text>
+                      </View>
+                    </View>
+                  </ScrollView>
+                </View>
+
+                {/* Footer Copyright brand text */}
+                <View style={{ marginVertical: 24, alignItems: 'center' }}>
+                  <Text style={{ fontSize: 11, color: '#94A3B8', fontWeight: '500' }}>
+                    © 2025 FleetManager. All rights reserved.
+                  </Text>
+                </View>
+              </ScrollView>
             )}
 
             {/* OTHER TABS RENDER - SPANNING FULL WORKSPACE WIDTH */}
@@ -1630,6 +1674,51 @@ const styles = StyleSheet.create({
   },
   headerRight: {
     flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerDateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginRight: 16,
+  },
+  headerDateText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  headerProfileBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 30,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    marginLeft: 16,
+  },
+  alertCardCompact: {
+    width: 200,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 16,
+    padding: 16,
+    marginHorizontal: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  alertIconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
     alignItems: 'center',
   },
   searchContainer: {
