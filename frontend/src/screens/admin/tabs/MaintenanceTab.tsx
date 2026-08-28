@@ -2,60 +2,199 @@ import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { useDashboardData } from '../../../context/DashboardDataContext';
 import { styles, fontStyle } from '../AdminStyles';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function MaintenanceTab() {
-  const { maintenance, vehicles } = useDashboardData();
+  const { maintenance, vehicles, drivers } = useDashboardData();
+
+  const totalCost = maintenance.reduce((acc, m) => acc + (parseFloat(m.cost) || 0), 0);
+  const resolved = maintenance.filter((m) => m.status === 'submitted').length;
+  const open = maintenance.length - resolved;
+  const breakdowns = maintenance.filter((m) => m.isBreakdownReport).length;
 
   return (
     <View style={{ flex: 1 }}>
+      {/* Summary Cards */}
+      <View style={styles.statsGrid}>
+        <View style={styles.statCard}>
+          <View style={[styles.statIconBg, { backgroundColor: '#F59E0B' }]}>
+            <Ionicons name="construct-outline" size={26} color="#FFFFFF" />
+          </View>
+          <View style={{ marginLeft: 16, flex: 1 }}>
+            <Text style={styles.statLabel}>Total Tickets</Text>
+            <Text style={styles.statValue}>{maintenance.length}</Text>
+            <Text style={styles.statTrendText}>All maintenance reports</Text>
+          </View>
+        </View>
+
+        <View style={styles.statCard}>
+          <View style={[styles.statIconBg, { backgroundColor: '#EF4444' }]}>
+            <Ionicons name="alert-circle-outline" size={26} color="#FFFFFF" />
+          </View>
+          <View style={{ marginLeft: 16, flex: 1 }}>
+            <Text style={styles.statLabel}>Open / Pending</Text>
+            <Text style={styles.statValue}>{open}</Text>
+            <Text style={styles.statTrendText}>Awaiting resolution</Text>
+          </View>
+        </View>
+
+        <View style={styles.statCard}>
+          <View style={[styles.statIconBg, { backgroundColor: '#10B981' }]}>
+            <Ionicons name="checkmark-circle-outline" size={26} color="#FFFFFF" />
+          </View>
+          <View style={{ marginLeft: 16, flex: 1 }}>
+            <Text style={styles.statLabel}>Resolved</Text>
+            <Text style={styles.statValue}>{resolved}</Text>
+            <Text style={styles.statTrendText}>Completed repairs</Text>
+          </View>
+        </View>
+
+        <View style={styles.statCard}>
+          <View style={[styles.statIconBg, { backgroundColor: '#8B5CF6' }]}>
+            <Ionicons name="cash-outline" size={26} color="#FFFFFF" />
+          </View>
+          <View style={{ marginLeft: 16, flex: 1 }}>
+            <Text style={styles.statLabel}>Total Repair Cost</Text>
+            <Text style={styles.statValue}>${totalCost.toFixed(2)}</Text>
+            <Text style={styles.statTrendText}>Accumulated service cost</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Table */}
       <View style={[styles.sectionCard, { flex: 1 }]}>
-        <Text style={[styles.sectionTitle, { fontSize: 16, fontWeight: '800', fontFamily: fontStyle, marginBottom: 20 }]}>MAINTENANCE TICKETS</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <View>
+            <Text style={[styles.sectionTitle, { fontSize: 16, fontWeight: '800', fontFamily: fontStyle }]}>MAINTENANCE TICKETS</Text>
+            <Text style={{ fontSize: 11, color: '#64748B', fontFamily: fontStyle, marginTop: 2 }}>
+              Showing {maintenance.length} records · {breakdowns > 0 ? `${breakdowns} breakdown(s)` : 'No breakdowns'}
+            </Text>
+          </View>
+        </View>
 
         {/* Table Header */}
         <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10, marginBottom: 0 }]}>
-          <Text style={[styles.tableHeaderCell, { flex: 1.2, fontFamily: fontStyle }]}>DATE</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>VEHICLE</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 0.5, fontFamily: fontStyle }]}>S.NO</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1.4, fontFamily: fontStyle }]}>DATE / TIME</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1.4, fontFamily: fontStyle }]}>VEHICLE</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1.6, fontFamily: fontStyle }]}>DRIVER</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>TYPE</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 3, fontFamily: fontStyle }]}>DESCRIPTION</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>COST</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 2.5, fontFamily: fontStyle }]}>DESCRIPTION</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>SERVICE NOTES</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'right', fontFamily: fontStyle }]}>COST</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'center', fontFamily: fontStyle }]}>STATUS</Text>
         </View>
 
-        {/* Scrollable table rows */}
+        {/* Scrollable rows */}
         <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
           <View style={styles.table}>
-            {maintenance.map((m) => (
-              <View key={m.id} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 14 }]}>
-                <Text style={[styles.tableCell, { flex: 1.2, fontFamily: fontStyle }]}>{m.date}</Text>
-                <Text style={[styles.tableCell, { flex: 1.5, fontWeight: 'bold', color: '#1F232B', fontFamily: fontStyle }]}>
-                  {vehicles.find((v) => v.id === m.vehicleId)?.number || 'Unknown'}
-                </Text>
-                <Text style={[styles.tableCell, { flex: 1.5, color: '#F59E0B', fontWeight: 'bold', fontFamily: fontStyle }]}>{m.maintenanceType}</Text>
-                <Text style={[styles.tableCell, { flex: 3, fontFamily: fontStyle }]} numberOfLines={2}>{m.description}</Text>
-                <Text style={[styles.tableCell, { flex: 1.2, textAlign: 'right', fontWeight: 'bold', fontFamily: fontStyle }]}>
-                  {m.cost ? `$${m.cost}` : 'N/A'}
-                </Text>
-                <View style={{ flex: 1.2, alignItems: 'center' }}>
-                  <View style={{
-                    backgroundColor: m.status === 'submitted' ? '#F0FDF4' : '#FEF2F2',
-                    borderColor: m.status === 'submitted' ? '#DCFCE7' : '#FEE2E2',
-                    borderWidth: 1,
-                    paddingVertical: 4,
-                    paddingHorizontal: 10,
-                    borderRadius: 20,
-                  }}>
-                    <Text style={{
-                      fontSize: 9,
-                      fontWeight: '800',
-                      color: m.status === 'submitted' ? '#16A34A' : '#DC2626',
-                      fontFamily: fontStyle,
+            {maintenance.map((m, idx) => {
+              const vehicleNo = vehicles.find((v) => v.id === m.vehicleId)?.number || 'Unknown';
+              const driverName = drivers.find((d) => d.id === m.driverId)?.name || 'Unknown';
+              const initials = driverName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
+              const isResolved = m.status === 'submitted';
+              const isBreakdown = m.isBreakdownReport;
+
+              return (
+                <View key={m.id} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 14 }]}>
+                  {/* S.No */}
+                  <Text style={[styles.tableCell, { flex: 0.5, color: '#64748B', fontWeight: 'bold', fontFamily: fontStyle }]}>{idx + 1}</Text>
+
+                  {/* Date / Time stacked */}
+                  <View style={{ flex: 1.4, flexDirection: 'column', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 13, color: '#334155', fontWeight: '600', fontFamily: fontStyle }}>{m.date}</Text>
+                    {m.time ? (
+                      <Text style={{ fontSize: 11, color: '#64748B', marginTop: 2, fontFamily: fontStyle }}>{m.time}</Text>
+                    ) : null}
+                  </View>
+
+                  {/* Vehicle plate badge */}
+                  <View style={{ flex: 1.4, flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{
+                      backgroundColor: '#FFF',
+                      borderWidth: 1.5,
+                      borderColor: '#1E293B',
+                      borderRadius: 4,
+                      paddingVertical: 3,
+                      paddingHorizontal: 7,
                     }}>
-                      {m.status === 'submitted' ? 'RESOLVED' : 'REPORTED'}
-                    </Text>
+                      <Text style={{ fontSize: 9, fontWeight: '800', color: '#1E293B', letterSpacing: 0.5, fontFamily: 'monospace' }}>{vehicleNo}</Text>
+                    </View>
+                    {isBreakdown && (
+                      <View style={{ marginLeft: 6, backgroundColor: '#FEF2F2', borderRadius: 4, padding: 3 }}>
+                        <Ionicons name="flash" size={10} color="#EF4444" />
+                      </View>
+                    )}
+                  </View>
+
+                  {/* Driver avatar + name */}
+                  <View style={{ flex: 1.6, flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: 14,
+                      backgroundColor: '#EFF6FF',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginRight: 8,
+                      borderWidth: 1,
+                      borderColor: '#BFDBFE',
+                    }}>
+                      <Text style={{ fontSize: 9, fontWeight: '800', color: '#1D4ED8', fontFamily: fontStyle }}>{initials}</Text>
+                    </View>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#0F172A', fontFamily: fontStyle }} numberOfLines={1}>{driverName}</Text>
+                  </View>
+
+                  {/* Maintenance Type */}
+                  <Text style={[styles.tableCell, { flex: 1.5, color: '#F59E0B', fontWeight: '700', fontFamily: fontStyle }]} numberOfLines={2}>
+                    {m.maintenanceType || '—'}
+                  </Text>
+
+                  {/* Description */}
+                  <Text style={[styles.tableCell, { flex: 2.5, color: '#475569', fontFamily: fontStyle }]} numberOfLines={3}>
+                    {m.description || '—'}
+                  </Text>
+
+                  {/* Service Notes */}
+                  <Text style={[styles.tableCell, { flex: 2, color: '#64748B', fontStyle: 'italic', fontFamily: fontStyle }]} numberOfLines={3}>
+                    {m.serviceNotes || '—'}
+                  </Text>
+
+                  {/* Cost */}
+                  <Text style={[styles.tableCell, { flex: 1, textAlign: 'right', fontWeight: '800', color: parseFloat(m.cost) > 0 ? '#8B5CF6' : '#94A3B8', fontFamily: fontStyle }]}>
+                    {parseFloat(m.cost) > 0 ? `$${m.cost}` : 'N/A'}
+                  </Text>
+
+                  {/* Status pill */}
+                  <View style={{ flex: 1.2, alignItems: 'center' }}>
+                    <View style={{
+                      backgroundColor: isResolved ? '#F0FDF4' : '#FEF2F2',
+                      borderColor: isResolved ? '#DCFCE7' : '#FEE2E2',
+                      borderWidth: 1,
+                      paddingVertical: 4,
+                      paddingHorizontal: 10,
+                      borderRadius: 20,
+                    }}>
+                      <Text style={{
+                        fontSize: 9,
+                        fontWeight: '800',
+                        color: isResolved ? '#16A34A' : '#DC2626',
+                        fontFamily: fontStyle,
+                      }}>
+                        {isResolved ? 'RESOLVED' : 'REPORTED'}
+                      </Text>
+                    </View>
                   </View>
                 </View>
+              );
+            })}
+
+            {maintenance.length === 0 && (
+              <View style={{ alignItems: 'center', paddingVertical: 40 }}>
+                <Ionicons name="construct-outline" size={40} color="#CBD5E1" />
+                <Text style={{ color: '#94A3B8', fontSize: 14, marginTop: 12, fontFamily: fontStyle }}>No maintenance records found</Text>
               </View>
-            ))}
+            )}
           </View>
         </ScrollView>
       </View>
