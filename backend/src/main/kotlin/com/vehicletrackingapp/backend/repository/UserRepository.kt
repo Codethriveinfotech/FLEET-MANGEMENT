@@ -26,6 +26,7 @@ class UserRepositoryImpl : UserRepository {
         passwordHash = row[Users.passwordHash],
         licenseNumber = row[Users.licenseNumber],
         photoUri = row[Users.photoUri],
+        role = row[Users.role],
         createdAt = row[Users.createdAt],
         updatedAt = row[Users.updatedAt]
     )
@@ -39,6 +40,7 @@ class UserRepositoryImpl : UserRepository {
             it[passwordHash] = user.passwordHash
             it[licenseNumber] = user.licenseNumber
             it[photoUri] = user.photoUri
+            it[role] = user.role
             it[createdAt] = user.createdAt
             it[updatedAt] = user.updatedAt
         }
@@ -78,6 +80,7 @@ class UserRepositoryImpl : UserRepository {
             it[passwordHash] = user.passwordHash
             it[licenseNumber] = user.licenseNumber
             it[photoUri] = user.photoUri
+            it[role] = user.role
             it[updatedAt] = user.updatedAt
         } > 0
     }

@@ -16,7 +16,7 @@ fun Route.userRoutes(userRepository: UserRepository) {
         route("/users") {
             get {
                 val users = userRepository.getAllUsers().map { 
-                    UserDto(it.id, it.name, it.email, it.phone, it.licenseNumber, it.photoUri) 
+                    UserDto(it.id, it.name, it.email, it.phone, it.licenseNumber, it.photoUri, it.role) 
                 }
                 call.respond(ApiResponse.success(users))
             }
@@ -38,7 +38,8 @@ fun Route.userRoutes(userRepository: UserRepository) {
                     phone = updateReq.phone,
                     passwordHash = newHash,
                     licenseNumber = updateReq.licenseNumber,
-                    photoUri = updateReq.photoUri
+                    photoUri = updateReq.photoUri,
+                    role = updateReq.role
                 )
                 if (userRepository.updateUser(updatedUser)) {
                     call.respond(ApiResponse.success(true, "User updated"))
@@ -63,7 +64,7 @@ fun Route.userRoutes(userRepository: UserRepository) {
                 val userId = principal?.payload?.subject ?: ""
                 val user = userRepository.findById(userId)
                 if (user != null) {
-                    call.respond(ApiResponse.success(UserDto(user.id, user.name, user.email, user.phone, user.licenseNumber, user.photoUri)))
+                    call.respond(ApiResponse.success(UserDto(user.id, user.name, user.email, user.phone, user.licenseNumber, user.photoUri, user.role)))
                 } else {
                     call.respond(ApiResponse.error("User not found"))
                 }

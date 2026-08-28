@@ -5,6 +5,8 @@ import { User, Vehicle, FuelLog } from '@fleettrack/shared';
 interface DashboardDataContextType {
   drivers: User[];
   setDrivers: React.Dispatch<React.SetStateAction<User[]>>;
+  admins: User[];
+  setAdmins: React.Dispatch<React.SetStateAction<User[]>>;
   vehicles: Vehicle[];
   setVehicles: React.Dispatch<React.SetStateAction<Vehicle[]>>;
   trips: any[];
@@ -22,6 +24,7 @@ const DashboardDataContext = createContext<DashboardDataContextType | undefined>
 
 export function DashboardDataProvider({ children }: { children: React.ReactNode }) {
   const [drivers, setDrivers] = useState<User[]>([]);
+  const [admins, setAdmins] = useState<User[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [trips, setTrips] = useState<any[]>([]);
   const [maintenance, setMaintenance] = useState<any[]>([]);
@@ -41,8 +44,10 @@ export function DashboardDataProvider({ children }: { children: React.ReactNode 
       ]);
 
       if (drRes.data.success) {
-        const allDrivers = drRes.data.data.filter((u: any) => u.phone !== 'admin');
+        const allDrivers = drRes.data.data.filter((u: any) => u.role === 'DRIVER' || (!u.role && u.phone !== 'admin'));
+        const allAdmins = drRes.data.data.filter((u: any) => u.role === 'ADMIN');
         setDrivers(allDrivers);
+        setAdmins(allAdmins);
       }
       if (vRes.data.success) setVehicles(vRes.data.data);
       if (tRes.data.success) setTrips(tRes.data.data);
@@ -77,6 +82,8 @@ export function DashboardDataProvider({ children }: { children: React.ReactNode 
       value={{
         drivers,
         setDrivers,
+        admins,
+        setAdmins,
         vehicles,
         setVehicles,
         trips,

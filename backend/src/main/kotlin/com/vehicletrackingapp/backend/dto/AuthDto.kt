@@ -10,7 +10,8 @@ data class RegisterRequest(
     val phone: String,
     val password: String,
     val licenseNumber: String? = null,
-    val photoUri: String? = null
+    val photoUri: String? = null,
+    val role: String? = "DRIVER"
 )
 
 @Serializable
@@ -34,6 +35,7 @@ data class UserDto(
     val phone: String,
     val licenseNumber: String? = null,
     val photoUri: String? = null,
+    val role: String,
     val password: String? = null
 )
 

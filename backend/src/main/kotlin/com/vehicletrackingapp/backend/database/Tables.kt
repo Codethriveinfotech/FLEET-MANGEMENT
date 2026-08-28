@@ -15,6 +15,7 @@ object Users : Table("users") {
     val passwordHash = text("password_hash")
     val licenseNumber = text("license_number").nullable()
     val photoUri = text("photo_uri").nullable()
+    val role = text("role").default("DRIVER")
     val createdAt = datetime("created_at").default(Clock.System.now().toLocalDateTime(TimeZone.UTC))
     val updatedAt = datetime("updated_at").default(Clock.System.now().toLocalDateTime(TimeZone.UTC))
     override val primaryKey = PrimaryKey(id)

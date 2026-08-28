@@ -12,6 +12,7 @@ data class User(
     val passwordHash: String,
     val licenseNumber: String?,
     val photoUri: String?,
+    val role: String,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime
 )

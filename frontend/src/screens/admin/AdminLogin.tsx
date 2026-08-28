@@ -34,12 +34,8 @@ export default function AdminLogin() {
 
       if (res.data && res.data.success) {
         const { user, accessToken, refreshToken } = res.data.data;
-        if (user.phone === 'admin') {
-          const adminUser = {
-            ...user,
-            role: 'ADMIN',
-          };
-          await setAuth(adminUser, accessToken, refreshToken);
+        if (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN') {
+          await setAuth(user, accessToken, refreshToken);
         } else {
           setError('Access Denied: Enterprise Role Mismatch');
         }

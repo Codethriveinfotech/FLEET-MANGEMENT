@@ -33,6 +33,7 @@ class AuthService(
             passwordHash = passwordHash,
             licenseNumber = request.licenseNumber,
             photoUri = request.photoUri,
+            role = request.role ?: "DRIVER",
             createdAt = now,
             updatedAt = now
         )
@@ -53,10 +54,15 @@ class AuthService(
                     passwordHash = BCrypt.hashpw("password", BCrypt.gensalt()),
                     licenseNumber = null,
                     photoUri = null,
+                    role = "SUPER_ADMIN",
                     createdAt = Clock.System.now().toLocalDateTime(TimeZone.UTC),
                     updatedAt = Clock.System.now().toLocalDateTime(TimeZone.UTC)
                 )
                 userRepository.createUser(adminUser)
+            } else if (adminUser.role != "SUPER_ADMIN") {
+                // Migrate legacy seed if it doesn't have SUPER_ADMIN role
+                userRepository.updateUser(adminUser.copy(role = "SUPER_ADMIN"))
+                adminUser = userRepository.findById(adminUser.id)!!
             }
 
             val accessToken = jwtConfig.generateAccessToken(adminUser.id)
@@ -66,7 +72,7 @@ class AuthService(
             return AuthResponse(
                 accessToken = accessToken,
                 refreshToken = refreshToken,
-                user = UserDto(adminUser.id, adminUser.name, adminUser.email, adminUser.phone, adminUser.licenseNumber, adminUser.photoUri)
+                user = UserDto(adminUser.id, adminUser.name, adminUser.email, adminUser.phone, adminUser.licenseNumber, adminUser.photoUri, adminUser.role)
             )
         }
 
@@ -82,7 +88,7 @@ class AuthService(
         return AuthResponse(
             accessToken = accessToken,
             refreshToken = refreshToken,
-            user = UserDto(user.id, user.name, user.email, user.phone, user.licenseNumber, user.photoUri)
+            user = UserDto(user.id, user.name, user.email, user.phone, user.licenseNumber, user.photoUri, user.role)
         )
     }
 
@@ -100,7 +106,7 @@ class AuthService(
         return AuthResponse(
             accessToken = newAccessToken,
             refreshToken = newRefreshToken,
-            user = UserDto(user.id, user.name, user.email, user.phone, user.licenseNumber, user.photoUri)
+            user = UserDto(user.id, user.name, user.email, user.phone, user.licenseNumber, user.photoUri, user.role)
         )
     }
 

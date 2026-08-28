@@ -70,6 +70,7 @@ export default function DriversTab() {
           phone: driverForm.phone,
           email: driverForm.email || null,
           licenseNumber: driverForm.licenseNumber || null,
+          role: 'DRIVER',
           password: driverForm.password,
         });
       }

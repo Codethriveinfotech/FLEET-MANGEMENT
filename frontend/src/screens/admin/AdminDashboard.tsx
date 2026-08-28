@@ -18,6 +18,7 @@ import MaintenanceTab from './tabs/MaintenanceTab';
 import ReportsTab from './tabs/ReportsTab';
 import ProfileTab from './tabs/ProfileTab';
 import FuelMonitorTab from './tabs/FuelMonitorTab';
+import AdminsTab from './tabs/AdminsTab';
 
 const DashboardStack = createStackNavigator();
 
@@ -29,6 +30,27 @@ function DashboardLayoutContent() {
   // Determine active tab route using React Navigation state
   const navState = useNavigationState((s) => s);
   const activeTab = navState ? (navState.routes[navState.index]?.name || 'overview') : 'overview';
+
+  // Build menu items based on user role
+  const isSuper = user?.role === 'SUPER_ADMIN';
+  const menuItems = [
+    { id: 'overview', label: 'Dashboard', icon: 'grid-outline' },
+    { id: 'vehicles', label: 'Vehicles', icon: 'car-outline' },
+    { id: 'drivers', label: 'Drivers', icon: 'people-outline' },
+    { id: 'trips', label: 'Trips', icon: 'navigate-outline' },
+    { id: 'maintenance', label: 'Maintenance', icon: 'construct-outline' },
+    { id: 'fuel-monitor', label: 'Fuel Monitor', icon: 'bar-chart-outline' },
+    { id: 'reports', label: 'Reports', icon: 'analytics-outline' },
+  ];
+
+  if (isSuper) {
+    menuItems.push({ id: 'admins', label: 'Admins', icon: 'shield-checkmark-outline' });
+  }
+
+  menuItems.push({ id: 'profile', label: 'Settings', icon: 'settings-outline' });
+
+  const avatarChar = user?.name ? user.name[0].toUpperCase() : 'A';
+  const roleLabel = user?.role === 'SUPER_ADMIN' ? 'System Owner' : 'Fleet Admin';
 
   return (
     <View style={styles.container}>
@@ -45,16 +67,7 @@ function DashboardLayoutContent() {
         </View>
 
         <View style={styles.menuItems}>
-          {[
-            { id: 'overview', label: 'Dashboard', icon: 'grid-outline' },
-            { id: 'vehicles', label: 'Vehicles', icon: 'car-outline' },
-            { id: 'drivers', label: 'Drivers', icon: 'people-outline' },
-            { id: 'trips', label: 'Trips', icon: 'navigate-outline' },
-            { id: 'maintenance', label: 'Maintenance', icon: 'construct-outline' },
-            { id: 'fuel-monitor', label: 'Fuel Monitor', icon: 'bar-chart-outline' },
-            { id: 'reports', label: 'Reports', icon: 'analytics-outline' },
-            { id: 'profile', label: 'Settings', icon: 'settings-outline' },
-          ].map((item) => {
+          {menuItems.map((item) => {
             const isActive = activeTab === item.id;
             const iconColor = isActive ? '#FFFFFF' : '#94A3B8';
 
@@ -88,11 +101,11 @@ function DashboardLayoutContent() {
         {/* Admin footer profile info card */}
         <View style={styles.adminFooterCard}>
           <View style={styles.adminAvatar}>
-            <Text style={styles.avatarText}>A</Text>
+            <Text style={styles.avatarText}>{avatarChar}</Text>
           </View>
           <View style={styles.adminInfo}>
-            <Text style={styles.adminName} numberOfLines={1}>Admin Owner</Text>
-            <Text style={styles.adminEmail} numberOfLines={1}>owner@fleetpro.com</Text>
+            <Text style={styles.adminName} numberOfLines={1}>{user?.name || 'Admin User'}</Text>
+            <Text style={styles.adminEmail} numberOfLines={1}>{user?.email || user?.phone || 'admin@system.com'}</Text>
           </View>
           <TouchableOpacity style={styles.logoutMiniBtn} onPress={clearAuth}>
             <Ionicons name="log-out-outline" size={16} color="#94A3B8" />
@@ -119,20 +132,20 @@ function DashboardLayoutContent() {
               <Ionicons name="notifications-outline" size={16} color="#64748B" />
               <View style={styles.badgeAlertDot} />
             </TouchableOpacity>
-
+ 
             <View style={styles.headerProfileBadge}>
               <View style={[styles.adminAvatar, { width: 28, height: 28, borderRadius: 14, backgroundColor: '#64748B' }]}>
-                <Text style={[styles.avatarText, { fontSize: 11 }]}>A</Text>
+                <Text style={[styles.avatarText, { fontSize: 11 }]}>{avatarChar}</Text>
               </View>
               <View style={{ marginLeft: 8, marginRight: 8 }}>
-                <Text style={{ fontSize: 11, fontWeight: '800', color: '#0F172A', fontFamily: fontStyle }}>Admin User</Text>
-                <Text style={{ fontSize: 9, color: '#64748B', fontWeight: '500', fontFamily: fontStyle }}>Fleet Owner</Text>
+                <Text style={{ fontSize: 11, fontWeight: '800', color: '#0F172A', fontFamily: fontStyle }}>{user?.name || 'Admin User'}</Text>
+                <Text style={{ fontSize: 9, color: '#64748B', fontWeight: '500', fontFamily: fontStyle }}>{roleLabel}</Text>
               </View>
               <Ionicons name="chevron-down-outline" size={10} color="#64748B" />
             </View>
           </View>
         </View>
-
+ 
         {loading ? (
           <View style={styles.loadingWrapper}>
             <ActivityIndicator color="#1D4ED8" size="large" />
@@ -147,6 +160,7 @@ function DashboardLayoutContent() {
               <DashboardStack.Screen name="maintenance" component={MaintenanceTab} />
               <DashboardStack.Screen name="fuel-monitor" component={FuelMonitorTab} />
               <DashboardStack.Screen name="reports" component={ReportsTab} />
+              {isSuper && <DashboardStack.Screen name="admins" component={AdminsTab} />}
               <DashboardStack.Screen name="profile" component={ProfileTab} />
             </DashboardStack.Navigator>
           </View>
