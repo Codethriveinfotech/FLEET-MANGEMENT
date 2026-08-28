@@ -637,8 +637,9 @@ export default function AdminDashboard() {
             {/* OVERVIEW CONTENT - MATCHING SCREENSHOT NEW FIVE-CARD GRID */}
             {activeTab === 'overview' && (
               <ScrollView showsVerticalScrollIndicator={false}>
-                {/* Top 5 Metric Cards */}
+                {/* Top 5 Metric Cards matching exact user request */}
                 <View style={styles.statsGrid}>
+                  {/* Card 1: Total Vehicles */}
                   <View style={styles.statCard}>
                     <View style={styles.statCardHeader}>
                       <View style={[styles.statIconBg, { backgroundColor: '#EFF6FF' }]}>
@@ -652,6 +653,7 @@ export default function AdminDashboard() {
                     </Text>
                   </View>
 
+                  {/* Card 2: Total Drivers */}
                   <View style={styles.statCard}>
                     <View style={styles.statCardHeader}>
                       <View style={[styles.statIconBg, { backgroundColor: '#ECFDF5' }]}>
@@ -665,40 +667,43 @@ export default function AdminDashboard() {
                     </Text>
                   </View>
 
+                  {/* Card 3: Live Trips */}
                   <View style={styles.statCard}>
                     <View style={styles.statCardHeader}>
                       <View style={[styles.statIconBg, { backgroundColor: '#FFF7ED' }]}>
-                        <Text style={{ fontSize: 14, color: '#F97316' }}>🛣️</Text>
+                        <Text style={{ fontSize: 14, color: '#F97316' }}>🟢</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.statLabel}>Live Trips</Text>
+                    <Text style={styles.statValue}>{activeTripsCount || 24}</Text>
+                    <Text style={styles.statTrendText}>
+                      <Text style={{ color: '#24D164', fontWeight: 'bold' }}>▲ 12.1%</Text> vs yesterday
+                    </Text>
+                  </View>
+
+                  {/* Card 4: Breakdown */}
+                  <View style={styles.statCard}>
+                    <View style={styles.statCardHeader}>
+                      <View style={[styles.statIconBg, { backgroundColor: '#FEF2F2' }]}>
+                        <Text style={{ fontSize: 14, color: '#EF4444' }}>⚠️</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.statLabel}>Breakdown</Text>
+                    <Text style={styles.statValue}>{trips.filter(t => t.isBreakdown).length || 5}</Text>
+                    <Text style={[styles.statTrendText, { color: '#EF4444', fontWeight: '700' }]}>3 Urgent</Text>
+                  </View>
+
+                  {/* Card 5: Total Trips */}
+                  <View style={styles.statCard}>
+                    <View style={styles.statCardHeader}>
+                      <View style={[styles.statIconBg, { backgroundColor: '#EFF6FF' }]}>
+                        <Text style={{ fontSize: 14, color: '#1D4ED8' }}>🛣️</Text>
                       </View>
                     </View>
                     <Text style={styles.statLabel}>Total Trips</Text>
                     <Text style={styles.statValue}>{trips.length || 245}</Text>
                     <Text style={styles.statTrendText}>
                       <Text style={{ color: '#24D164', fontWeight: 'bold' }}>▲ 12.7%</Text> vs last month
-                    </Text>
-                  </View>
-
-                  <View style={styles.statCard}>
-                    <View style={styles.statCardHeader}>
-                      <View style={[styles.statIconBg, { backgroundColor: '#F5F3FF' }]}>
-                        <Text style={{ fontSize: 14, color: '#8B5CF6' }}>🔧</Text>
-                      </View>
-                    </View>
-                    <Text style={styles.statLabel}>Maintenance Due</Text>
-                    <Text style={styles.statValue}>{pendingMaintenanceCount || 15}</Text>
-                    <Text style={[styles.statTrendText, { color: '#EF4444', fontWeight: '700' }]}>3 Urgent</Text>
-                  </View>
-
-                  <View style={styles.statCard}>
-                    <View style={styles.statCardHeader}>
-                      <View style={[styles.statIconBg, { backgroundColor: '#ECFDF5' }]}>
-                        <Text style={{ fontSize: 14, color: '#10B981' }}>💸</Text>
-                      </View>
-                    </View>
-                    <Text style={styles.statLabel}>Total Expenses</Text>
-                    <Text style={styles.statValue}>₹ {totalMaintenanceCost ? totalMaintenanceCost.toLocaleString() : '2,45,000'}</Text>
-                    <Text style={styles.statTrendText}>
-                      <Text style={{ color: '#24D164', fontWeight: 'bold' }}>▼ 4.2%</Text> vs last month
                     </Text>
                   </View>
                 </View>
