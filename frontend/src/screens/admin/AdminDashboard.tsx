@@ -825,57 +825,6 @@ export default function AdminDashboard() {
                 {/* DRIVERS TAB */}
                 {activeTab === 'drivers' && (
                   <View style={{ flex: 1 }}>
-                    {/* Drivers Page Metrics */}
-                    <View style={[styles.statsGrid, { marginBottom: 20 }]}>
-                      <View style={[styles.statCard, { flex: 1 }]}>
-                        <View style={[styles.statIconBg, { backgroundColor: '#10B981' }]}>
-                          <Ionicons name="people" size={26} color="#FFFFFF" />
-                        </View>
-                        <View style={{ marginLeft: 16, flex: 1 }}>
-                          <Text style={styles.statLabel}>Total Drivers</Text>
-                          <Text style={styles.statValue}>{drivers.length}</Text>
-                          <Text style={styles.statTrendText}>Active fleet list</Text>
-                        </View>
-                      </View>
-
-                      <View style={[styles.statCard, { flex: 1 }]}>
-                        <View style={[styles.statIconBg, { backgroundColor: '#3B82F6' }]}>
-                          <Ionicons name="navigate" size={24} color="#FFFFFF" />
-                        </View>
-                        <View style={{ marginLeft: 16, flex: 1 }}>
-                          <Text style={styles.statLabel}>Active Duty</Text>
-                          <Text style={styles.statValue}>{Math.round(drivers.length * 0.85) || 0}</Text>
-                          <Text style={[styles.statTrendText, { color: '#10B981', fontWeight: 'bold' }]}>On Route</Text>
-                        </View>
-                      </View>
-
-                      <View style={[styles.statCard, { flex: 1 }]}>
-                        <View style={[styles.statIconBg, { backgroundColor: '#F59E0B' }]}>
-                          <Ionicons name="cafe" size={24} color="#FFFFFF" />
-                        </View>
-                        <View style={{ marginLeft: 16, flex: 1 }}>
-                          <Text style={styles.statLabel}>On Leave</Text>
-                          <Text style={styles.statValue}>{Math.round(drivers.length * 0.12) || 0}</Text>
-                          <Text style={[styles.statTrendText, { color: '#F59E0B', fontWeight: 'bold' }]}>Off Shift</Text>
-                        </View>
-                      </View>
-
-                      <View style={[styles.statCard, { flex: 1 }]}>
-                        <View style={[styles.statIconBg, { backgroundColor: '#EF4444' }]}>
-                          <Ionicons name="alert-circle" size={24} color="#FFFFFF" />
-                        </View>
-                        <View style={{ marginLeft: 16, flex: 1 }}>
-                          <Text style={styles.statLabel}>Standby/Out</Text>
-                          <Text style={styles.statValue}>
-                            {drivers.length - (Math.round(drivers.length * 0.85) || 0) - (Math.round(drivers.length * 0.12) || 0) < 0
-                              ? 0
-                              : drivers.length - (Math.round(drivers.length * 0.85) || 0) - (Math.round(drivers.length * 0.12) || 0)}
-                          </Text>
-                          <Text style={[styles.statTrendText, { color: '#EF4444', fontWeight: 'bold' }]}>Suspended</Text>
-                        </View>
-                      </View>
-                    </View>
-
                     {/* Drivers Search & Action Card */}
                     <View style={styles.sectionCard}>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
@@ -989,57 +938,6 @@ export default function AdminDashboard() {
                 {/* VEHICLES CRUD LIST TAB */}
                 {activeTab === 'vehicles' && (
                   <View style={{ flex: 1 }}>
-                    {/* Vehicles Page Metrics Summary */}
-                    <View style={[styles.statsGrid, { marginBottom: 20 }]}>
-                      <View style={[styles.statCard, { flex: 1 }]}>
-                        <View style={[styles.statIconBg, { backgroundColor: '#3B82F6' }]}>
-                          <Ionicons name="car-sport" size={26} color="#FFFFFF" />
-                        </View>
-                        <View style={{ marginLeft: 16, flex: 1 }}>
-                          <Text style={styles.statLabel}>Total Vehicles</Text>
-                          <Text style={styles.statValue}>{vehicles.length}</Text>
-                          <Text style={styles.statTrendText}>Registered fleet</Text>
-                        </View>
-                      </View>
-
-                      <View style={[styles.statCard, { flex: 1 }]}>
-                        <View style={[styles.statIconBg, { backgroundColor: '#10B981' }]}>
-                          <Ionicons name="checkmark-circle" size={24} color="#FFFFFF" />
-                        </View>
-                        <View style={{ marginLeft: 16, flex: 1 }}>
-                          <Text style={styles.statLabel}>Active Duty</Text>
-                          <Text style={styles.statValue}>{Math.round(vehicles.length * 0.78) || 0}</Text>
-                          <Text style={[styles.statTrendText, { color: '#10B981', fontWeight: 'bold' }]}>On Route</Text>
-                        </View>
-                      </View>
-
-                      <View style={[styles.statCard, { flex: 1 }]}>
-                        <View style={[styles.statIconBg, { backgroundColor: '#F59E0B' }]}>
-                          <Ionicons name="construct" size={24} color="#FFFFFF" />
-                        </View>
-                        <View style={{ marginLeft: 16, flex: 1 }}>
-                          <Text style={styles.statLabel}>In Service</Text>
-                          <Text style={styles.statValue}>{Math.round(vehicles.length * 0.15) || 0}</Text>
-                          <Text style={[styles.statTrendText, { color: '#F59E0B', fontWeight: 'bold' }]}>Maintenance</Text>
-                        </View>
-                      </View>
-
-                      <View style={[styles.statCard, { flex: 1 }]}>
-                        <View style={[styles.statIconBg, { backgroundColor: '#EF4444' }]}>
-                          <Ionicons name="close-circle" size={24} color="#FFFFFF" />
-                        </View>
-                        <View style={{ marginLeft: 16, flex: 1 }}>
-                          <Text style={styles.statLabel}>Standby/Out</Text>
-                          <Text style={styles.statValue}>
-                            {vehicles.length - (Math.round(vehicles.length * 0.78) || 0) - (Math.round(vehicles.length * 0.15) || 0) < 0
-                              ? 0
-                              : vehicles.length - (Math.round(vehicles.length * 0.78) || 0) - (Math.round(vehicles.length * 0.15) || 0)}
-                          </Text>
-                          <Text style={[styles.statTrendText, { color: '#EF4444', fontWeight: 'bold' }]}>Offline</Text>
-                        </View>
-                      </View>
-                    </View>
-
                     {/* Vehicles Search & Action Card */}
                     <View style={styles.sectionCard}>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
