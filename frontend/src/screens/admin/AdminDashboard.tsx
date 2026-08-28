@@ -823,7 +823,7 @@ export default function AdminDashboard() {
 
             {/* OTHER TABS RENDER - SPANNING FULL WORKSPACE WIDTH */}
             {activeTab !== 'overview' && (
-              <View style={{ flex: 1 }}>
+              <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
                 {/* DRIVERS TAB */}
                 {activeTab === 'drivers' && (
                   <View style={{ flex: 1 }}>
@@ -1265,8 +1265,7 @@ export default function AdminDashboard() {
                     </View>
 
                     {/* Scrollable Table View */}
-                    <ScrollView horizontal showsHorizontalScrollIndicator={true} style={{ width: '100%' }}>
-                      <View style={[styles.table, { minWidth: 1000 }]}>
+                    <View style={[styles.table, { width: '100%' }]}>
                         {/* Table Header Row */}
                         <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10 }]}>
                           <Text style={[styles.tableHeaderCell, { flex: 1.2, fontFamily: fontStyle }]}>START DATE</Text>
@@ -1358,7 +1357,6 @@ export default function AdminDashboard() {
                           );
                         })}
                       </View>
-                    </ScrollView>
                   </View>
                 )}
 
@@ -1576,7 +1574,7 @@ export default function AdminDashboard() {
                     </View>
                   </View>
                 )}
-              </View>
+              </ScrollView>
             )}
           </View>
         )}
