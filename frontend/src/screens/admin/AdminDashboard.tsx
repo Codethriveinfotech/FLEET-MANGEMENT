@@ -1274,7 +1274,8 @@ export default function AdminDashboard() {
                       {/* Custom Spaced Table Header Row (Fixed) */}
                       <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10, marginBottom: 0 }]}>
                         <Text style={[styles.tableHeaderCell, { flex: 0.6, fontFamily: fontStyle }]}>S.NO</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 1.1, fontFamily: fontStyle }]}>START DATE</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.6, fontFamily: fontStyle }]}>START TIME</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.6, fontFamily: fontStyle }]}>END TIME</Text>
                         <Text style={[styles.tableHeaderCell, { flex: 1.8, fontFamily: fontStyle }]}>OPERATOR DRIVER</Text>
                         <Text style={[styles.tableHeaderCell, { flex: 1.3, fontFamily: fontStyle }]}>VEHICLE NO</Text>
                         <Text style={[styles.tableHeaderCell, { flex: 1.8, fontFamily: fontStyle }]}>SOURCE LOCATION</Text>
@@ -1306,8 +1307,15 @@ export default function AdminDashboard() {
                               {/* S.No Cell */}
                               <Text style={[styles.tableCell, { flex: 0.6, color: '#64748B', fontWeight: 'bold', fontFamily: fontStyle }]}>{idx + 1}</Text>
 
-                              {/* Date cell */}
-                              <Text style={[styles.tableCell, { flex: 1.1, color: '#475569', fontWeight: '500', fontFamily: fontStyle }]}>{trip.startDate}</Text>
+                              {/* Start Time Cell */}
+                              <Text style={[styles.tableCell, { flex: 1.6, color: '#475569', fontWeight: '500', fontFamily: fontStyle }]}>
+                                {trip.startDate} {trip.startTime ? `@ ${trip.startTime}` : ''}
+                              </Text>
+
+                              {/* End Time Cell */}
+                              <Text style={[styles.tableCell, { flex: 1.6, color: isDone ? '#475569' : '#10B981', fontWeight: isDone ? '500' : '700', fontFamily: fontStyle }]}>
+                                {trip.endDate ? `${trip.endDate}${trip.endTime ? ` @ ${trip.endTime}` : ''}` : (isDone ? 'N/A' : 'Active')}
+                              </Text>
 
                               {/* Driver avatar cell */}
                               <View style={{ flex: 1.8, flexDirection: 'row', alignItems: 'center' }}>
