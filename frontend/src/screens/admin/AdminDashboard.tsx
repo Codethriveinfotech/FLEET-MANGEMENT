@@ -13,6 +13,7 @@ import {
 import { useAuthStore } from '../../store/auth';
 import { apiClient } from '../../api/client';
 import { User, Vehicle, TripEntry, MaintenanceRecord } from '@fleettrack/shared';
+import { Ionicons } from '@expo/vector-icons';
 
 type TabType = 'overview' | 'drivers' | 'vehicles' | 'trips' | 'maintenance' | 'reports' | 'profile';
 
@@ -545,36 +546,43 @@ export default function AdminDashboard() {
 
         <View style={styles.menuItems}>
           {[
-            { id: 'overview', label: 'Dashboard', icon: '📊' },
-            { id: 'vehicles', label: 'Vehicles', icon: '🚚' },
-            { id: 'drivers', label: 'Drivers', icon: '👤' },
-            { id: 'trips', label: 'Trips', icon: '🛣️' },
-            { id: 'maintenance', label: 'Maintenance', icon: '🔧' },
-            { id: 'reports', label: 'Reports', icon: '📈' },
-            { id: 'profile', label: 'Settings', icon: '⚙️' },
-          ].map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={[
-                styles.menuItem,
-                activeTab === item.id && styles.menuItemActive,
-              ]}
-              onPress={() => {
-                setActiveTab(item.id as TabType);
-                setSelectedVehicle(null);
-              }}
-            >
-              <Text style={styles.menuIcon}>{item.icon}</Text>
-              <Text
+            { id: 'overview', label: 'Dashboard', icon: 'grid-outline' },
+            { id: 'vehicles', label: 'Vehicles', icon: 'car-outline' },
+            { id: 'drivers', label: 'Drivers', icon: 'people-outline' },
+            { id: 'trips', label: 'Trips', icon: 'navigate-outline' },
+            { id: 'maintenance', label: 'Maintenance', icon: 'construct-outline' },
+            { id: 'reports', label: 'Reports', icon: 'analytics-outline' },
+            { id: 'profile', label: 'Settings', icon: 'settings-outline' },
+          ].map((item) => {
+            const isActive = activeTab === item.id;
+            const iconColor = isActive ? '#FFFFFF' : '#94A3B8';
+
+            return (
+              <TouchableOpacity
+                key={item.id}
                 style={[
-                  styles.menuItemText,
-                  activeTab === item.id && styles.menuItemTextActive,
+                  styles.menuItem,
+                  isActive && styles.menuItemActive,
                 ]}
+                onPress={() => {
+                  setActiveTab(item.id as TabType);
+                  setSelectedVehicle(null);
+                }}
               >
-                {item.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                <View style={{ marginRight: 12 }}>
+                  <Ionicons name={item.icon as any} size={18} color={iconColor} />
+                </View>
+                <Text
+                  style={[
+                    styles.menuItemText,
+                    isActive && styles.menuItemTextActive,
+                  ]}
+                >
+                  {item.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         {/* Admin info card at bottom of sidebar */}
@@ -642,11 +650,7 @@ export default function AdminDashboard() {
                   {/* Card 1: Total Drivers */}
                   <View style={styles.statCard}>
                     <View style={[styles.statIconBg, { backgroundColor: '#10B981' }]}>
-                      {/* Custom User profile logo */}
-                      <View style={{ width: 20, height: 20, justifyContent: 'center', alignItems: 'center' }}>
-                        <View style={{ width: 7, height: 7, borderRadius: 3.5, backgroundColor: '#FFFFFF', marginBottom: 2 }} />
-                        <View style={{ width: 14, height: 6, borderTopLeftRadius: 5, borderTopRightRadius: 5, backgroundColor: '#FFFFFF' }} />
-                      </View>
+                      <Ionicons name="people" size={22} color="#FFFFFF" />
                     </View>
                     <View style={{ marginLeft: 16, flex: 1 }}>
                       <Text style={styles.statLabel}>Total Drivers</Text>
@@ -660,13 +664,7 @@ export default function AdminDashboard() {
                   {/* Card 2: Total Vehicles */}
                   <View style={styles.statCard}>
                     <View style={[styles.statIconBg, { backgroundColor: '#3B82F6' }]}>
-                      {/* Custom Delivery Truck logo */}
-                      <View style={{ width: 22, height: 16, position: 'relative', justifyContent: 'center', alignItems: 'center' }}>
-                        <View style={{ width: 14, height: 10, backgroundColor: '#FFFFFF', borderRadius: 1.5, position: 'absolute', left: 0, top: 1 }} />
-                        <View style={{ width: 6, height: 8, backgroundColor: '#FFFFFF', borderTopRightRadius: 3, borderBottomRightRadius: 1, position: 'absolute', right: 1, top: 3 }} />
-                        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: '#3B82F6', position: 'absolute', bottom: -1, left: 3, borderWidth: 1, borderColor: '#FFFFFF' }} />
-                        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: '#3B82F6', position: 'absolute', bottom: -1, right: 3, borderWidth: 1, borderColor: '#FFFFFF' }} />
-                      </View>
+                      <Ionicons name="car-sport" size={22} color="#FFFFFF" />
                     </View>
                     <View style={{ marginLeft: 16, flex: 1 }}>
                       <Text style={styles.statLabel}>Total Vehicles</Text>
@@ -680,12 +678,7 @@ export default function AdminDashboard() {
                   {/* Card 3: Live Trips */}
                   <View style={styles.statCard}>
                     <View style={[styles.statIconBg, { backgroundColor: '#F59E0B' }]}>
-                      {/* Custom Route Connector path logo */}
-                      <View style={{ width: 20, height: 20, position: 'relative', justifyContent: 'center', alignItems: 'center' }}>
-                        <View style={{ width: 6, height: 6, borderRadius: 3, borderWidth: 1.5, borderColor: '#FFFFFF', position: 'absolute', top: 2, left: 11 }} />
-                        <View style={{ width: 6, height: 6, borderRadius: 3, borderWidth: 1.5, borderColor: '#FFFFFF', position: 'absolute', bottom: 2, left: 2 }} />
-                        <View style={{ width: 2, height: 12, backgroundColor: '#FFFFFF', opacity: 0.9, transform: [{ rotate: '40deg' }] }} />
-                      </View>
+                      <Ionicons name="pulse" size={22} color="#FFFFFF" />
                     </View>
                     <View style={{ marginLeft: 16, flex: 1 }}>
                       <Text style={styles.statLabel}>Live Trips</Text>
@@ -699,25 +692,7 @@ export default function AdminDashboard() {
                   {/* Card 4: Breakdown */}
                   <View style={styles.statCard}>
                     <View style={[styles.statIconBg, { backgroundColor: '#EF4444' }]}>
-                      {/* Custom Warning Alert logo */}
-                      <View style={{ width: 20, height: 20, justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-                        <View style={{
-                          width: 0,
-                          height: 0,
-                          backgroundColor: 'transparent',
-                          borderStyle: 'solid',
-                          borderLeftWidth: 8,
-                          borderRightWidth: 8,
-                          borderBottomWidth: 15,
-                          borderLeftColor: 'transparent',
-                          borderRightColor: 'transparent',
-                          borderBottomColor: '#FFFFFF',
-                          position: 'absolute',
-                          top: 1
-                        }} />
-                        <View style={{ width: 1.8, height: 5, backgroundColor: '#EF4444', position: 'absolute', top: 5 }} />
-                        <View style={{ width: 1.8, height: 1.8, borderRadius: 0.9, backgroundColor: '#EF4444', position: 'absolute', top: 11 }} />
-                      </View>
+                      <Ionicons name="alert-circle" size={22} color="#FFFFFF" />
                     </View>
                     <View style={{ marginLeft: 16, flex: 1 }}>
                       <Text style={styles.statLabel}>Breakdown</Text>
@@ -728,13 +703,8 @@ export default function AdminDashboard() {
 
                   {/* Card 5: Total Trips */}
                   <View style={styles.statCard}>
-                    <View style={[styles.statIconBg, { backgroundColor: '#3B82F6' }]}>
-                      {/* Custom Route Connector path logo */}
-                      <View style={{ width: 20, height: 20, position: 'relative', justifyContent: 'center', alignItems: 'center' }}>
-                        <View style={{ width: 6, height: 6, borderRadius: 3, borderWidth: 1.5, borderColor: '#FFFFFF', position: 'absolute', top: 2, left: 11 }} />
-                        <View style={{ width: 6, height: 6, borderRadius: 3, borderWidth: 1.5, borderColor: '#FFFFFF', position: 'absolute', bottom: 2, left: 2 }} />
-                        <View style={{ width: 2, height: 12, backgroundColor: '#FFFFFF', opacity: 0.9, transform: [{ rotate: '40deg' }] }} />
-                      </View>
+                    <View style={[styles.statIconBg, { backgroundColor: '#6366F1' }]}>
+                      <Ionicons name="git-commit" size={22} color="#FFFFFF" />
                     </View>
                     <View style={{ marginLeft: 16, flex: 1 }}>
                       <Text style={styles.statLabel}>Total Trips</Text>
