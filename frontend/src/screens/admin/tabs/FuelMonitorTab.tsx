@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { useDashboardData } from '../../../context/DashboardDataContext';
 import { styles, fontStyle } from '../AdminStyles';
@@ -6,8 +6,28 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function FuelMonitorTab() {
   const { vehicles, trips, fuelLogs } = useDashboardData();
+  const [filterFromDate, setFilterFromDate] = useState('');
+  const [filterToDate, setFilterToDate] = useState('');
 
-  // Compute stats per vehicle
+  // Parse DD/MM/YYYY -> Date
+  const parseDate = (str: string): Date | null => {
+    if (!str) return null;
+    const parts = str.split('/');
+    if (parts.length !== 3) return null;
+    return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+  };
+
+  // Apply date filter to fuelLogs
+  const filteredFuelLogs = fuelLogs.filter((f) => {
+    const d = parseDate(f.date);
+    if (filterFromDate && (!d || d < new Date(filterFromDate))) return false;
+    if (filterToDate && (!d || d > new Date(filterToDate))) return false;
+    return true;
+  });
+
+  const hasDateFilter = filterFromDate || filterToDate;
+
+  // Compute stats per vehicle (using filtered logs)
   const vehiclePerformance = vehicles.map((veh) => {
     // Distance
     const vehTrips = trips.filter((t) => t.vehicleId === veh.id && (t.status === 'submitted' || t.status === 'completed'));
@@ -17,8 +37,8 @@ export default function FuelMonitorTab() {
       return acc + (end >= start ? end - start : 0);
     }, 0);
 
-    // Fuel Logs
-    const vehFuel = fuelLogs.filter((f) => f.vehicleId === veh.id);
+    // Fuel Logs (filtered by date)
+    const vehFuel = filteredFuelLogs.filter((f) => f.vehicleId === veh.id);
     const totalLiters = vehFuel.reduce((acc, f) => acc + (parseFloat(f.liters) || 0), 0);
     const totalCost = vehFuel.reduce((acc, f) => acc + (parseFloat(f.cost) || 0), 0);
 
@@ -99,9 +119,107 @@ export default function FuelMonitorTab() {
 
       {/* Main Monitoring Board */}
       <View style={[styles.sectionCard, { marginBottom: 24 }]}>
-        <Text style={[styles.sectionTitle, { fontSize: 16, fontWeight: '800', fontFamily: fontStyle, marginBottom: 20 }]}>
-          VEHICLE FUEL MONITOR LEADERBOARD
-        </Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <View>
+            <Text style={[styles.sectionTitle, { fontSize: 16, fontWeight: '800', fontFamily: fontStyle }]}>
+              VEHICLE FUEL MONITOR LEADERBOARD
+            </Text>
+            {hasDateFilter && (
+              <Text style={{ fontSize: 11, color: '#64748B', fontFamily: fontStyle, marginTop: 2 }}>
+                Filtered: {filterFromDate || '—'} → {filterToDate || '—'} · {filteredFuelLogs.length} fuel log(s)
+              </Text>
+            )}
+          </View>
+        </View>
+
+        {/* Date Filter Row */}
+        <View style={{ flexDirection: 'row', gap: 12, marginBottom: 20 }}>
+          {/* From Date */}
+          <View style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            borderWidth: 1,
+            borderColor: '#E2E8F0',
+            borderRadius: 10,
+            backgroundColor: '#FFFFFF',
+            paddingHorizontal: 12,
+            overflow: 'hidden',
+          }}>
+            <Ionicons name="calendar-outline" size={16} color="#64748B" style={{ marginRight: 8 }} />
+            <Text style={{ fontSize: 11, color: '#64748B', marginRight: 6, fontFamily: fontStyle }}>From</Text>
+            <input
+              type="date"
+              style={{
+                flex: 1,
+                padding: '6px 0',
+                fontSize: 13,
+                border: 'none',
+                outline: 'none',
+                color: filterFromDate ? '#0F172A' : '#94A3B8',
+                backgroundColor: 'transparent',
+                fontFamily: fontStyle,
+                cursor: 'pointer',
+              } as any}
+              value={filterFromDate}
+              onChange={(e: any) => setFilterFromDate(e.target.value)}
+            />
+          </View>
+
+          {/* To Date */}
+          <View style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            borderWidth: 1,
+            borderColor: '#E2E8F0',
+            borderRadius: 10,
+            backgroundColor: '#FFFFFF',
+            paddingHorizontal: 12,
+            overflow: 'hidden',
+          }}>
+            <Ionicons name="calendar-outline" size={16} color="#64748B" style={{ marginRight: 8 }} />
+            <Text style={{ fontSize: 11, color: '#64748B', marginRight: 6, fontFamily: fontStyle }}>To</Text>
+            <input
+              type="date"
+              style={{
+                flex: 1,
+                padding: '6px 0',
+                fontSize: 13,
+                border: 'none',
+                outline: 'none',
+                color: filterToDate ? '#0F172A' : '#94A3B8',
+                backgroundColor: 'transparent',
+                fontFamily: fontStyle,
+                cursor: 'pointer',
+              } as any}
+              value={filterToDate}
+              onChange={(e: any) => setFilterToDate(e.target.value)}
+            />
+          </View>
+
+          {/* Clear */}
+          {hasDateFilter && (
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: '#FEE2E2',
+                borderRadius: 10,
+                backgroundColor: '#FEF2F2',
+                paddingHorizontal: 16,
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'row',
+                cursor: 'pointer',
+              } as any}
+              // @ts-ignore
+              onClick={() => { setFilterFromDate(''); setFilterToDate(''); }}
+            >
+              <Ionicons name="close-circle-outline" size={15} color="#EF4444" style={{ marginRight: 6 }} />
+              <Text style={{ fontSize: 12, color: '#EF4444', fontWeight: '700', fontFamily: fontStyle }}>Clear</Text>
+            </View>
+          )}
+        </View>
 
         {/* Custom Spaced Table Header Row */}
         <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10, marginBottom: 0 }]}>
