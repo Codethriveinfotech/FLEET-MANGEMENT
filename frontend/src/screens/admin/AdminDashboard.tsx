@@ -1273,19 +1273,21 @@ export default function AdminDashboard() {
 
                       {/* Custom Spaced Table Header Row (Fixed) */}
                       <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10, marginBottom: 0 }]}>
-                        <Text style={[styles.tableHeaderCell, { flex: 1.2, fontFamily: fontStyle }]}>START DATE</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>OPERATOR DRIVER</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>VEHICLE NO</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 2.2, fontFamily: fontStyle }]}>SOURCE LOCATION</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 2.2, fontFamily: fontStyle }]}>DESTINATION</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 1.8, textAlign: 'right', fontFamily: fontStyle }]}>ODOMETER PROGRESS</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'center', fontFamily: fontStyle }]}>STATUS</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 0.6, fontFamily: fontStyle }]}>S.NO</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.1, fontFamily: fontStyle }]}>START DATE</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.8, fontFamily: fontStyle }]}>OPERATOR DRIVER</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.3, fontFamily: fontStyle }]}>VEHICLE NO</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.8, fontFamily: fontStyle }]}>SOURCE LOCATION</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.8, fontFamily: fontStyle }]}>DESTINATION</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.6, textAlign: 'right', fontFamily: fontStyle }]}>ODOMETER PROGRESS</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.6, textAlign: 'right', fontFamily: fontStyle }]}>HMR READING</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.0, textAlign: 'center', fontFamily: fontStyle }]}>STATUS</Text>
                       </View>
 
                       {/* Scrollable table rows */}
                       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
                         <View style={styles.table}>
-                        {filteredTrips.map((trip) => {
+                        {filteredTrips.map((trip, idx) => {
                           const driverObj = drivers.find((d) => d.id === trip.driverId);
                           const driverName = driverObj?.name || 'Unknown';
                           const initials = driverName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
@@ -1301,11 +1303,14 @@ export default function AdminDashboard() {
 
                           return (
                             <View key={trip.id} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 14 }]}>
+                              {/* S.No Cell */}
+                              <Text style={[styles.tableCell, { flex: 0.6, color: '#64748B', fontWeight: 'bold', fontFamily: fontStyle }]}>{idx + 1}</Text>
+
                               {/* Date cell */}
-                              <Text style={[styles.tableCell, { flex: 1.2, color: '#475569', fontWeight: '500', fontFamily: fontStyle }]}>{trip.startDate}</Text>
+                              <Text style={[styles.tableCell, { flex: 1.1, color: '#475569', fontWeight: '500', fontFamily: fontStyle }]}>{trip.startDate}</Text>
 
                               {/* Driver avatar cell */}
-                              <View style={{ flex: 2, flexDirection: 'row', alignItems: 'center' }}>
+                              <View style={{ flex: 1.8, flexDirection: 'row', alignItems: 'center' }}>
                                 <View style={{
                                   width: 30,
                                   height: 30,
@@ -1319,11 +1324,11 @@ export default function AdminDashboard() {
                                 }}>
                                   <Text style={{ fontSize: 10, fontWeight: '800', color: '#EA580C', fontFamily: fontStyle }}>{initials}</Text>
                                 </View>
-                                <Text style={{ fontSize: 13, fontWeight: '700', color: '#0F172A', fontFamily: fontStyle }}>{driverName}</Text>
+                                <Text style={{ fontSize: 13, fontWeight: '700', color: '#0F172A', fontFamily: fontStyle }} numberOfLines={1}>{driverName}</Text>
                               </View>
 
                               {/* Vehicle plate cell */}
-                              <View style={{ flex: 1.5, flexDirection: 'row', alignItems: 'center' }}>
+                              <View style={{ flex: 1.3, flexDirection: 'row', alignItems: 'center' }}>
                                 <View style={{
                                   backgroundColor: '#FFF',
                                   borderWidth: 1.5,
@@ -1337,16 +1342,21 @@ export default function AdminDashboard() {
                               </View>
 
                               {/* Source/Destination cells */}
-                              <Text style={[styles.tableCell, { flex: 2.2, color: '#334155', fontWeight: '500', fontFamily: fontStyle }]} numberOfLines={1}>{trip.sourceLocation}</Text>
-                              <Text style={[styles.tableCell, { flex: 2.2, color: '#334155', fontWeight: '500', fontFamily: fontStyle }]} numberOfLines={1}>{trip.destinationLocation}</Text>
+                              <Text style={[styles.tableCell, { flex: 1.8, color: '#334155', fontWeight: '500', fontFamily: fontStyle }]} numberOfLines={1}>{trip.sourceLocation}</Text>
+                              <Text style={[styles.tableCell, { flex: 1.8, color: '#334155', fontWeight: '500', fontFamily: fontStyle }]} numberOfLines={1}>{trip.destinationLocation}</Text>
 
                               {/* Odometer progress */}
-                              <Text style={[styles.tableCell, { flex: 1.8, textAlign: 'right', fontWeight: '700', color: '#1E293B', fontFamily: fontStyle }]}>
+                              <Text style={[styles.tableCell, { flex: 1.6, textAlign: 'right', fontWeight: '700', color: '#1E293B', fontFamily: fontStyle }]}>
                                 {trip.startOdometer} km <Text style={{ color: '#94A3B8', fontWeight: '500' }}>→</Text> {trip.endOdometer ? `${trip.endOdometer} km` : 'Active'}
                               </Text>
 
+                              {/* HMR Progress */}
+                              <Text style={[styles.tableCell, { flex: 1.6, textAlign: 'right', fontWeight: '700', color: '#0284C7', fontFamily: fontStyle }]}>
+                                {trip.startHmr || '0.0'} hrs <Text style={{ color: '#94A3B8', fontWeight: '500' }}>→</Text> {trip.endHmr ? `${trip.endHmr} hrs` : 'Active'}
+                              </Text>
+
                               {/* Status pill badge */}
-                              <View style={{ flex: 1.2, alignItems: 'center' }}>
+                              <View style={{ flex: 1.0, alignItems: 'center' }}>
                                 <View style={{
                                   backgroundColor: statusBg,
                                   borderColor: statusBorder,
