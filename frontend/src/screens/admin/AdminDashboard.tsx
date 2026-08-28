@@ -18,7 +18,6 @@ import MaintenanceTab from './tabs/MaintenanceTab';
 import ReportsTab from './tabs/ReportsTab';
 import ProfileTab from './tabs/ProfileTab';
 import FuelMonitorTab from './tabs/FuelMonitorTab';
-import AdminsTab from './tabs/AdminsTab';
 
 const DashboardStack = createStackNavigator();
 
@@ -32,7 +31,6 @@ function DashboardLayoutContent() {
   const activeTab = navState ? (navState.routes[navState.index]?.name || 'overview') : 'overview';
 
   // Build menu items based on user role
-  const isSuper = user?.role === 'SUPER_ADMIN';
   const menuItems = [
     { id: 'overview', label: 'Dashboard', icon: 'grid-outline' },
     { id: 'vehicles', label: 'Vehicles', icon: 'car-outline' },
@@ -41,13 +39,8 @@ function DashboardLayoutContent() {
     { id: 'maintenance', label: 'Maintenance', icon: 'construct-outline' },
     { id: 'fuel-monitor', label: 'Fuel Monitor', icon: 'bar-chart-outline' },
     { id: 'reports', label: 'Reports', icon: 'analytics-outline' },
+    { id: 'profile', label: 'Settings', icon: 'settings-outline' },
   ];
-
-  if (isSuper) {
-    menuItems.push({ id: 'admins', label: 'Admins', icon: 'shield-checkmark-outline' });
-  }
-
-  menuItems.push({ id: 'profile', label: 'Settings', icon: 'settings-outline' });
 
   const avatarChar = user?.name ? user.name[0].toUpperCase() : 'A';
   const roleLabel = user?.role === 'SUPER_ADMIN' ? 'System Owner' : 'Fleet Admin';
@@ -160,7 +153,6 @@ function DashboardLayoutContent() {
               <DashboardStack.Screen name="maintenance" component={MaintenanceTab} />
               <DashboardStack.Screen name="fuel-monitor" component={FuelMonitorTab} />
               <DashboardStack.Screen name="reports" component={ReportsTab} />
-              {isSuper && <DashboardStack.Screen name="admins" component={AdminsTab} />}
               <DashboardStack.Screen name="profile" component={ProfileTab} />
             </DashboardStack.Navigator>
           </View>
