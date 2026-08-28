@@ -806,10 +806,10 @@ export default function AdminDashboard() {
                   </View>
                 </View>
 
-                {/* Bottom Row: Maintenance Due (Table) & Expense Summary (Line Chart) */}
+                {/* Bottom Row: Maintenance Due (Table) */}
                 <View style={[styles.trackingChartRow, { marginTop: 4 }]}>
                   {/* Maintenance Due Table */}
-                  <View style={[styles.sectionCard, { flex: 1.3, marginRight: 24, padding: 20 }]}>
+                  <View style={[styles.sectionCard, { flex: 1, padding: 20 }]}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                       <Text style={styles.cardTitle}>Maintenance Due</Text>
                       <TouchableOpacity onPress={() => setActiveTab('maintenance')}>
@@ -837,74 +837,22 @@ export default function AdminDashboard() {
 
                         return (
                           <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10 }]}>
-                            <Text style={[styles.tableCell, { flex: 1.2, fontWeight: '700', color: '#1E293B' }]}>{m.vehicleNo}</Text>
-                            <Text style={[styles.tableCell, { flex: 1.8, color: '#475569' }]}>{m.type}</Text>
-                            <Text style={[styles.tableCell, { flex: 1.3, color: '#64748B' }]}>{m.date}</Text>
+                            <Text style={[styles.tableCell, { flex: 1.2, fontWeight: '700', color: '#1E293B', fontFamily: fontStyle }]}>{m.vehicleNo}</Text>
+                            <Text style={[styles.tableCell, { flex: 1.8, color: '#475569', fontFamily: fontStyle }]}>{m.type}</Text>
+                            <Text style={[styles.tableCell, { flex: 1.3, color: '#64748B', fontFamily: fontStyle }]}>{m.date}</Text>
                             <View style={{ flex: 1, alignItems: 'center' }}>
                               <View style={{ backgroundColor: priColor + '15', paddingVertical: 3, paddingHorizontal: 8, borderRadius: 6 }}>
-                                <Text style={{ fontSize: 9, fontWeight: '800', color: priColor }}>{m.priority}</Text>
+                                <Text style={{ fontSize: 9, fontWeight: '800', color: priColor, fontFamily: fontStyle }}>{m.priority}</Text>
                               </View>
                             </View>
                             <View style={{ flex: 1.2, alignItems: 'center' }}>
                               <View style={{ backgroundColor: statColor + '15', paddingVertical: 3, paddingHorizontal: 8, borderRadius: 6 }}>
-                                <Text style={{ fontSize: 9, fontWeight: '800', color: statColor }}>{m.status}</Text>
+                                <Text style={{ fontSize: 9, fontWeight: '800', color: statColor, fontFamily: fontStyle }}>{m.status}</Text>
                               </View>
                             </View>
                           </View>
                         );
                       })}
-                    </View>
-                  </View>
-
-                  {/* Expense Summary Line Chart */}
-                  <View style={[styles.donutCard, { flex: 1, height: 285 }]}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                      <Text style={styles.cardTitle}>Expense Summary</Text>
-                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={{ fontSize: 10, color: '#94A3B8', marginRight: 8 }}>This Week ▼</Text>
-                        <TouchableOpacity onPress={() => setActiveTab('reports')}>
-                          <Text style={{ fontSize: 11, color: '#1D4ED8', fontWeight: '700' }}>View All</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-
-                    {/* Chart mock graphics matching mockups */}
-                    <View style={{ flex: 1, justifyContent: 'flex-end', position: 'relative' }}>
-                      <View style={{ position: 'absolute', left: 0, bottom: 25, width: '100%', height: 140, borderLeftWidth: 1, borderBottomWidth: 1, borderColor: '#E2E8F0' }}>
-                        {/* Horizontal Grid lines */}
-                        <View style={{ position: 'absolute', bottom: 35, left: 0, right: 0, height: 1, backgroundColor: '#F1F5F9' }} />
-                        <View style={{ position: 'absolute', bottom: 70, left: 0, right: 0, height: 1, backgroundColor: '#F1F5F9' }} />
-                        <View style={{ position: 'absolute', bottom: 105, left: 0, right: 0, height: 1, backgroundColor: '#F1F5F9' }} />
-
-                        {/* Line Chart path */}
-                        <View style={{ width: '90%', height: '100%', marginLeft: 15, justifyContent: 'flex-end' }}>
-                          <View style={{ position: 'absolute', bottom: 35, left: 10, width: 6, height: 6, borderRadius: 3, backgroundColor: '#1D4ED8' }} />
-                          <View style={{ position: 'absolute', bottom: 28, left: 55, width: 6, height: 6, borderRadius: 3, backgroundColor: '#1D4ED8' }} />
-                          <View style={{ position: 'absolute', bottom: 58, left: 100, width: 6, height: 6, borderRadius: 3, backgroundColor: '#1D4ED8' }} />
-                          <View style={{ position: 'absolute', bottom: 42, left: 145, width: 6, height: 6, borderRadius: 3, backgroundColor: '#1D4ED8' }} />
-                          <View style={{ position: 'absolute', bottom: 85, left: 190, width: 6, height: 6, borderRadius: 3, backgroundColor: '#1D4ED8' }} />
-                          <View style={{ position: 'absolute', bottom: 48, left: 235, width: 6, height: 6, borderRadius: 3, backgroundColor: '#1D4ED8' }} />
-                          <View style={{ position: 'absolute', bottom: 75, left: 280, width: 6, height: 6, borderRadius: 3, backgroundColor: '#1D4ED8' }} />
-
-                          {/* Line Connectors */}
-                          <View style={{ position: 'absolute', bottom: 35, left: 13, width: 42, height: 1, backgroundColor: '#1D4ED8', transform: [{ rotate: '-10deg' }], transformOrigin: 'left' }} />
-                          <View style={{ position: 'absolute', bottom: 28, left: 58, width: 42, height: 1, backgroundColor: '#1D4ED8', transform: [{ rotate: '38deg' }], transformOrigin: 'left' }} />
-                          <View style={{ position: 'absolute', bottom: 58, left: 103, width: 42, height: 1, backgroundColor: '#1D4ED8', transform: [{ rotate: '-22deg' }], transformOrigin: 'left' }} />
-                          <View style={{ position: 'absolute', bottom: 42, left: 148, width: 42, height: 1, backgroundColor: '#1D4ED8', transform: [{ rotate: '48deg' }], transformOrigin: 'left' }} />
-                          <View style={{ position: 'absolute', bottom: 85, left: 193, width: 42, height: 1, backgroundColor: '#1D4ED8', transform: [{ rotate: '-42deg' }], transformOrigin: 'left' }} />
-                          <View style={{ position: 'absolute', bottom: 48, left: 238, width: 42, height: 1, backgroundColor: '#1D4ED8', transform: [{ rotate: '32deg' }], transformOrigin: 'left' }} />
-                        </View>
-                      </View>
-                      {/* X Axis labels */}
-                      <View style={{ flexDirection: 'row', justifyContent: 'space-around', paddingLeft: 10, paddingTop: 6 }}>
-                        <Text style={{ fontSize: 8, color: '#94A3B8' }}>May 25</Text>
-                        <Text style={{ fontSize: 8, color: '#94A3B8' }}>May 26</Text>
-                        <Text style={{ fontSize: 8, color: '#94A3B8' }}>May 27</Text>
-                        <Text style={{ fontSize: 8, color: '#94A3B8' }}>May 28</Text>
-                        <Text style={{ fontSize: 8, color: '#94A3B8' }}>May 29</Text>
-                        <Text style={{ fontSize: 8, color: '#94A3B8' }}>May 30</Text>
-                        <Text style={{ fontSize: 8, color: '#94A3B8' }}>May 31</Text>
-                      </View>
                     </View>
                   </View>
                 </View>
