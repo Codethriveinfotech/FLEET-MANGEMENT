@@ -639,72 +639,72 @@ export default function AdminDashboard() {
               <ScrollView showsVerticalScrollIndicator={false}>
                 {/* Top 5 Metric Cards matching exact user request */}
                 <View style={styles.statsGrid}>
-                  {/* Card 1: Total Vehicles */}
+                  {/* Card 1: Total Drivers */}
                   <View style={styles.statCard}>
-                    <View style={styles.statCardHeader}>
-                      <View style={[styles.statIconBg, { backgroundColor: '#EFF6FF' }]}>
-                        <Text style={{ fontSize: 14, color: '#1D4ED8' }}>🚚</Text>
-                      </View>
+                    <View style={[styles.statIconBg, { backgroundColor: '#10B981' }]}>
+                      <Text style={{ fontSize: 18, color: '#FFFFFF' }}>👤</Text>
                     </View>
-                    <Text style={styles.statLabel}>Total Vehicles</Text>
-                    <Text style={styles.statValue}>{vehicles.length || 120}</Text>
-                    <Text style={styles.statTrendText}>
-                      <Text style={{ color: '#24D164', fontWeight: 'bold' }}>▲ 8.5%</Text> vs last month
-                    </Text>
+                    <View style={{ marginLeft: 16, flex: 1 }}>
+                      <Text style={styles.statLabel}>Total Drivers</Text>
+                      <Text style={styles.statValue}>{drivers.length || 98}</Text>
+                      <Text style={styles.statTrendText}>
+                        <Text style={{ color: '#10B981', fontWeight: 'bold' }}>↑ 6.3%</Text> vs last month
+                      </Text>
+                    </View>
                   </View>
 
-                  {/* Card 2: Total Drivers */}
+                  {/* Card 2: Total Vehicles */}
                   <View style={styles.statCard}>
-                    <View style={styles.statCardHeader}>
-                      <View style={[styles.statIconBg, { backgroundColor: '#ECFDF5' }]}>
-                        <Text style={{ fontSize: 14, color: '#10B981' }}>👤</Text>
-                      </View>
+                    <View style={[styles.statIconBg, { backgroundColor: '#3B82F6' }]}>
+                      <Text style={{ fontSize: 18, color: '#FFFFFF' }}>🚚</Text>
                     </View>
-                    <Text style={styles.statLabel}>Total Drivers</Text>
-                    <Text style={styles.statValue}>{drivers.length || 98}</Text>
-                    <Text style={styles.statTrendText}>
-                      <Text style={{ color: '#24D164', fontWeight: 'bold' }}>▲ 6.3%</Text> vs last month
-                    </Text>
+                    <View style={{ marginLeft: 16, flex: 1 }}>
+                      <Text style={styles.statLabel}>Total Vehicles</Text>
+                      <Text style={styles.statValue}>{vehicles.length || 120}</Text>
+                      <Text style={styles.statTrendText}>
+                        <Text style={{ color: '#10B981', fontWeight: 'bold' }}>↑ 8.5%</Text> vs last month
+                      </Text>
+                    </View>
                   </View>
 
                   {/* Card 3: Live Trips */}
                   <View style={styles.statCard}>
-                    <View style={styles.statCardHeader}>
-                      <View style={[styles.statIconBg, { backgroundColor: '#FFF7ED' }]}>
-                        <Text style={{ fontSize: 14, color: '#F97316' }}>🟢</Text>
-                      </View>
+                    <View style={[styles.statIconBg, { backgroundColor: '#F59E0B' }]}>
+                      <Text style={{ fontSize: 18, color: '#FFFFFF' }}>⚡</Text>
                     </View>
-                    <Text style={styles.statLabel}>Live Trips</Text>
-                    <Text style={styles.statValue}>{activeTripsCount || 24}</Text>
-                    <Text style={styles.statTrendText}>
-                      <Text style={{ color: '#24D164', fontWeight: 'bold' }}>▲ 12.1%</Text> vs yesterday
-                    </Text>
+                    <View style={{ marginLeft: 16, flex: 1 }}>
+                      <Text style={styles.statLabel}>Live Trips</Text>
+                      <Text style={styles.statValue}>{activeTripsCount || 24}</Text>
+                      <Text style={styles.statTrendText}>
+                        <Text style={{ color: '#10B981', fontWeight: 'bold' }}>↑ 12.1%</Text> vs yesterday
+                      </Text>
+                    </View>
                   </View>
 
                   {/* Card 4: Breakdown */}
                   <View style={styles.statCard}>
-                    <View style={styles.statCardHeader}>
-                      <View style={[styles.statIconBg, { backgroundColor: '#FEF2F2' }]}>
-                        <Text style={{ fontSize: 14, color: '#EF4444' }}>⚠️</Text>
-                      </View>
+                    <View style={[styles.statIconBg, { backgroundColor: '#EF4444' }]}>
+                      <Text style={{ fontSize: 18, color: '#FFFFFF' }}>⚠️</Text>
                     </View>
-                    <Text style={styles.statLabel}>Breakdown</Text>
-                    <Text style={styles.statValue}>{trips.filter(t => t.isBreakdown).length || 5}</Text>
-                    <Text style={[styles.statTrendText, { color: '#EF4444', fontWeight: '700' }]}>3 Urgent</Text>
+                    <View style={{ marginLeft: 16, flex: 1 }}>
+                      <Text style={styles.statLabel}>Breakdown</Text>
+                      <Text style={styles.statValue}>{trips.filter(t => t.isBreakdown).length || 5}</Text>
+                      <Text style={[styles.statTrendText, { color: '#EF4444', fontWeight: '700' }]}>3 Urgent</Text>
+                    </View>
                   </View>
 
                   {/* Card 5: Total Trips */}
                   <View style={styles.statCard}>
-                    <View style={styles.statCardHeader}>
-                      <View style={[styles.statIconBg, { backgroundColor: '#EFF6FF' }]}>
-                        <Text style={{ fontSize: 14, color: '#1D4ED8' }}>🛣️</Text>
-                      </View>
+                    <View style={[styles.statIconBg, { backgroundColor: '#6366F1' }]}>
+                      <Text style={{ fontSize: 18, color: '#FFFFFF' }}>🛣️</Text>
                     </View>
-                    <Text style={styles.statLabel}>Total Trips</Text>
-                    <Text style={styles.statValue}>{trips.length || 245}</Text>
-                    <Text style={styles.statTrendText}>
-                      <Text style={{ color: '#24D164', fontWeight: 'bold' }}>▲ 12.7%</Text> vs last month
-                    </Text>
+                    <View style={{ marginLeft: 16, flex: 1 }}>
+                      <Text style={styles.statLabel}>Total Trips</Text>
+                      <Text style={styles.statValue}>{trips.length || 245}</Text>
+                      <Text style={styles.statTrendText}>
+                        <Text style={{ color: '#10B981', fontWeight: 'bold' }}>↑ 12.7%</Text> vs last month
+                      </Text>
+                    </View>
                   </View>
                 </View>
 
@@ -1778,43 +1778,42 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    minWidth: 160,
+    minWidth: 180,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E2E8F0',
     borderRadius: 16,
-    padding: 20,
+    paddingVertical: 18,
+    paddingHorizontal: 20,
     marginHorizontal: 8,
     marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
     shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.01,
     shadowRadius: 4,
   },
-  statCardHeader: {
-    marginBottom: 16,
-  },
   statIconBg: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
+    width: 48,
+    height: 48,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
     color: '#64748B',
-    marginBottom: 4,
   },
   statValue: {
-    fontSize: 26,
+    fontSize: 22,
     fontWeight: '800',
     color: '#0F172A',
-    marginBottom: 8,
+    marginVertical: 2,
   },
   statTrendText: {
-    fontSize: 11,
+    fontSize: 10,
     color: '#64748B',
   },
   trackingChartRow: {
