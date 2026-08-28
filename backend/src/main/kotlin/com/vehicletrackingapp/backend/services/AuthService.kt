@@ -44,7 +44,7 @@ class AuthService(
 
     suspend fun login(request: LoginRequest): AuthResponse? {
         if (request.identity == "admin" && request.password == "password") {
-            var adminUser = userRepository.findByIdentity("admin")
+            var adminUser = userRepository.findByIdentity("admin").firstOrNull()
             if (adminUser == null) {
                 adminUser = User(
                     id = "admin_id",
@@ -76,8 +76,9 @@ class AuthService(
             )
         }
 
-        val user = userRepository.findByIdentity(request.identity) ?: return null
-        if (!BCrypt.checkpw(request.password, user.passwordHash)) return null
+        val users = userRepository.findByIdentity(request.identity)
+        if (users.isEmpty()) return null
+        val user = users.firstOrNull { BCrypt.checkpw(request.password, it.passwordHash) } ?: return null
         
         val accessToken = jwtConfig.generateAccessToken(user.id)
         val refreshToken = jwtConfig.generateRefreshToken()

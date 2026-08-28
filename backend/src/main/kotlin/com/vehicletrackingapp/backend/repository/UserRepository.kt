@@ -11,7 +11,7 @@ interface UserRepository {
     suspend fun findById(id: String): User?
     suspend fun findByEmail(email: String?): User?
     suspend fun findByPhone(phone: String): User?
-    suspend fun findByIdentity(identity: String): User?
+    suspend fun findByIdentity(identity: String): List<User>
     suspend fun updateUser(user: User): Boolean
     suspend fun getAllUsers(): List<User>
     suspend fun deleteUser(id: String): Boolean
@@ -66,10 +66,9 @@ class UserRepositoryImpl : UserRepository {
             .singleOrNull()
     }
 
-    override suspend fun findByIdentity(identity: String): User? = dbQuery {
+    override suspend fun findByIdentity(identity: String): List<User> = dbQuery {
         Users.select { (Users.email eq identity) or (Users.phone eq identity) or (Users.name eq identity) }
             .map(::resultRowToUser)
-            .singleOrNull()
     }
 
     override suspend fun updateUser(user: User): Boolean = dbQuery {
