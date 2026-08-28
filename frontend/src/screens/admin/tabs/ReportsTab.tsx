@@ -247,7 +247,7 @@ export default function ReportsTab() {
     <View style={{ flex: 1, flexDirection: 'row' }}>
       {/* Left Pane: Report Types */}
       <View style={[styles.rightVehiclesPanel, { width: 280, marginRight: 24 }]}>
-        <Text style={[styles.panelTitle, { marginBottom: 16, fontFamily: fontStyle }]}>Report Types</Text>
+        <Text style={[styles.panelTitle, { marginBottom: 16, fontFamily: fontStyle, fontSize: 17 }]}>Report Types</Text>
         {[
           { key: 'Trip Summary Report', label: 'Trip Summary Report', desc: 'Summary of all trips', icon: '📋' },
           { key: 'Fuel Report', label: 'Fuel Report', desc: 'Fuel consumption and refills', icon: '⛽' },
@@ -261,7 +261,7 @@ export default function ReportsTab() {
               key={opt.key}
               style={[
                 styles.menuItem,
-                { paddingVertical: 12, paddingHorizontal: 12, backgroundColor: isSel ? '#EFF6FF' : 'transparent', borderWidth: 1, borderColor: isSel ? '#1D4ED8' : 'transparent', borderRadius: 8, marginBottom: 6 }
+                { paddingVertical: 14, paddingHorizontal: 14, backgroundColor: isSel ? '#EFF6FF' : 'transparent', borderWidth: 1, borderColor: isSel ? '#1D4ED8' : 'transparent', borderRadius: 8, marginBottom: 8 }
               ]}
               onPress={() => {
                 setSelectedReportType(opt.key);
@@ -269,10 +269,10 @@ export default function ReportsTab() {
                 setSelectedVehicleId('');
               }}
             >
-              <Text style={{ fontSize: 14, marginRight: 10 }}>{opt.icon}</Text>
+              <Text style={{ fontSize: 16, marginRight: 10 }}>{opt.icon}</Text>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 12, fontWeight: '700', color: isSel ? '#1D4ED8' : '#1E293B', fontFamily: fontStyle }}>{opt.label}</Text>
-                <Text style={{ fontSize: 9, color: '#94A3B8', fontFamily: fontStyle }}>{opt.desc}</Text>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: isSel ? '#1D4ED8' : '#1E293B', fontFamily: fontStyle }}>{opt.label}</Text>
+                <Text style={{ fontSize: 10, color: '#94A3B8', fontFamily: fontStyle, marginTop: 2 }}>{opt.desc}</Text>
               </View>
             </TouchableOpacity>
           );
@@ -283,8 +283,8 @@ export default function ReportsTab() {
       <View style={{ flex: 1 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
           <View style={{ flex: 1, minWidth: 200 }}>
-            <Text style={{ fontSize: 18, fontWeight: '800', color: '#0F172A', fontFamily: fontStyle }}>{selectedReportType}</Text>
-            <Text style={{ fontSize: 11, color: '#64748B', fontFamily: fontStyle, marginTop: 2 }}>Detailed live preview and customizable Excel exporting</Text>
+            <Text style={{ fontSize: 20, fontWeight: '800', color: '#0F172A', fontFamily: fontStyle }}>{selectedReportType}</Text>
+            <Text style={{ fontSize: 12, color: '#64748B', fontFamily: fontStyle, marginTop: 4 }}>Detailed live preview and customizable Excel exporting</Text>
           </View>
 
           <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -396,14 +396,14 @@ export default function ReportsTab() {
               onPress={handleDownloadExcel}
             >
               <Ionicons name="download-outline" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
-              <Text style={[styles.panelAddBtnText, { fontFamily: fontStyle }]}>Download Excel (CSV)</Text>
+              <Text style={[styles.panelAddBtnText, { fontFamily: fontStyle, fontSize: 12 }]}>Download Excel (CSV)</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Dynamic Table Preview */}
         <View style={[styles.sectionCard, { flex: 1 }]}>
-          <Text style={[styles.sectionTitle, { fontSize: 14, fontWeight: '800', fontFamily: fontStyle, marginBottom: 12 }]}>
+          <Text style={[styles.sectionTitle, { fontSize: 15, fontWeight: '800', fontFamily: fontStyle, marginBottom: 12 }]}>
             {selectedReportType === 'Driver Performance Report' && selectedDriverId ? 'DETAILED DRIVER TRIP HISTORY' : 
              selectedReportType === 'Vehicle Utilization Report' && selectedVehicleId ? 'DETAILED VEHICLE TRIP HISTORY' : 
              'REPORT DATA PREVIEW'}
@@ -412,14 +412,14 @@ export default function ReportsTab() {
           <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
             {selectedReportType === 'Trip Summary Report' && (
               <View>
-                <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 8 }]}>
-                  <Text style={[styles.tableHeaderCell, { flex: 0.5, fontFamily: fontStyle }]}>S.NO</Text>
-                  <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>DATE</Text>
-                  <Text style={[styles.tableHeaderCell, { flex: 1.8, fontFamily: fontStyle }]}>OPERATOR</Text>
-                  <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>VEHICLE</Text>
-                  <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>SOURCE</Text>
-                  <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>DESTINATION</Text>
-                  <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'right', fontFamily: fontStyle }]}>DIST (KM)</Text>
+                <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10 }]}>
+                  <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>S.NO</Text>
+                  <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DATE</Text>
+                  <Text style={{ flex: 1.8, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>OPERATOR</Text>
+                  <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>VEHICLE</Text>
+                  <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>SOURCE</Text>
+                  <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DESTINATION</Text>
+                  <Text style={{ flex: 1, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DIST (KM)</Text>
                 </View>
                 {filteredTrips.map((t, idx) => {
                   const d = drivers.find(drv => drv.id === t.driverId)?.name || 'Unknown';
@@ -428,14 +428,14 @@ export default function ReportsTab() {
                   const end = parseFloat(t.endOdometer) || 0;
                   const dist = end >= start ? (end - start) : 0;
                   return (
-                    <View key={t.id} style={[styles.tableRow, { paddingVertical: 10, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
-                      <Text style={[styles.tableCell, { flex: 0.5, fontFamily: fontStyle }]}>{idx + 1}</Text>
-                      <Text style={[styles.tableCell, { flex: 1.5, fontFamily: fontStyle }]}>{t.startDate}</Text>
-                      <Text style={[styles.tableCell, { flex: 1.8, fontWeight: '700', fontFamily: fontStyle }]}>{d}</Text>
-                      <Text style={[styles.tableCell, { flex: 1.5, fontFamily: fontStyle }]}>{v}</Text>
-                      <Text style={[styles.tableCell, { flex: 2, fontFamily: fontStyle }]} numberOfLines={1}>{t.sourceLocation}</Text>
-                      <Text style={[styles.tableCell, { flex: 2, fontFamily: fontStyle }]} numberOfLines={1}>{t.destinationLocation}</Text>
-                      <Text style={[styles.tableCell, { flex: 1, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle }]}>{dist} km</Text>
+                    <View key={t.id} style={[styles.tableRow, { paddingVertical: 12, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
+                      <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{idx + 1}</Text>
+                      <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{t.startDate}</Text>
+                      <Text style={{ flex: 1.8, fontWeight: '700', fontFamily: fontStyle, fontSize: 14, color: '#1E293B' }}>{d}</Text>
+                      <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{v}</Text>
+                      <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 14, color: '#334155' }} numberOfLines={1}>{t.sourceLocation}</Text>
+                      <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 14, color: '#334155' }} numberOfLines={1}>{t.destinationLocation}</Text>
+                      <Text style={{ flex: 1, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle, fontSize: 14, color: '#1E293B' }}>{dist} km</Text>
                     </View>
                   );
                 })}
@@ -444,27 +444,27 @@ export default function ReportsTab() {
 
             {selectedReportType === 'Fuel Report' && (
               <View>
-                <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 8 }]}>
-                  <Text style={[styles.tableHeaderCell, { flex: 0.5, fontFamily: fontStyle }]}>S.NO</Text>
-                  <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>DATE</Text>
-                  <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>VEHICLE</Text>
-                  <Text style={[styles.tableHeaderCell, { flex: 1.8, fontFamily: fontStyle }]}>DRIVER</Text>
-                  <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>LITERS</Text>
-                  <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>COST</Text>
-                  <Text style={[styles.tableHeaderCell, { flex: 1.5, textAlign: 'right', fontFamily: fontStyle }]}>ODOMETER</Text>
+                <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10 }]}>
+                  <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>S.NO</Text>
+                  <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DATE</Text>
+                  <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>VEHICLE</Text>
+                  <Text style={{ flex: 1.8, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DRIVER</Text>
+                  <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>LITERS</Text>
+                  <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>COST</Text>
+                  <Text style={{ flex: 1.5, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>ODOMETER</Text>
                 </View>
                 {filteredFuel.map((f, idx) => {
                   const v = vehicles.find(veh => veh.id === f.vehicleId)?.number || 'Unknown';
                   const d = drivers.find(drv => drv.id === f.driverId)?.name || 'Unknown';
                   return (
-                    <View key={f.id} style={[styles.tableRow, { paddingVertical: 10, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
-                      <Text style={[styles.tableCell, { flex: 0.5, fontFamily: fontStyle }]}>{idx + 1}</Text>
-                      <Text style={[styles.tableCell, { flex: 1.5, fontFamily: fontStyle }]}>{f.date}</Text>
-                      <Text style={[styles.tableCell, { flex: 1.5, fontWeight: '700', fontFamily: fontStyle }]}>{v}</Text>
-                      <Text style={[styles.tableCell, { flex: 1.8, fontFamily: fontStyle }]}>{d}</Text>
-                      <Text style={[styles.tableCell, { flex: 1.2, textAlign: 'right', fontWeight: '700', color: '#0284C7', fontFamily: fontStyle }]}>{f.liters} L</Text>
-                      <Text style={[styles.tableCell, { flex: 1.2, textAlign: 'right', fontWeight: '700', color: '#10B981', fontFamily: fontStyle }]}>${f.cost}</Text>
-                      <Text style={[styles.tableCell, { flex: 1.5, textAlign: 'right', fontFamily: fontStyle }]}>{f.odometerReading} km</Text>
+                    <View key={f.id} style={[styles.tableRow, { paddingVertical: 12, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
+                      <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{idx + 1}</Text>
+                      <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{f.date}</Text>
+                      <Text style={{ flex: 1.5, fontWeight: '700', fontFamily: fontStyle, fontSize: 14, color: '#1E293B' }}>{v}</Text>
+                      <Text style={{ flex: 1.8, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{d}</Text>
+                      <Text style={{ flex: 1.2, textAlign: 'right', fontWeight: '700', color: '#0284C7', fontFamily: fontStyle, fontSize: 14 }}>{f.liters} L</Text>
+                      <Text style={{ flex: 1.2, textAlign: 'right', fontWeight: '700', color: '#10B981', fontFamily: fontStyle, fontSize: 14 }}>${f.cost}</Text>
+                      <Text style={{ flex: 1.5, textAlign: 'right', fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{f.odometerReading} km</Text>
                     </View>
                   );
                 })}
@@ -475,15 +475,15 @@ export default function ReportsTab() {
               selectedDriverId ? (
                 // Detailed single driver table
                 <View>
-                  <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 8 }]}>
-                    <Text style={[styles.tableHeaderCell, { flex: 0.5, fontFamily: fontStyle }]}>S.NO</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>DATE</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>VEHICLE NO</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>SOURCE</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>DESTINATION</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>DIST (KM)</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>HMR WORKED</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'center', fontFamily: fontStyle }]}>BREAKDOWN</Text>
+                  <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10 }]}>
+                    <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>S.NO</Text>
+                    <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DATE</Text>
+                    <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>VEHICLE NO</Text>
+                    <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>SOURCE</Text>
+                    <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DESTINATION</Text>
+                    <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DIST (KM)</Text>
+                    <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>HMR WORKED</Text>
+                    <Text style={{ flex: 1.2, textAlign: 'center', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>BREAKDOWN</Text>
                   </View>
                   {filteredTrips.filter(t => t.driverId === selectedDriverId).map((t, idx) => {
                     const v = vehicles.find(veh => veh.id === t.vehicleId)?.number || 'Unknown';
@@ -494,15 +494,15 @@ export default function ReportsTab() {
                     const endH = parseFloat(t.endHmr) || 0;
                     const hmr = endH >= startH ? (endH - startH) : 0;
                     return (
-                      <View key={t.id} style={[styles.tableRow, { paddingVertical: 10, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
-                        <Text style={[styles.tableCell, { flex: 0.5, fontFamily: fontStyle }]}>{idx + 1}</Text>
-                        <Text style={[styles.tableCell, { flex: 1.5, fontFamily: fontStyle }]}>{t.startDate}</Text>
-                        <Text style={[styles.tableCell, { flex: 1.5, fontWeight: '700', fontFamily: fontStyle }]}>{v}</Text>
-                        <Text style={[styles.tableCell, { flex: 2, fontFamily: fontStyle }]} numberOfLines={1}>{t.sourceLocation}</Text>
-                        <Text style={[styles.tableCell, { flex: 2, fontFamily: fontStyle }]} numberOfLines={1}>{t.destinationLocation}</Text>
-                        <Text style={[styles.tableCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>{dist} km</Text>
-                        <Text style={[styles.tableCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>{hmr.toFixed(1)} hrs</Text>
-                        <Text style={[styles.tableCell, { flex: 1.2, textAlign: 'center', fontWeight: '800', color: t.isBreakdown ? '#EF4444' : '#10B981', fontFamily: fontStyle }]}>{t.isBreakdown ? 'YES' : 'NO'}</Text>
+                      <View key={t.id} style={[styles.tableRow, { paddingVertical: 12, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
+                        <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{idx + 1}</Text>
+                        <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{t.startDate}</Text>
+                        <Text style={{ flex: 1.5, fontWeight: '700', fontFamily: fontStyle, fontSize: 14, color: '#1E293B' }}>{v}</Text>
+                        <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 14, color: '#334155' }} numberOfLines={1}>{t.sourceLocation}</Text>
+                        <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 14, color: '#334155' }} numberOfLines={1}>{t.destinationLocation}</Text>
+                        <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{dist} km</Text>
+                        <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{hmr.toFixed(1)} hrs</Text>
+                        <Text style={{ flex: 1.2, textAlign: 'center', fontWeight: '800', color: t.isBreakdown ? '#EF4444' : '#10B981', fontFamily: fontStyle, fontSize: 14 }}>{t.isBreakdown ? 'YES' : 'NO'}</Text>
                       </View>
                     );
                   })}
@@ -510,14 +510,14 @@ export default function ReportsTab() {
               ) : (
                 // Summary list table
                 <View>
-                  <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 8 }]}>
-                    <Text style={[styles.tableHeaderCell, { flex: 0.5, fontFamily: fontStyle }]}>S.NO</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>DRIVER NAME</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>TOTAL TRIPS</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>DAY SHIFTS</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>NIGHT SHIFTS</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>BREAKDOWNS</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>BILLING DAYS</Text>
+                  <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10 }]}>
+                    <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>S.NO</Text>
+                    <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DRIVER NAME</Text>
+                    <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>TOTAL TRIPS</Text>
+                    <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DAY SHIFTS</Text>
+                    <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>NIGHT SHIFTS</Text>
+                    <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>BREAKDOWNS</Text>
+                    <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>BILLING DAYS</Text>
                   </View>
                   {drivers.map((driver, idx) => {
                     const dTrips = filteredTrips.filter(t => t.driverId === driver.id);
@@ -526,14 +526,14 @@ export default function ReportsTab() {
                     const breakdowns = dTrips.filter(t => t.isBreakdown).length;
                     const billingDays = Math.max(0, dTrips.length - breakdowns);
                     return (
-                      <View key={driver.id} style={[styles.tableRow, { paddingVertical: 10, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
-                        <Text style={[styles.tableCell, { flex: 0.5, fontFamily: fontStyle }]}>{idx + 1}</Text>
-                        <Text style={[styles.tableCell, { flex: 2, fontWeight: '700', fontFamily: fontStyle }]}>{driver.name}</Text>
-                        <Text style={[styles.tableCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>{dTrips.length}</Text>
-                        <Text style={[styles.tableCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>{dayShifts}</Text>
-                        <Text style={[styles.tableCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>{nightShifts}</Text>
-                        <Text style={[styles.tableCell, { flex: 1.2, textAlign: 'right', color: breakdowns > 0 ? '#EF4444' : '#64748B', fontFamily: fontStyle }]}>{breakdowns}</Text>
-                        <Text style={[styles.tableCell, { flex: 1.2, textAlign: 'right', fontWeight: '700', color: '#10B981', fontFamily: fontStyle }]}>{billingDays}</Text>
+                      <View key={driver.id} style={[styles.tableRow, { paddingVertical: 12, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
+                        <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{idx + 1}</Text>
+                        <Text style={{ flex: 2, fontWeight: '700', fontFamily: fontStyle, fontSize: 14, color: '#1E293B' }}>{driver.name}</Text>
+                        <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{dTrips.length}</Text>
+                        <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{dayShifts}</Text>
+                        <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{nightShifts}</Text>
+                        <Text style={{ flex: 1.2, textAlign: 'right', color: breakdowns > 0 ? '#EF4444' : '#64748B', fontFamily: fontStyle, fontSize: 14 }}>{breakdowns}</Text>
+                        <Text style={{ flex: 1.2, textAlign: 'right', fontWeight: '700', color: '#10B981', fontFamily: fontStyle, fontSize: 14 }}>{billingDays}</Text>
                       </View>
                     );
                   })}
@@ -545,15 +545,15 @@ export default function ReportsTab() {
               selectedVehicleId ? (
                 // Detailed single vehicle table
                 <View>
-                  <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 8 }]}>
-                    <Text style={[styles.tableHeaderCell, { flex: 0.5, fontFamily: fontStyle }]}>S.NO</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>DATE</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 1.8, fontFamily: fontStyle }]}>OPERATOR DRIVER</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>SOURCE</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>DESTINATION</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>DIST (KM)</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>FUEL CONSUMED</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>MAINT COST</Text>
+                  <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10 }]}>
+                    <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>S.NO</Text>
+                    <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DATE</Text>
+                    <Text style={{ flex: 1.8, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>OPERATOR DRIVER</Text>
+                    <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>SOURCE</Text>
+                    <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DESTINATION</Text>
+                    <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DIST (KM)</Text>
+                    <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>FUEL CONSUMED</Text>
+                    <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>MAINT COST</Text>
                   </View>
                   {filteredTrips.filter(t => t.vehicleId === selectedVehicleId).map((t, idx) => {
                     const dName = drivers.find(d => d.id === t.driverId)?.name || 'Unknown';
@@ -568,15 +568,15 @@ export default function ReportsTab() {
                     const totalMaint = dateMaint.reduce((acc, m) => acc + (parseFloat(m.cost) || 0), 0);
 
                     return (
-                      <View key={t.id} style={[styles.tableRow, { paddingVertical: 10, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
-                        <Text style={[styles.tableCell, { flex: 0.5, fontFamily: fontStyle }]}>{idx + 1}</Text>
-                        <Text style={[styles.tableCell, { flex: 1.5, fontFamily: fontStyle }]}>{t.startDate}</Text>
-                        <Text style={[styles.tableCell, { flex: 1.8, fontWeight: '700', fontFamily: fontStyle }]}>{dName}</Text>
-                        <Text style={[styles.tableCell, { flex: 2, fontFamily: fontStyle }]} numberOfLines={1}>{t.sourceLocation}</Text>
-                        <Text style={[styles.tableCell, { flex: 2, fontFamily: fontStyle }]} numberOfLines={1}>{t.destinationLocation}</Text>
-                        <Text style={[styles.tableCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>{dist} km</Text>
-                        <Text style={[styles.tableCell, { flex: 1.2, textAlign: 'right', color: '#0284C7', fontFamily: fontStyle }]}>{totalFuel > 0 ? `${totalFuel} L` : '—'}</Text>
-                        <Text style={[styles.tableCell, { flex: 1.2, textAlign: 'right', color: '#EF4444', fontFamily: fontStyle }]}>{totalMaint > 0 ? `$${totalMaint}` : '—'}</Text>
+                      <View key={t.id} style={[styles.tableRow, { paddingVertical: 12, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
+                        <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{idx + 1}</Text>
+                        <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{t.startDate}</Text>
+                        <Text style={{ flex: 1.8, fontWeight: '700', fontFamily: fontStyle, fontSize: 14, color: '#1E293B' }}>{dName}</Text>
+                        <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 14, color: '#334155' }} numberOfLines={1}>{t.sourceLocation}</Text>
+                        <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 14, color: '#334155' }} numberOfLines={1}>{t.destinationLocation}</Text>
+                        <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{dist} km</Text>
+                        <Text style={{ flex: 1.2, textAlign: 'right', color: '#0284C7', fontFamily: fontStyle, fontSize: 14 }}>{totalFuel > 0 ? `${totalFuel} L` : '—'}</Text>
+                        <Text style={{ flex: 1.2, textAlign: 'right', color: '#EF4444', fontFamily: fontStyle, fontSize: 14 }}>{totalMaint > 0 ? `$${totalMaint}` : '—'}</Text>
                       </View>
                     );
                   })}
@@ -584,12 +584,12 @@ export default function ReportsTab() {
               ) : (
                 // Summary list table
                 <View>
-                  <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 8 }]}>
-                    <Text style={[styles.tableHeaderCell, { flex: 0.5, fontFamily: fontStyle }]}>S.NO</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>VEHICLE NO</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 2.5, fontFamily: fontStyle }]}>MODEL</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 1.5, textAlign: 'right', fontFamily: fontStyle }]}>TOTAL TRIPS</Text>
-                    <Text style={[styles.tableHeaderCell, { flex: 2, textAlign: 'right', fontFamily: fontStyle }]}>DISTANCE RUN</Text>
+                  <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10 }]}>
+                    <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>S.NO</Text>
+                    <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>VEHICLE NO</Text>
+                    <Text style={{ flex: 2.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>MODEL</Text>
+                    <Text style={{ flex: 1.5, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>TOTAL TRIPS</Text>
+                    <Text style={{ flex: 2, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DISTANCE RUN</Text>
                   </View>
                   {vehicles.map((veh, idx) => {
                     const vTrips = filteredTrips.filter(t => t.vehicleId === veh.id);
@@ -599,12 +599,12 @@ export default function ReportsTab() {
                       return acc + (end >= start ? end - start : 0);
                     }, 0);
                     return (
-                      <View key={veh.id} style={[styles.tableRow, { paddingVertical: 10, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
-                        <Text style={[styles.tableCell, { flex: 0.5, fontFamily: fontStyle }]}>{idx + 1}</Text>
-                        <Text style={[styles.tableCell, { flex: 2, fontWeight: '700', fontFamily: fontStyle }]}>{veh.number}</Text>
-                        <Text style={[styles.tableCell, { flex: 2.5, fontFamily: fontStyle }]}>{veh.model}</Text>
-                        <Text style={[styles.tableCell, { flex: 1.5, textAlign: 'right', fontFamily: fontStyle }]}>{vTrips.length}</Text>
-                        <Text style={[styles.tableCell, { flex: 2, textAlign: 'right', fontWeight: '700', color: '#8B5CF6', fontFamily: fontStyle }]}>{totalDist.toLocaleString()} km</Text>
+                      <View key={veh.id} style={[styles.tableRow, { paddingVertical: 12, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
+                        <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{idx + 1}</Text>
+                        <Text style={{ flex: 2, fontWeight: '700', fontFamily: fontStyle, fontSize: 14, color: '#1E293B' }}>{veh.number}</Text>
+                        <Text style={{ flex: 2.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{veh.model}</Text>
+                        <Text style={{ flex: 1.5, textAlign: 'right', fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{vTrips.length}</Text>
+                        <Text style={{ flex: 2, textAlign: 'right', fontWeight: '700', color: '#8B5CF6', fontFamily: fontStyle, fontSize: 14 }}>{totalDist.toLocaleString()} km</Text>
                       </View>
                     );
                   })}
@@ -614,25 +614,25 @@ export default function ReportsTab() {
 
             {selectedReportType === 'Maintenance Report' && (
               <View>
-                <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 8 }]}>
-                  <Text style={[styles.tableHeaderCell, { flex: 0.5, fontFamily: fontStyle }]}>S.NO</Text>
-                  <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>DATE</Text>
-                  <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>VEHICLE</Text>
-                  <Text style={[styles.tableHeaderCell, { flex: 1.8, fontFamily: fontStyle }]}>DRIVER</Text>
-                  <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>TYPE</Text>
-                  <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>COST</Text>
+                <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10 }]}>
+                  <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>S.NO</Text>
+                  <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DATE</Text>
+                  <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>VEHICLE</Text>
+                  <Text style={{ flex: 1.8, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DRIVER</Text>
+                  <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>TYPE</Text>
+                  <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>COST</Text>
                 </View>
                 {filteredMaint.map((m, idx) => {
                   const v = vehicles.find(veh => veh.id === m.vehicleId)?.number || 'Unknown';
                   const d = drivers.find(drv => drv.id === m.driverId)?.name || 'Unknown';
                   return (
-                    <View key={m.id} style={[styles.tableRow, { paddingVertical: 10, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
-                      <Text style={[styles.tableCell, { flex: 0.5, fontFamily: fontStyle }]}>{idx + 1}</Text>
-                      <Text style={[styles.tableCell, { flex: 1.5, fontFamily: fontStyle }]}>{m.date}</Text>
-                      <Text style={[styles.tableCell, { flex: 1.5, fontWeight: '700', fontFamily: fontStyle }]}>{v}</Text>
-                      <Text style={[styles.tableCell, { flex: 1.8, fontFamily: fontStyle }]}>{d}</Text>
-                      <Text style={[styles.tableCell, { flex: 2, color: '#F59E0B', fontWeight: '700', fontFamily: fontStyle }]} numberOfLines={1}>{m.maintenanceType}</Text>
-                      <Text style={[styles.tableCell, { flex: 1.2, textAlign: 'right', fontWeight: '700', color: '#EF4444', fontFamily: fontStyle }]}>${m.cost}</Text>
+                    <View key={m.id} style={[styles.tableRow, { paddingVertical: 12, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
+                      <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{idx + 1}</Text>
+                      <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{m.date}</Text>
+                      <Text style={{ flex: 1.5, fontWeight: '700', fontFamily: fontStyle, fontSize: 14, color: '#1E293B' }}>{v}</Text>
+                      <Text style={{ flex: 1.8, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{d}</Text>
+                      <Text style={{ flex: 2, color: '#F59E0B', fontWeight: '700', fontFamily: fontStyle, fontSize: 14 }} numberOfLines={1}>{m.maintenanceType}</Text>
+                      <Text style={{ flex: 1.2, textAlign: 'right', fontWeight: '700', color: '#EF4444', fontFamily: fontStyle, fontSize: 14 }}>${m.cost}</Text>
                     </View>
                   );
                 })}
