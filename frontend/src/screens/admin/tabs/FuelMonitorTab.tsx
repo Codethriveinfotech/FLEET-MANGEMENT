@@ -305,24 +305,7 @@ export default function FuelMonitorTab() {
         </View>
       </View>
 
-      {/* Daily Consumption Chart Mock */}
-      <View style={styles.donutCard}>
-        <Text style={[styles.cardTitle, { fontFamily: fontStyle }]}>FLEET DAILY FUEL UTILIZATION HISTORY</Text>
-        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-around', borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10, height: 200, paddingHorizontal: 20 }}>
-          {/* Daily Mock usage bars */}
-          {[120, 145, 90, 160, 200, 130, 110, 180, 150, 175, 120, 140, 160, 190, 210].map((val, idx) => (
-            <View key={idx} style={{ alignItems: 'center', width: '5%' }}>
-              <View style={{ height: (val * 0.7), width: '100%', backgroundColor: '#0284C7', borderRadius: 4 }} />
-            </View>
-          ))}
-        </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 10, paddingHorizontal: 10 }}>
-          <Text style={{ fontSize: 9, color: '#94A3B8', fontFamily: fontStyle }}>15 May</Text>
-          <Text style={{ fontSize: 9, color: '#94A3B8', fontFamily: fontStyle }}>20 May</Text>
-          <Text style={{ fontSize: 9, color: '#94A3B8', fontFamily: fontStyle }}>25 May</Text>
-          <Text style={{ fontSize: 9, color: '#94A3B8', fontFamily: fontStyle }}>30 May</Text>
-        </View>
-      </View>
+
 
       {/* Footer copyright */}
       <View style={{ marginVertical: 24, alignItems: 'center' }}>
