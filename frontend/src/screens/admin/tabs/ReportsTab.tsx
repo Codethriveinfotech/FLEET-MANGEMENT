@@ -75,7 +75,7 @@ export default function ReportsTab() {
         const v = vehicles.find(veh => veh.id === t.vehicleId)?.number || 'Unknown';
         return [
           (idx + 1).toString(),
-          t.startDate || '',
+          t.startDate ? `="\t${t.startDate}"` : '',
           t.startTime || '',
           d,
           v,
@@ -95,7 +95,7 @@ export default function ReportsTab() {
         const d = drivers.find(drv => drv.id === f.driverId)?.name || 'Unknown';
         return [
           (idx + 1).toString(),
-          f.date || '',
+          f.date ? `="\t${f.date}"` : '',
           f.time || '',
           v,
           d,
@@ -122,7 +122,7 @@ export default function ReportsTab() {
           const hmr = endH >= startH ? (endH - startH) : 0;
           return [
             (idx + 1).toString(),
-            t.startDate || '',
+            t.startDate ? `="\t${t.startDate}"` : '',
             v,
             t.sourceLocation || '',
             t.destinationLocation || '',
@@ -176,7 +176,7 @@ export default function ReportsTab() {
 
           return [
             (idx + 1).toString(),
-            t.startDate || '',
+            t.startDate ? `="\t${t.startDate}"` : '',
             dName,
             t.sourceLocation || '',
             t.destinationLocation || '',
@@ -212,7 +212,7 @@ export default function ReportsTab() {
         const d = drivers.find(drv => drv.id === m.driverId)?.name || 'Unknown';
         return [
           (idx + 1).toString(),
-          m.date || '',
+          m.date ? `="\t${m.date}"` : '',
           v,
           d,
           m.maintenanceType || '',
