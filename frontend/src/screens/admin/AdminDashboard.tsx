@@ -939,76 +939,7 @@ export default function AdminDashboard() {
                   </View>
                 </View>
 
-                {/* Alerts Section (Horizontal scrolling alert cards matching screenshot) */}
-                <View style={{ marginTop: 24 }}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                    <Text style={styles.cardTitle}>Alerts</Text>
-                    <TouchableOpacity>
-                      <Text style={{ fontSize: 11, color: '#1D4ED8', fontWeight: '700' }}>View All</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -4 }}>
-                    {/* Alert 1 */}
-                    <View style={styles.alertCardCompact}>
-                      <View style={[styles.alertIconCircle, { backgroundColor: '#FEF2F2' }]}>
-                        <Text style={{ color: '#EF4444', fontSize: 14 }}>⚠️</Text>
-                      </View>
-                      <View style={{ marginLeft: 12 }}>
-                        <Text style={{ fontSize: 11, fontWeight: '700', color: '#1E293B' }}>Maintenance due for</Text>
-                        <Text style={{ fontSize: 12, fontWeight: '900', color: '#0F172A', marginTop: 2 }}>TN 09 AB 1234</Text>
-                        <Text style={{ fontSize: 8, color: '#94A3B8', marginTop: 4 }}>Today, 09:00 AM</Text>
-                      </View>
-                    </View>
 
-                    {/* Alert 2 */}
-                    <View style={styles.alertCardCompact}>
-                      <View style={[styles.alertIconCircle, { backgroundColor: '#FFF7ED' }]}>
-                        <Text style={{ color: '#F97316', fontSize: 14 }}>⛽</Text>
-                      </View>
-                      <View style={{ marginLeft: 12 }}>
-                        <Text style={{ fontSize: 11, fontWeight: '700', color: '#1E293B' }}>Low fuel in</Text>
-                        <Text style={{ fontSize: 12, fontWeight: '900', color: '#0F172A', marginTop: 2 }}>TN 01 CD 5678</Text>
-                        <Text style={{ fontSize: 8, color: '#94A3B8', marginTop: 4 }}>Today, 08:30 AM</Text>
-                      </View>
-                    </View>
-
-                    {/* Alert 3 */}
-                    <View style={styles.alertCardCompact}>
-                      <View style={[styles.alertIconCircle, { backgroundColor: '#FEF2F2' }]}>
-                        <Text style={{ color: '#EF4444', fontSize: 14 }}>🚨</Text>
-                      </View>
-                      <View style={{ marginLeft: 12 }}>
-                        <Text style={{ fontSize: 11, fontWeight: '700', color: '#1E293B' }}>Overspeed alert in</Text>
-                        <Text style={{ fontSize: 12, fontWeight: '900', color: '#0F172A', marginTop: 2 }}>TN 22 EF 9012</Text>
-                        <Text style={{ fontSize: 8, color: '#94A3B8', marginTop: 4 }}>Today, 07:45 AM</Text>
-                      </View>
-                    </View>
-
-                    {/* Alert 4 */}
-                    <View style={styles.alertCardCompact}>
-                      <View style={[styles.alertIconCircle, { backgroundColor: '#EFF6FF' }]}>
-                        <Text style={{ color: '#1D4ED8', fontSize: 14 }}>👤</Text>
-                      </View>
-                      <View style={{ marginLeft: 12 }}>
-                        <Text style={{ fontSize: 11, fontWeight: '700', color: '#1E293B' }}>Driver not assigned for</Text>
-                        <Text style={{ fontSize: 12, fontWeight: '900', color: '#0F172A', marginTop: 2 }}>TN 05 GH 3456</Text>
-                        <Text style={{ fontSize: 8, color: '#94A3B8', marginTop: 4 }}>Today, 07:30 AM</Text>
-                      </View>
-                    </View>
-
-                    {/* Alert 5 */}
-                    <View style={styles.alertCardCompact}>
-                      <View style={[styles.alertIconCircle, { backgroundColor: '#FFF7ED' }]}>
-                        <Text style={{ color: '#F97316', fontSize: 14 }}>📅</Text>
-                      </View>
-                      <View style={{ marginLeft: 12 }}>
-                        <Text style={{ fontSize: 11, fontWeight: '700', color: '#1E293B' }}>Insurance expiry for</Text>
-                        <Text style={{ fontSize: 12, fontWeight: '900', color: '#0F172A', marginTop: 2 }}>TN 18 IJ 7890</Text>
-                        <Text style={{ fontSize: 8, color: '#94A3B8', marginTop: 4 }}>May 30, 2025</Text>
-                      </View>
-                    </View>
-                  </ScrollView>
-                </View>
 
                 {/* Footer Copyright brand text */}
                 <View style={{ marginVertical: 24, alignItems: 'center' }}>
