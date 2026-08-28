@@ -17,7 +17,6 @@ import TripsTab from './tabs/TripsTab';
 import MaintenanceTab from './tabs/MaintenanceTab';
 import ReportsTab from './tabs/ReportsTab';
 import ProfileTab from './tabs/ProfileTab';
-import FuelTab from './tabs/FuelTab';
 import FuelMonitorTab from './tabs/FuelMonitorTab';
 
 const DashboardStack = createStackNavigator();
@@ -52,7 +51,6 @@ function DashboardLayoutContent() {
             { id: 'drivers', label: 'Drivers', icon: 'people-outline' },
             { id: 'trips', label: 'Trips', icon: 'navigate-outline' },
             { id: 'maintenance', label: 'Maintenance', icon: 'construct-outline' },
-            { id: 'fuel', label: 'Fuel Tracking', icon: 'oil-outline' },
             { id: 'fuel-monitor', label: 'Fuel Monitor', icon: 'bar-chart-outline' },
             { id: 'reports', label: 'Reports', icon: 'analytics-outline' },
             { id: 'profile', label: 'Settings', icon: 'settings-outline' },
@@ -147,7 +145,6 @@ function DashboardLayoutContent() {
               <DashboardStack.Screen name="drivers" component={DriversTab} />
               <DashboardStack.Screen name="trips" component={TripsTab} />
               <DashboardStack.Screen name="maintenance" component={MaintenanceTab} />
-              <DashboardStack.Screen name="fuel" component={FuelTab} />
               <DashboardStack.Screen name="fuel-monitor" component={FuelMonitorTab} />
               <DashboardStack.Screen name="reports" component={ReportsTab} />
               <DashboardStack.Screen name="profile" component={ProfileTab} />

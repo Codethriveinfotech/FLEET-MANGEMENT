@@ -33,7 +33,6 @@ const linking = {
           drivers: 'drivers',
           trips: 'trips',
           maintenance: 'maintenance',
-          fuel: 'fuel',
           'fuel-monitor': 'fuel-monitor',
           reports: 'reports',
           profile: 'profile',
