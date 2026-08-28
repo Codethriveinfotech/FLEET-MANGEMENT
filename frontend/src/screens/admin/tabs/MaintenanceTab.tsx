@@ -82,7 +82,6 @@ export default function MaintenanceTab() {
           <Text style={[styles.tableHeaderCell, { flex: 2.5, fontFamily: fontStyle }]}>DESCRIPTION</Text>
           <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>SERVICE NOTES</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'right', fontFamily: fontStyle }]}>COST</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'center', fontFamily: fontStyle }]}>STATUS</Text>
         </View>
 
         {/* Scrollable rows */}
@@ -92,7 +91,6 @@ export default function MaintenanceTab() {
               const vehicleNo = vehicles.find((v) => v.id === m.vehicleId)?.number || 'Unknown';
               const driverName = drivers.find((d) => d.id === m.driverId)?.name || 'Unknown';
               const initials = driverName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
-              const isResolved = m.status === 'submitted';
               const isBreakdown = m.isBreakdownReport;
 
               return (
@@ -164,27 +162,6 @@ export default function MaintenanceTab() {
                   <Text style={[styles.tableCell, { flex: 1, textAlign: 'right', fontWeight: '800', color: parseFloat(m.cost) > 0 ? '#8B5CF6' : '#94A3B8', fontFamily: fontStyle }]}>
                     {parseFloat(m.cost) > 0 ? `$${m.cost}` : 'N/A'}
                   </Text>
-
-                  {/* Status pill */}
-                  <View style={{ flex: 1.2, alignItems: 'center' }}>
-                    <View style={{
-                      backgroundColor: isResolved ? '#F0FDF4' : '#FEF2F2',
-                      borderColor: isResolved ? '#DCFCE7' : '#FEE2E2',
-                      borderWidth: 1,
-                      paddingVertical: 4,
-                      paddingHorizontal: 10,
-                      borderRadius: 20,
-                    }}>
-                      <Text style={{
-                        fontSize: 9,
-                        fontWeight: '800',
-                        color: isResolved ? '#16A34A' : '#DC2626',
-                        fontFamily: fontStyle,
-                      }}>
-                        {isResolved ? 'RESOLVED' : 'REPORTED'}
-                      </Text>
-                    </View>
-                  </View>
                 </View>
               );
             })}
