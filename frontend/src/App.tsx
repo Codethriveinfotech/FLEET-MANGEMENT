@@ -63,7 +63,7 @@ export default function App() {
         <StatusBar style="auto" />
         <NavigationContainer linking={linking}>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
-            {isAuthenticated && user?.phone === 'admin' ? (
+            {isAuthenticated && (user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN') ? (
               <Stack.Screen name="Dashboard" component={AdminDashboard} />
             ) : (
               <Stack.Screen name="Login" component={AdminLogin} />
