@@ -8,14 +8,29 @@ export default function TripsTab() {
   const { trips, drivers, vehicles } = useDashboardData();
   const [tripDriverFilter, setTripDriverFilter] = useState('');
   const [tripVehicleFilter, setTripVehicleFilter] = useState('');
+  const [filterFromDate, setFilterFromDate] = useState('');
+  const [filterToDate, setFilterToDate] = useState('');
   const [driverDropdownOpen, setDriverDropdownOpen] = useState(false);
   const [vehicleDropdownOpen, setVehicleDropdownOpen] = useState(false);
+
+  // Parse DD/MM/YYYY -> Date
+  const parseDate = (str: string): Date | null => {
+    if (!str) return null;
+    const parts = str.split('/');
+    if (parts.length !== 3) return null;
+    return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+  };
 
   const filteredTrips = trips.filter((t) => {
     if (tripDriverFilter && t.driverId !== tripDriverFilter) return false;
     if (tripVehicleFilter && t.vehicleId !== tripVehicleFilter) return false;
+    const recordDate = parseDate(t.startDate);
+    if (filterFromDate && (!recordDate || recordDate < new Date(filterFromDate))) return false;
+    if (filterToDate && (!recordDate || recordDate > new Date(filterToDate))) return false;
     return true;
   });
+
+  const hasFilters = tripDriverFilter || tripVehicleFilter || filterFromDate || filterToDate;
 
   return (
     <View style={{ flex: 1 }}>
@@ -186,8 +201,72 @@ export default function TripsTab() {
             )}
           </View>
 
+          {/* From Date */}
+          <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: '#FFFFFF',
+            borderWidth: 1,
+            borderColor: '#E2E8F0',
+            borderRadius: 8,
+            paddingVertical: 4,
+            paddingHorizontal: 12,
+            marginRight: 12,
+            overflow: 'hidden',
+          }}>
+            <Ionicons name="calendar-outline" size={14} color="#64748B" style={{ marginRight: 6 }} />
+            <Text style={{ fontSize: 11, color: '#64748B', marginRight: 4, fontFamily: fontStyle }}>From</Text>
+            <input
+              type="date"
+              style={{
+                padding: '4px 0',
+                fontSize: 12,
+                border: 'none',
+                outline: 'none',
+                color: filterFromDate ? '#0F172A' : '#94A3B8',
+                backgroundColor: 'transparent',
+                fontFamily: fontStyle,
+                cursor: 'pointer',
+              } as any}
+              value={filterFromDate}
+              onChange={(e: any) => setFilterFromDate(e.target.value)}
+            />
+          </View>
+
+          {/* To Date */}
+          <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: '#FFFFFF',
+            borderWidth: 1,
+            borderColor: '#E2E8F0',
+            borderRadius: 8,
+            paddingVertical: 4,
+            paddingHorizontal: 12,
+            marginRight: 12,
+            overflow: 'hidden',
+          }}>
+            <Ionicons name="calendar-outline" size={14} color="#64748B" style={{ marginRight: 6 }} />
+            <Text style={{ fontSize: 11, color: '#64748B', marginRight: 4, fontFamily: fontStyle }}>To</Text>
+            <input
+              type="date"
+              style={{
+                padding: '4px 0',
+                fontSize: 12,
+                border: 'none',
+                outline: 'none',
+                color: filterToDate ? '#0F172A' : '#94A3B8',
+                backgroundColor: 'transparent',
+                fontFamily: fontStyle,
+                cursor: 'pointer',
+              } as any}
+              value={filterToDate}
+              onChange={(e: any) => setFilterToDate(e.target.value)}
+            />
+          </View>
+
           {/* Clear Button */}
-          {(tripDriverFilter || tripVehicleFilter) ? (
+          {hasFilters ? (
             <TouchableOpacity
               style={{
                 flexDirection: 'row',
@@ -200,6 +279,8 @@ export default function TripsTab() {
               onPress={() => {
                 setTripDriverFilter('');
                 setTripVehicleFilter('');
+                setFilterFromDate('');
+                setFilterToDate('');
               }}
             >
               <Ionicons name="refresh-outline" size={12} color="#EF4444" style={{ marginRight: 4 }} />
