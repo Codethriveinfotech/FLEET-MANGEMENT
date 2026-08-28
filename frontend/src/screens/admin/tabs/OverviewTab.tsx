@@ -95,8 +95,55 @@ export default function OverviewTab() {
         <View style={[styles.donutCard, { flex: 1, marginRight: 24 }]}>
           <Text style={styles.cardTitle}>Fleet Overview</Text>
           <View style={styles.chartContentWrapper}>
-            <View style={styles.donutCircle}>
-              <View style={styles.donutInnerCircle}>
+            {/* Dynamic Interactive SVG Donut Chart */}
+            <View style={{ width: 110, height: 110, justifyContent: 'center', alignItems: 'center' }}>
+              <svg width="110" height="110" viewBox="0 0 110 110" style={{ transform: 'rotate(-90deg)' }}>
+                {/* Background Gray Circle */}
+                <circle cx="55" cy="55" r="45" fill="transparent" stroke="#F1F5F9" strokeWidth="10" />
+                
+                {/* Inactive segment (Grey) */}
+                {inactiveVehiclesCount > 0 && (
+                  <circle
+                    cx="55"
+                    cy="55"
+                    r="45"
+                    fill="transparent"
+                    stroke="#94A3B8"
+                    strokeWidth="10"
+                    strokeDasharray={`${(inactiveVehiclesCount / (totalVehiclesCount || 1)) * 282.7} 282.7`}
+                    strokeDashoffset={0}
+                  />
+                )}
+
+                {/* Maintenance segment (Orange) */}
+                {maintenanceVehiclesCount > 0 && (
+                  <circle
+                    cx="55"
+                    cy="55"
+                    r="45"
+                    fill="transparent"
+                    stroke="#F59E0B"
+                    strokeWidth="10"
+                    strokeDasharray={`${(maintenanceVehiclesCount / (totalVehiclesCount || 1)) * 282.7} 282.7`}
+                    strokeDashoffset={-((inactiveVehiclesCount / (totalVehiclesCount || 1)) * 282.7)}
+                  />
+                )}
+
+                {/* Active segment (Green) */}
+                {activeVehiclesCount > 0 && (
+                  <circle
+                    cx="55"
+                    cy="55"
+                    r="45"
+                    fill="transparent"
+                    stroke="#24D164"
+                    strokeWidth="10"
+                    strokeDasharray={`${(activeVehiclesCount / (totalVehiclesCount || 1)) * 282.7} 282.7`}
+                    strokeDashoffset={-(((inactiveVehiclesCount + maintenanceVehiclesCount) / (totalVehiclesCount || 1)) * 282.7)}
+                  />
+                )}
+              </svg>
+              <View style={{ position: 'absolute', justifyContent: 'center', alignItems: 'center' }}>
                 <Text style={styles.donutMiddleNum}>{totalVehiclesCount}</Text>
                 <Text style={styles.donutMiddleLabel}>Total</Text>
               </View>
@@ -105,17 +152,17 @@ export default function OverviewTab() {
             <View style={styles.donutLegend}>
               <View style={styles.legendRow}>
                 <View style={[styles.legendDot, { backgroundColor: '#24D164' }]} />
-                <Text style={styles.legendLabel}>Active</Text>
+                <Text style={[styles.legendLabel, { width: 90 }]}>Active</Text>
                 <Text style={styles.legendVal}>{activeVehiclesCount} ({activePct}%)</Text>
               </View>
               <View style={styles.legendRow}>
                 <View style={[styles.legendDot, { backgroundColor: '#F59E0B' }]} />
-                <Text style={styles.legendLabel}>Maintenance</Text>
+                <Text style={[styles.legendLabel, { width: 90 }]}>Maintenance</Text>
                 <Text style={styles.legendVal}>{maintenanceVehiclesCount} ({maintPct}%)</Text>
               </View>
               <View style={styles.legendRow}>
                 <View style={[styles.legendDot, { backgroundColor: '#94A3B8' }]} />
-                <Text style={styles.legendLabel}>Inactive</Text>
+                <Text style={[styles.legendLabel, { width: 90 }]}>Inactive</Text>
                 <Text style={styles.legendVal}>{inactiveVehiclesCount} ({inactivePct}%)</Text>
               </View>
             </View>
