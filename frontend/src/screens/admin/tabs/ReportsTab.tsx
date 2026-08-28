@@ -29,9 +29,29 @@ export default function ReportsTab() {
       return d ? d >= cutoffDate : false;
     };
 
-    const filteredTrips = trips.filter(t => isWithinRange(t.startDate));
-    const filteredMaint = maintenance.filter(m => isWithinRange(m.date));
-    const filteredFuel = fuelLogs.filter(f => isWithinRange(f.date));
+    // Apply vehicle filter if selected and report type supports it
+    const showVehFilter = selectedReportType === 'Vehicle Utilization Report' || selectedReportType === 'Fuel Report' || selectedReportType === 'Maintenance Report';
+    
+    const filteredTrips = trips.filter(t => {
+      const dateOk = isWithinRange(t.startDate);
+      if (!dateOk) return false;
+      if (showVehFilter && selectedVehicleId && t.vehicleId !== selectedVehicleId) return false;
+      return true;
+    });
+
+    const filteredMaint = maintenance.filter(m => {
+      const dateOk = isWithinRange(m.date);
+      if (!dateOk) return false;
+      if (showVehFilter && selectedVehicleId && m.vehicleId !== selectedVehicleId) return false;
+      return true;
+    });
+
+    const filteredFuel = fuelLogs.filter(f => {
+      const dateOk = isWithinRange(f.date);
+      if (!dateOk) return false;
+      if (showVehFilter && selectedVehicleId && f.vehicleId !== selectedVehicleId) return false;
+      return true;
+    });
 
     return { filteredTrips, filteredMaint, filteredFuel };
   };
@@ -298,8 +318,8 @@ export default function ReportsTab() {
               </View>
             )}
 
-            {/* Dynamic Selector for Vehicle inside Vehicle Report */}
-            {selectedReportType === 'Vehicle Utilization Report' && (
+            {/* Dynamic Selector for Vehicle inside Vehicle, Fuel, or Maintenance Report */}
+            {(selectedReportType === 'Vehicle Utilization Report' || selectedReportType === 'Fuel Report' || selectedReportType === 'Maintenance Report') && (
               <View style={{
                 flexDirection: 'row',
                 alignItems: 'center',
