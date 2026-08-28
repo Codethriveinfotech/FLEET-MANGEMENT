@@ -8,9 +8,8 @@ export default function MaintenanceTab() {
   const { maintenance, vehicles, drivers } = useDashboardData();
 
   const totalCost = maintenance.reduce((acc, m) => acc + (parseFloat(m.cost) || 0), 0);
-  const resolved = maintenance.filter((m) => m.status === 'submitted').length;
-  const open = maintenance.length - resolved;
   const breakdowns = maintenance.filter((m) => m.isBreakdownReport).length;
+  const oilChanges = maintenance.filter((m) => m.oilChangeDone).length;
 
   return (
     <View style={{ flex: 1 }}>
@@ -21,31 +20,9 @@ export default function MaintenanceTab() {
             <Ionicons name="construct-outline" size={26} color="#FFFFFF" />
           </View>
           <View style={{ marginLeft: 16, flex: 1 }}>
-            <Text style={styles.statLabel}>Total Tickets</Text>
+            <Text style={styles.statLabel}>Total Records</Text>
             <Text style={styles.statValue}>{maintenance.length}</Text>
-            <Text style={styles.statTrendText}>All maintenance reports</Text>
-          </View>
-        </View>
-
-        <View style={styles.statCard}>
-          <View style={[styles.statIconBg, { backgroundColor: '#EF4444' }]}>
-            <Ionicons name="alert-circle-outline" size={26} color="#FFFFFF" />
-          </View>
-          <View style={{ marginLeft: 16, flex: 1 }}>
-            <Text style={styles.statLabel}>Open / Pending</Text>
-            <Text style={styles.statValue}>{open}</Text>
-            <Text style={styles.statTrendText}>Awaiting resolution</Text>
-          </View>
-        </View>
-
-        <View style={styles.statCard}>
-          <View style={[styles.statIconBg, { backgroundColor: '#10B981' }]}>
-            <Ionicons name="checkmark-circle-outline" size={26} color="#FFFFFF" />
-          </View>
-          <View style={{ marginLeft: 16, flex: 1 }}>
-            <Text style={styles.statLabel}>Resolved</Text>
-            <Text style={styles.statValue}>{resolved}</Text>
-            <Text style={styles.statTrendText}>Completed repairs</Text>
+            <Text style={styles.statTrendText}>All maintenance entries</Text>
           </View>
         </View>
 
@@ -56,7 +33,29 @@ export default function MaintenanceTab() {
           <View style={{ marginLeft: 16, flex: 1 }}>
             <Text style={styles.statLabel}>Total Repair Cost</Text>
             <Text style={styles.statValue}>${totalCost.toFixed(2)}</Text>
-            <Text style={styles.statTrendText}>Accumulated service cost</Text>
+            <Text style={styles.statTrendText}>Accumulated service expenses</Text>
+          </View>
+        </View>
+
+        <View style={styles.statCard}>
+          <View style={[styles.statIconBg, { backgroundColor: '#EF4444' }]}>
+            <Ionicons name="flash-outline" size={26} color="#FFFFFF" />
+          </View>
+          <View style={{ marginLeft: 16, flex: 1 }}>
+            <Text style={styles.statLabel}>Breakdown Reports</Text>
+            <Text style={styles.statValue}>{breakdowns}</Text>
+            <Text style={styles.statTrendText}>Emergency breakdown incidents</Text>
+          </View>
+        </View>
+
+        <View style={styles.statCard}>
+          <View style={[styles.statIconBg, { backgroundColor: '#10B981' }]}>
+            <Ionicons name="oil" size={26} color="#FFFFFF" />
+          </View>
+          <View style={{ marginLeft: 16, flex: 1 }}>
+            <Text style={styles.statLabel}>Oil Changes Done</Text>
+            <Text style={styles.statValue}>{oilChanges}</Text>
+            <Text style={styles.statTrendText}>Engine oil service completed</Text>
           </View>
         </View>
       </View>
