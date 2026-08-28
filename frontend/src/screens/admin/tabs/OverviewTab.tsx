@@ -15,11 +15,11 @@ export default function OverviewTab() {
   // Dynamic calculations for vehicle stats
   const totalVehiclesCount = vehicles.length;
   const activeVehiclesCount = vehicles.filter((v) => (v.status || '').toLowerCase() === 'active').length;
-  const maintenanceVehiclesCount = vehicles.filter((v) => (v.status || '').toLowerCase().includes('maint') || (v.status || '').toLowerCase().includes('service')).length;
-  const inactiveVehiclesCount = totalVehiclesCount - activeVehiclesCount - maintenanceVehiclesCount;
+  const breakdownVehiclesCount = vehicles.filter((v) => (v.status || '').toLowerCase().includes('break') || (v.status || '').toLowerCase().includes('maint')).length;
+  const inactiveVehiclesCount = totalVehiclesCount - activeVehiclesCount - breakdownVehiclesCount;
 
   const activePct = totalVehiclesCount > 0 ? ((activeVehiclesCount / totalVehiclesCount) * 100).toFixed(1) : '0';
-  const maintPct = totalVehiclesCount > 0 ? ((maintenanceVehiclesCount / totalVehiclesCount) * 100).toFixed(1) : '0';
+  const breakdownPct = totalVehiclesCount > 0 ? ((breakdownVehiclesCount / totalVehiclesCount) * 100).toFixed(1) : '0';
   const inactivePct = totalVehiclesCount > 0 ? ((inactiveVehiclesCount / totalVehiclesCount) * 100).toFixed(1) : '0';
 
   return (
@@ -115,16 +115,16 @@ export default function OverviewTab() {
                   />
                 )}
 
-                {/* Maintenance segment (Orange) */}
-                {maintenanceVehiclesCount > 0 && (
+                {/* Breakdown segment (Red) */}
+                {breakdownVehiclesCount > 0 && (
                   <circle
                     cx="55"
                     cy="55"
                     r="45"
                     fill="transparent"
-                    stroke="#F59E0B"
+                    stroke="#EF4444"
                     strokeWidth="10"
-                    strokeDasharray={`${(maintenanceVehiclesCount / (totalVehiclesCount || 1)) * 282.7} 282.7`}
+                    strokeDasharray={`${(breakdownVehiclesCount / (totalVehiclesCount || 1)) * 282.7} 282.7`}
                     strokeDashoffset={-((inactiveVehiclesCount / (totalVehiclesCount || 1)) * 282.7)}
                   />
                 )}
@@ -139,7 +139,7 @@ export default function OverviewTab() {
                     stroke="#24D164"
                     strokeWidth="10"
                     strokeDasharray={`${(activeVehiclesCount / (totalVehiclesCount || 1)) * 282.7} 282.7`}
-                    strokeDashoffset={-(((inactiveVehiclesCount + maintenanceVehiclesCount) / (totalVehiclesCount || 1)) * 282.7)}
+                    strokeDashoffset={-(((inactiveVehiclesCount + breakdownVehiclesCount) / (totalVehiclesCount || 1)) * 282.7)}
                   />
                 )}
               </svg>
@@ -156,9 +156,9 @@ export default function OverviewTab() {
                 <Text style={styles.legendVal}>{activeVehiclesCount} ({activePct}%)</Text>
               </View>
               <View style={styles.legendRow}>
-                <View style={[styles.legendDot, { backgroundColor: '#F59E0B' }]} />
-                <Text style={[styles.legendLabel, { width: 90 }]}>Maintenance</Text>
-                <Text style={styles.legendVal}>{maintenanceVehiclesCount} ({maintPct}%)</Text>
+                <View style={[styles.legendDot, { backgroundColor: '#EF4444' }]} />
+                <Text style={[styles.legendLabel, { width: 90 }]}>Breakdown</Text>
+                <Text style={styles.legendVal}>{breakdownVehiclesCount} ({breakdownPct}%)</Text>
               </View>
               <View style={styles.legendRow}>
                 <View style={[styles.legendDot, { backgroundColor: '#94A3B8' }]} />
