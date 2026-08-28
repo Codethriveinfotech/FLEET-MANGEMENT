@@ -281,13 +281,13 @@ export default function ReportsTab() {
 
       {/* Right Pane: Report Dashboard & Preview */}
       <View style={{ flex: 1 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <View>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+          <View style={{ flex: 1, minWidth: 200 }}>
             <Text style={{ fontSize: 18, fontWeight: '800', color: '#0F172A', fontFamily: fontStyle }}>{selectedReportType}</Text>
-            <Text style={{ fontSize: 11, color: '#64748B', fontFamily: fontStyle }}>Detailed live preview and customizable Excel exporting</Text>
+            <Text style={{ fontSize: 11, color: '#64748B', fontFamily: fontStyle, marginTop: 2 }}>Detailed live preview and customizable Excel exporting</Text>
           </View>
 
-          <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             {/* Dynamic Selector for Driver inside Driver, Fuel, or Maintenance Report */}
             {(selectedReportType === 'Driver Performance Report' || selectedReportType === 'Fuel Report' || selectedReportType === 'Maintenance Report') && (
               <View style={{
@@ -298,6 +298,7 @@ export default function ReportsTab() {
                 borderRadius: 10,
                 backgroundColor: '#FFFFFF',
                 paddingHorizontal: 12,
+                height: 38,
               }}>
                 <Ionicons name="person-outline" size={16} color="#64748B" style={{ marginRight: 8 }} />
                 <select
@@ -332,6 +333,7 @@ export default function ReportsTab() {
                 borderRadius: 10,
                 backgroundColor: '#FFFFFF',
                 paddingHorizontal: 12,
+                height: 38,
               }}>
                 <Ionicons name="car-outline" size={16} color="#64748B" style={{ marginRight: 8 }} />
                 <select
@@ -365,6 +367,7 @@ export default function ReportsTab() {
               borderRadius: 10,
               backgroundColor: '#FFFFFF',
               paddingHorizontal: 12,
+              height: 38,
             }}>
               <Ionicons name="time-outline" size={16} color="#64748B" style={{ marginRight: 8 }} />
               <select
