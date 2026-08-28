@@ -29,13 +29,15 @@ export default function ReportsTab() {
       return d ? d >= cutoffDate : false;
     };
 
-    // Apply vehicle filter if selected and report type supports it
+    // Apply vehicle and driver filters if selected and report type supports it
     const showVehFilter = selectedReportType === 'Vehicle Utilization Report' || selectedReportType === 'Fuel Report' || selectedReportType === 'Maintenance Report';
-    
+    const showDriverFilter = selectedReportType === 'Driver Performance Report' || selectedReportType === 'Fuel Report' || selectedReportType === 'Maintenance Report';
+
     const filteredTrips = trips.filter(t => {
       const dateOk = isWithinRange(t.startDate);
       if (!dateOk) return false;
       if (showVehFilter && selectedVehicleId && t.vehicleId !== selectedVehicleId) return false;
+      if (showDriverFilter && selectedDriverId && t.driverId !== selectedDriverId) return false;
       return true;
     });
 
@@ -43,6 +45,7 @@ export default function ReportsTab() {
       const dateOk = isWithinRange(m.date);
       if (!dateOk) return false;
       if (showVehFilter && selectedVehicleId && m.vehicleId !== selectedVehicleId) return false;
+      if (showDriverFilter && selectedDriverId && m.driverId !== selectedDriverId) return false;
       return true;
     });
 
@@ -50,6 +53,7 @@ export default function ReportsTab() {
       const dateOk = isWithinRange(f.date);
       if (!dateOk) return false;
       if (showVehFilter && selectedVehicleId && f.vehicleId !== selectedVehicleId) return false;
+      if (showDriverFilter && selectedDriverId && f.driverId !== selectedDriverId) return false;
       return true;
     });
 
@@ -284,8 +288,8 @@ export default function ReportsTab() {
           </View>
 
           <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
-            {/* Dynamic Selector for Driver inside Driver Report */}
-            {selectedReportType === 'Driver Performance Report' && (
+            {/* Dynamic Selector for Driver inside Driver, Fuel, or Maintenance Report */}
+            {(selectedReportType === 'Driver Performance Report' || selectedReportType === 'Fuel Report' || selectedReportType === 'Maintenance Report') && (
               <View style={{
                 flexDirection: 'row',
                 alignItems: 'center',
