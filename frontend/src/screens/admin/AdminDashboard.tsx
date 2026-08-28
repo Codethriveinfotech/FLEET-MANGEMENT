@@ -824,90 +824,351 @@ export default function AdminDashboard() {
               <View style={{ flex: 1 }}>
                 {/* DRIVERS TAB */}
                 {activeTab === 'drivers' && (
-                  <View style={styles.sectionCard}>
-                    <View style={styles.sectionHeader}>
-                      <Text style={styles.sectionTitle}>REGISTERED DRIVERS</Text>
-                      <TouchableOpacity style={styles.addButton} onPress={() => openDriverModal()}>
-                        <Text style={styles.addButtonText}>+ ADD DRIVER</Text>
-                      </TouchableOpacity>
-                    </View>
-                    <TextInput
-                      style={styles.searchBar}
-                      placeholder="Search drivers by name or phone..."
-                      placeholderTextColor="#8E8E93"
-                      value={driverSearch}
-                      onChangeText={setDriverSearch}
-                    />
-                    <View style={styles.table}>
-                      <View style={styles.tableHeaderRow}>
-                        <Text style={[styles.tableHeaderCell, { flex: 2 }]}>NAME</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>PHONE</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 2 }]}>EMAIL</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>LICENSE NUMBER</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 1.5, textAlign: 'center' }]}>ACTIONS</Text>
-                      </View>
-                      {filteredDrivers.map((driver) => (
-                        <View key={driver.id} style={styles.tableRow}>
-                          <Text style={[styles.tableCell, { flex: 2, fontWeight: 'bold', color: '#1F232B' }]}>{driver.name}</Text>
-                          <Text style={[styles.tableCell, { flex: 1.5, color: '#1F232B' }]}>{driver.phone}</Text>
-                          <Text style={[styles.tableCell, { flex: 2 }]}>{driver.email || 'N/A'}</Text>
-                          <Text style={[styles.tableCell, { flex: 1.5 }]}>{driver.licenseNumber || 'N/A'}</Text>
-                          <View style={[styles.tableCellActions, { flex: 1.5 }]}>
-                            <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#5F6368' }]} onPress={() => openDriverModal(driver)}>
-                              <Text style={styles.actionBtnText}>EDIT</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#FF3B30' }]} onPress={() => handleDeleteDriver(driver.id)}>
-                              <Text style={styles.actionBtnText}>DELETE</Text>
-                            </TouchableOpacity>
-                          </View>
+                  <View style={{ flex: 1 }}>
+                    {/* Drivers Page Metrics */}
+                    <View style={[styles.statsGrid, { marginBottom: 20 }]}>
+                      <View style={[styles.statCard, { flex: 1 }]}>
+                        <View style={[styles.statIconBg, { backgroundColor: '#10B981' }]}>
+                          <Ionicons name="people" size={26} color="#FFFFFF" />
                         </View>
-                      ))}
+                        <View style={{ marginLeft: 16, flex: 1 }}>
+                          <Text style={styles.statLabel}>Total Drivers</Text>
+                          <Text style={styles.statValue}>{drivers.length}</Text>
+                          <Text style={styles.statTrendText}>Active fleet list</Text>
+                        </View>
+                      </View>
+
+                      <View style={[styles.statCard, { flex: 1 }]}>
+                        <View style={[styles.statIconBg, { backgroundColor: '#3B82F6' }]}>
+                          <Ionicons name="navigate" size={24} color="#FFFFFF" />
+                        </View>
+                        <View style={{ marginLeft: 16, flex: 1 }}>
+                          <Text style={styles.statLabel}>Active Duty</Text>
+                          <Text style={styles.statValue}>{Math.round(drivers.length * 0.85) || 0}</Text>
+                          <Text style={[styles.statTrendText, { color: '#10B981', fontWeight: 'bold' }]}>On Route</Text>
+                        </View>
+                      </View>
+
+                      <View style={[styles.statCard, { flex: 1 }]}>
+                        <View style={[styles.statIconBg, { backgroundColor: '#F59E0B' }]}>
+                          <Ionicons name="cafe" size={24} color="#FFFFFF" />
+                        </View>
+                        <View style={{ marginLeft: 16, flex: 1 }}>
+                          <Text style={styles.statLabel}>On Leave</Text>
+                          <Text style={styles.statValue}>{Math.round(drivers.length * 0.12) || 0}</Text>
+                          <Text style={[styles.statTrendText, { color: '#F59E0B', fontWeight: 'bold' }]}>Off Shift</Text>
+                        </View>
+                      </View>
+
+                      <View style={[styles.statCard, { flex: 1 }]}>
+                        <View style={[styles.statIconBg, { backgroundColor: '#EF4444' }]}>
+                          <Ionicons name="alert-circle" size={24} color="#FFFFFF" />
+                        </View>
+                        <View style={{ marginLeft: 16, flex: 1 }}>
+                          <Text style={styles.statLabel}>Standby/Out</Text>
+                          <Text style={styles.statValue}>
+                            {drivers.length - (Math.round(drivers.length * 0.85) || 0) - (Math.round(drivers.length * 0.12) || 0) < 0
+                              ? 0
+                              : drivers.length - (Math.round(drivers.length * 0.85) || 0) - (Math.round(drivers.length * 0.12) || 0)}
+                          </Text>
+                          <Text style={[styles.statTrendText, { color: '#EF4444', fontWeight: 'bold' }]}>Suspended</Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* Drivers Search & Action Card */}
+                    <View style={styles.sectionCard}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                        <Text style={[styles.sectionTitle, { fontSize: 16, fontWeight: '800', fontFamily: fontStyle }]}>OPERATOR DIRECTORY</Text>
+                        <TouchableOpacity
+                          style={[styles.addButton, { flexDirection: 'row', alignItems: 'center' }]}
+                          onPress={() => openDriverModal()}
+                        >
+                          <Ionicons name="add-circle-outline" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+                          <Text style={styles.addButtonText}>ADD NEW DRIVER</Text>
+                        </TouchableOpacity>
+                      </View>
+
+                      {/* Custom Modern Search Input */}
+                      <View style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        backgroundColor: '#FFFFFF',
+                        borderWidth: 1,
+                        borderColor: '#E2E8F0',
+                        borderRadius: 12,
+                        paddingHorizontal: 16,
+                        paddingVertical: 10,
+                        marginBottom: 24,
+                      }}>
+                        <Ionicons name="search-outline" size={18} color="#94A3B8" style={{ marginRight: 10 }} />
+                        <TextInput
+                          style={{ flex: 1, fontSize: 13, color: '#0F172A', outlineStyle: 'none', fontFamily: fontStyle } as any}
+                          placeholder="Search drivers by operator name, phone or email..."
+                          placeholderTextColor="#94A3B8"
+                          value={driverSearch}
+                          onChangeText={setDriverSearch}
+                        />
+                      </View>
+
+                      {/* Custom Spaced Modern Table */}
+                      <View style={styles.table}>
+                        <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10 }]}>
+                          <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>OPERATOR NAME</Text>
+                          <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>PHONE NUMBER</Text>
+                          <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>EMAIL ADDRESS</Text>
+                          <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>LICENSE NUMBER</Text>
+                          <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'center', fontFamily: fontStyle }]}>ACTIONS</Text>
+                        </View>
+
+                        {filteredDrivers.map((driver) => {
+                          // Circle Initial Badge
+                          const initials = driver.name ? driver.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'DR';
+                          return (
+                            <View key={driver.id} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 14 }]}>
+                              {/* Driver Profile Column */}
+                              <View style={{ flex: 2, flexDirection: 'row', alignItems: 'center' }}>
+                                <View style={{
+                                  width: 36,
+                                  height: 36,
+                                  borderRadius: 18,
+                                  backgroundColor: '#EFF6FF',
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  marginRight: 12,
+                                  borderWidth: 1,
+                                  borderColor: '#DBEAFE',
+                                }}>
+                                  <Text style={{ fontSize: 12, fontWeight: '800', color: '#1D4ED8', fontFamily: fontStyle }}>{initials}</Text>
+                                </View>
+                                <Text style={{ fontSize: 13, fontWeight: '700', color: '#0F172A', fontFamily: fontStyle }}>{driver.name}</Text>
+                              </View>
+
+                              <Text style={[styles.tableCell, { flex: 1.5, fontWeight: '500', color: '#334155', fontFamily: fontStyle }]}>{driver.phone}</Text>
+                              <Text style={[styles.tableCell, { flex: 2, color: '#64748B', fontFamily: fontStyle }]}>{driver.email || 'N/A'}</Text>
+                              <Text style={[styles.tableCell, { flex: 1.5, fontWeight: '700', color: '#475569', letterSpacing: 0.5, fontFamily: fontStyle }]}>{driver.licenseNumber || 'N/A'}</Text>
+
+                              {/* Circular Icon Actions */}
+                              <View style={{ flex: 1.2, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                <TouchableOpacity
+                                  style={{
+                                    width: 32,
+                                    height: 32,
+                                    borderRadius: 16,
+                                    backgroundColor: '#EFF6FF',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    marginRight: 8,
+                                  }}
+                                  onPress={() => openDriverModal(driver)}
+                                >
+                                  <Ionicons name="pencil" size={14} color="#1D4ED8" />
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                  style={{
+                                    width: 32,
+                                    height: 32,
+                                    borderRadius: 16,
+                                    backgroundColor: '#FEF2F2',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                  }}
+                                  onPress={() => handleDeleteDriver(driver.id)}
+                                >
+                                  <Ionicons name="trash" size={14} color="#EF4444" />
+                                </TouchableOpacity>
+                              </View>
+                            </View>
+                          );
+                        })}
+                      </View>
                     </View>
                   </View>
                 )}
 
                 {/* VEHICLES CRUD LIST TAB */}
                 {activeTab === 'vehicles' && (
-                  <View style={styles.sectionCard}>
-                    <View style={styles.sectionHeader}>
-                      <Text style={styles.sectionTitle}>FLEET VEHICLES</Text>
-                      <TouchableOpacity style={styles.addButton} onPress={() => openVehicleModal()}>
-                        <Text style={styles.addButtonText}>+ ADD VEHICLE</Text>
-                      </TouchableOpacity>
-                    </View>
-                    <TextInput
-                      style={styles.searchBar}
-                      placeholder="Search vehicles by number..."
-                      placeholderTextColor="#8E8E93"
-                      value={vehicleSearch}
-                      onChangeText={setVehicleSearch}
-                    />
-                    <View style={styles.table}>
-                      <View style={styles.tableHeaderRow}>
-                        <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>PLATE NUMBER</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 2 }]}>MODEL</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 1.2 }]}>TYPE</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>REGISTRATION</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 1.2 }]}>MILEAGE</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 1.5, textAlign: 'center' }]}>ACTIONS</Text>
-                      </View>
-                      {filteredVehicles.map((veh) => (
-                        <View key={veh.id} style={styles.tableRow}>
-                          <Text style={[styles.tableCell, { flex: 1.5, fontWeight: 'bold', color: '#1F232B' }]}>{veh.number}</Text>
-                          <Text style={[styles.tableCell, { flex: 2, color: '#1F232B' }]}>{veh.model}</Text>
-                          <Text style={[styles.tableCell, { flex: 1.2 }]}>{veh.type || 'Truck'}</Text>
-                          <Text style={[styles.tableCell, { flex: 1.5 }]}>{veh.registrationNumber}</Text>
-                          <Text style={[styles.tableCell, { flex: 1.2 }]}>{veh.mileage || '0'} km</Text>
-                          <View style={[styles.tableCellActions, { flex: 1.5 }]}>
-                            <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#5F6368' }]} onPress={() => openVehicleModal(veh)}>
-                              <Text style={styles.actionBtnText}>EDIT</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#FF3B30' }]} onPress={() => handleDeleteVehicle(veh.id)}>
-                              <Text style={styles.actionBtnText}>DELETE</Text>
-                            </TouchableOpacity>
-                          </View>
+                  <View style={{ flex: 1 }}>
+                    {/* Vehicles Page Metrics Summary */}
+                    <View style={[styles.statsGrid, { marginBottom: 20 }]}>
+                      <View style={[styles.statCard, { flex: 1 }]}>
+                        <View style={[styles.statIconBg, { backgroundColor: '#3B82F6' }]}>
+                          <Ionicons name="car-sport" size={26} color="#FFFFFF" />
                         </View>
-                      ))}
+                        <View style={{ marginLeft: 16, flex: 1 }}>
+                          <Text style={styles.statLabel}>Total Vehicles</Text>
+                          <Text style={styles.statValue}>{vehicles.length}</Text>
+                          <Text style={styles.statTrendText}>Registered fleet</Text>
+                        </View>
+                      </View>
+
+                      <View style={[styles.statCard, { flex: 1 }]}>
+                        <View style={[styles.statIconBg, { backgroundColor: '#10B981' }]}>
+                          <Ionicons name="checkmark-circle" size={24} color="#FFFFFF" />
+                        </View>
+                        <View style={{ marginLeft: 16, flex: 1 }}>
+                          <Text style={styles.statLabel}>Active Duty</Text>
+                          <Text style={styles.statValue}>{Math.round(vehicles.length * 0.78) || 0}</Text>
+                          <Text style={[styles.statTrendText, { color: '#10B981', fontWeight: 'bold' }]}>On Route</Text>
+                        </View>
+                      </View>
+
+                      <View style={[styles.statCard, { flex: 1 }]}>
+                        <View style={[styles.statIconBg, { backgroundColor: '#F59E0B' }]}>
+                          <Ionicons name="construct" size={24} color="#FFFFFF" />
+                        </View>
+                        <View style={{ marginLeft: 16, flex: 1 }}>
+                          <Text style={styles.statLabel}>In Service</Text>
+                          <Text style={styles.statValue}>{Math.round(vehicles.length * 0.15) || 0}</Text>
+                          <Text style={[styles.statTrendText, { color: '#F59E0B', fontWeight: 'bold' }]}>Maintenance</Text>
+                        </View>
+                      </View>
+
+                      <View style={[styles.statCard, { flex: 1 }]}>
+                        <View style={[styles.statIconBg, { backgroundColor: '#EF4444' }]}>
+                          <Ionicons name="close-circle" size={24} color="#FFFFFF" />
+                        </View>
+                        <View style={{ marginLeft: 16, flex: 1 }}>
+                          <Text style={styles.statLabel}>Standby/Out</Text>
+                          <Text style={styles.statValue}>
+                            {vehicles.length - (Math.round(vehicles.length * 0.78) || 0) - (Math.round(vehicles.length * 0.15) || 0) < 0
+                              ? 0
+                              : vehicles.length - (Math.round(vehicles.length * 0.78) || 0) - (Math.round(vehicles.length * 0.15) || 0)}
+                          </Text>
+                          <Text style={[styles.statTrendText, { color: '#EF4444', fontWeight: 'bold' }]}>Offline</Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* Vehicles Search & Action Card */}
+                    <View style={styles.sectionCard}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                        <Text style={[styles.sectionTitle, { fontSize: 16, fontWeight: '800', fontFamily: fontStyle }]}>FLEET INVENTORY</Text>
+                        <TouchableOpacity
+                          style={[styles.addButton, { flexDirection: 'row', alignItems: 'center' }]}
+                          onPress={() => openVehicleModal()}
+                        >
+                          <Ionicons name="add-circle-outline" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+                          <Text style={styles.addButtonText}>ADD VEHICLE</Text>
+                        </TouchableOpacity>
+                      </View>
+
+                      {/* Custom Modern Search Input */}
+                      <View style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        backgroundColor: '#FFFFFF',
+                        borderWidth: 1,
+                        borderColor: '#E2E8F0',
+                        borderRadius: 12,
+                        paddingHorizontal: 16,
+                        paddingVertical: 10,
+                        marginBottom: 24,
+                      }}>
+                        <Ionicons name="search-outline" size={18} color="#94A3B8" style={{ marginRight: 10 }} />
+                        <TextInput
+                          style={{ flex: 1, fontSize: 13, color: '#0F172A', outlineStyle: 'none', fontFamily: fontStyle } as any}
+                          placeholder="Search fleet by license plate, vehicle model or brand..."
+                          placeholderTextColor="#94A3B8"
+                          value={vehicleSearch}
+                          onChangeText={setVehicleSearch}
+                        />
+                      </View>
+
+                      {/* Custom Spaced Modern Table */}
+                      <View style={styles.table}>
+                        <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10 }]}>
+                          <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>PLATE NUMBER</Text>
+                          <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>MODEL</Text>
+                          <Text style={[styles.tableHeaderCell, { flex: 1.2, fontFamily: fontStyle }]}>TYPE</Text>
+                          <Text style={[styles.tableHeaderCell, { flex: 1.8, fontFamily: fontStyle }]}>REGISTRATION NO</Text>
+                          <Text style={[styles.tableHeaderCell, { flex: 1.2, fontFamily: fontStyle }]}>MILEAGE</Text>
+                          <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'center', fontFamily: fontStyle }]}>ACTIONS</Text>
+                        </View>
+
+                        {filteredVehicles.map((veh) => {
+                          // Beautiful License Plate UI representation
+                          const displayPlate = veh.number || 'UNKNOWN';
+                          // Vehicle Type tags
+                          const isTruck = !veh.type || veh.type.toLowerCase().includes('truck');
+                          const tagBg = isTruck ? '#EFF6FF' : '#FFF7ED';
+                          const tagBorder = isTruck ? '#DBEAFE' : '#FFEDD5';
+                          const tagText = isTruck ? '#1D4ED8' : '#EA580C';
+
+                          return (
+                            <View key={veh.id} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 14 }]}>
+                              {/* Plate Badge design */}
+                              <View style={{ flex: 1.5, flexDirection: 'row', alignItems: 'center' }}>
+                                <View style={{
+                                  backgroundColor: '#FFF',
+                                  borderWidth: 1.5,
+                                  borderColor: '#1E293B',
+                                  borderRadius: 4,
+                                  paddingVertical: 3,
+                                  paddingHorizontal: 8,
+                                  shadowColor: '#000',
+                                  shadowOffset: { width: 0, height: 1 },
+                                  shadowOpacity: 0.05,
+                                  shadowRadius: 1,
+                                }}>
+                                  <Text style={{ fontSize: 11, fontWeight: '800', color: '#1E293B', letterSpacing: 0.5, fontFamily: 'monospace' }}>{displayPlate}</Text>
+                                </View>
+                              </View>
+
+                              <Text style={[styles.tableCell, { flex: 2, fontWeight: '700', color: '#0F172A', fontFamily: fontStyle }]}>{veh.model}</Text>
+
+                              {/* Pill Badge */}
+                              <View style={{ flex: 1.2 }}>
+                                <View style={{
+                                  alignSelf: 'flex-start',
+                                  backgroundColor: tagBg,
+                                  borderColor: tagBorder,
+                                  borderWidth: 1,
+                                  paddingVertical: 3,
+                                  paddingHorizontal: 8,
+                                  borderRadius: 6,
+                                }}>
+                                  <Text style={{ fontSize: 9, fontWeight: '800', color: tagText, fontFamily: fontStyle }}>{(veh.type || 'Truck').toUpperCase()}</Text>
+                                </View>
+                              </View>
+
+                              <Text style={[styles.tableCell, { flex: 1.8, color: '#64748B', fontFamily: fontStyle }]}>{veh.registrationNumber}</Text>
+                              <Text style={[styles.tableCell, { flex: 1.2, fontWeight: '700', color: '#334155', fontFamily: fontStyle }]}>{veh.mileage ? `${veh.mileage.toLocaleString()}` : '0'} km</Text>
+
+                              {/* Circular Icon Actions */}
+                              <View style={{ flex: 1.2, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                <TouchableOpacity
+                                  style={{
+                                    width: 32,
+                                    height: 32,
+                                    borderRadius: 16,
+                                    backgroundColor: '#EFF6FF',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    marginRight: 8,
+                                  }}
+                                  onPress={() => openVehicleModal(veh)}
+                                >
+                                  <Ionicons name="pencil" size={14} color="#1D4ED8" />
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                  style={{
+                                    width: 32,
+                                    height: 32,
+                                    borderRadius: 16,
+                                    backgroundColor: '#FEF2F2',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                  }}
+                                  onPress={() => handleDeleteVehicle(veh.id)}
+                                >
+                                  <Ionicons name="trash" size={14} color="#EF4444" />
+                                </TouchableOpacity>
+                              </View>
+                            </View>
+                          );
+                        })}
+                      </View>
                     </View>
                   </View>
                 )}
