@@ -11,10 +11,6 @@ export default function MaintenanceTab() {
   const [filterFromDate, setFilterFromDate] = useState('');
   const [filterToDate, setFilterToDate] = useState('');
 
-  const totalCost = maintenance.reduce((acc, m) => acc + (parseFloat(m.cost) || 0), 0);
-  const breakdowns = maintenance.filter((m) => m.isBreakdownReport).length;
-  const oilChanges = maintenance.filter((m) => m.oilChangeDone).length;
-
   // Parse DD/MM/YYYY -> Date for comparison
   const parseDate = (str: string): Date | null => {
     if (!str) return null;
@@ -35,6 +31,11 @@ export default function MaintenanceTab() {
 
   const hasFilters = filterVehicleId || filterDriverId || filterFromDate || filterToDate;
 
+  // Card stats — always reflect the filtered set
+  const totalCost = filtered.reduce((acc, m) => acc + (parseFloat(m.cost) || 0), 0);
+  const breakdowns = filtered.filter((m) => m.isBreakdownReport).length;
+  const oilChanges = filtered.filter((m) => m.oilChangeDone).length;
+
   return (
     <View style={{ flex: 1 }}>
       {/* Summary Cards */}
@@ -45,8 +46,10 @@ export default function MaintenanceTab() {
           </View>
           <View style={{ marginLeft: 16, flex: 1 }}>
             <Text style={styles.statLabel}>Total Records</Text>
-            <Text style={styles.statValue}>{maintenance.length}</Text>
-            <Text style={styles.statTrendText}>All maintenance entries</Text>
+            <Text style={styles.statValue}>{filtered.length}</Text>
+            <Text style={styles.statTrendText}>
+              {hasFilters ? `Filtered from ${maintenance.length} total` : 'All maintenance entries'}
+            </Text>
           </View>
         </View>
 
