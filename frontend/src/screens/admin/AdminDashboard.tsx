@@ -823,12 +823,12 @@ export default function AdminDashboard() {
 
             {/* OTHER TABS RENDER - SPANNING FULL WORKSPACE WIDTH */}
             {activeTab !== 'overview' && (
-              <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+              <View style={{ flex: 1 }}>
                 {/* DRIVERS TAB */}
                 {activeTab === 'drivers' && (
                   <View style={{ flex: 1 }}>
                     {/* Drivers Search & Action Card */}
-                    <View style={styles.sectionCard}>
+                    <View style={[styles.sectionCard, { flex: 1 }]}>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                         <Text style={[styles.sectionTitle, { fontSize: 16, fontWeight: '800', fontFamily: fontStyle }]}>OPERATOR DIRECTORY</Text>
                         <TouchableOpacity
@@ -862,17 +862,19 @@ export default function AdminDashboard() {
                         />
                       </View>
 
-                      {/* Custom Spaced Modern Table */}
-                      <View style={styles.table}>
-                        <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10 }]}>
-                          <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>OPERATOR NAME</Text>
-                          <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>PHONE NUMBER</Text>
-                          <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>EMAIL ADDRESS</Text>
-                          <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>LICENSE NUMBER</Text>
-                          <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'center', fontFamily: fontStyle }]}>ACTIONS</Text>
-                        </View>
+                      {/* Custom Spaced Modern Table Headers (Fixed) */}
+                      <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10, marginBottom: 0 }]}>
+                        <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>OPERATOR NAME</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>PHONE NUMBER</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>EMAIL ADDRESS</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>LICENSE NUMBER</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'center', fontFamily: fontStyle }]}>ACTIONS</Text>
+                      </View>
 
-                        {filteredDrivers.map((driver) => {
+                      {/* Scrollable table rows */}
+                      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+                        <View style={styles.table}>
+                          {filteredDrivers.map((driver) => {
                           // Circle Initial Badge
                           const initials = driver.name ? driver.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'DR';
                           return (
@@ -932,7 +934,8 @@ export default function AdminDashboard() {
                             </View>
                           );
                         })}
-                      </View>
+                        </View>
+                      </ScrollView>
                     </View>
                   </View>
                 )}
@@ -941,7 +944,7 @@ export default function AdminDashboard() {
                 {activeTab === 'vehicles' && (
                   <View style={{ flex: 1 }}>
                     {/* Vehicles Search & Action Card */}
-                    <View style={styles.sectionCard}>
+                    <View style={[styles.sectionCard, { flex: 1 }]}>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                         <Text style={[styles.sectionTitle, { fontSize: 16, fontWeight: '800', fontFamily: fontStyle }]}>FLEET INVENTORY</Text>
                         <TouchableOpacity
@@ -975,18 +978,20 @@ export default function AdminDashboard() {
                         />
                       </View>
 
-                      {/* Custom Spaced Modern Table */}
-                      <View style={styles.table}>
-                        <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10 }]}>
-                          <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>PLATE NUMBER</Text>
-                          <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>MODEL</Text>
-                          <Text style={[styles.tableHeaderCell, { flex: 1.2, fontFamily: fontStyle }]}>TYPE</Text>
-                          <Text style={[styles.tableHeaderCell, { flex: 1.8, fontFamily: fontStyle }]}>REGISTRATION NO</Text>
-                          <Text style={[styles.tableHeaderCell, { flex: 1.2, fontFamily: fontStyle }]}>MILEAGE</Text>
-                          <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'center', fontFamily: fontStyle }]}>ACTIONS</Text>
-                        </View>
+                      {/* Custom Spaced Modern Table Headers (Fixed) */}
+                      <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10, marginBottom: 0 }]}>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>PLATE NUMBER</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>MODEL</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.2, fontFamily: fontStyle }]}>TYPE</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.8, fontFamily: fontStyle }]}>REGISTRATION NO</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.2, fontFamily: fontStyle }]}>MILEAGE</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'center', fontFamily: fontStyle }]}>ACTIONS</Text>
+                      </View>
 
-                        {filteredVehicles.map((veh) => {
+                      {/* Scrollable table rows */}
+                      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+                        <View style={styles.table}>
+                          {filteredVehicles.map((veh) => {
                           // Beautiful License Plate UI representation
                           const displayPlate = veh.number || 'UNKNOWN';
                           // Vehicle Type tags
@@ -1068,216 +1073,218 @@ export default function AdminDashboard() {
                             </View>
                           );
                         })}
-                      </View>
+                        </View>
+                      </ScrollView>
                     </View>
                   </View>
                 )}
 
                 {/* TRIP LOGS TAB */}
                 {activeTab === 'trips' && (
-                  <View style={styles.sectionCard}>
-                    {/* Header Row */}
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                      <View>
-                        <Text style={[styles.sectionTitle, { fontSize: 16, fontWeight: '800', fontFamily: fontStyle }]}>TRIP LOGS HISTORY</Text>
-                        <Text style={{ fontSize: 11, color: '#64748B', fontFamily: fontStyle, marginTop: 2 }}>
-                          Showing {filteredTrips.length} of {trips.length} total missions
-                        </Text>
-                      </View>
-                    </View>
-
-                    {/* Modern Filter Row */}
-                    <View style={{
-                      flexDirection: 'row',
-                      flexWrap: 'wrap',
-                      alignItems: 'center',
-                      backgroundColor: '#F8FAFC',
-                      borderWidth: 1,
-                      borderColor: '#E2E8F0',
-                      borderRadius: 12,
-                      padding: 12,
-                      marginBottom: 24,
-                      zIndex: 10,
-                    }}>
-                      <Ionicons name="filter-outline" size={18} color="#64748B" style={{ marginRight: 12 }} />
-                      <Text style={{ fontSize: 12, fontWeight: '700', color: '#64748B', marginRight: 16, fontFamily: fontStyle }}>Filter by:</Text>
-
-                      {/* Driver Dropdown Trigger */}
-                      <View style={{ position: 'relative', marginRight: 12, zIndex: 12 }}>
-                        <TouchableOpacity
-                          style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            backgroundColor: '#FFFFFF',
-                            borderWidth: 1,
-                            borderColor: '#E2E8F0',
-                            borderRadius: 8,
-                            paddingVertical: 8,
-                            paddingHorizontal: 12,
-                          }}
-                          onPress={() => {
-                            setDriverDropdownOpen(!driverDropdownOpen);
-                            setVehicleDropdownOpen(false);
-                          }}
-                        >
-                          <Text style={{ fontSize: 12, fontWeight: '600', color: '#1E293B', fontFamily: fontStyle, marginRight: 6 }}>
-                            Driver: {tripDriverFilter ? (drivers.find(d => d.id === tripDriverFilter)?.name || 'Selected') : 'All'}
+                  <View style={{ flex: 1 }}>
+                    <View style={[styles.sectionCard, { flex: 1 }]}>
+                      {/* Header Row */}
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                        <View>
+                          <Text style={[styles.sectionTitle, { fontSize: 16, fontWeight: '800', fontFamily: fontStyle }]}>TRIP LOGS HISTORY</Text>
+                          <Text style={{ fontSize: 11, color: '#64748B', fontFamily: fontStyle, marginTop: 2 }}>
+                            Showing {filteredTrips.length} of {trips.length} total missions
                           </Text>
-                          <Ionicons name="chevron-down-outline" size={12} color="#64748B" />
-                        </TouchableOpacity>
-
-                        {driverDropdownOpen && (
-                          <View style={{
-                            position: 'absolute',
-                            top: 38,
-                            left: 0,
-                            width: 200,
-                            backgroundColor: '#FFFFFF',
-                            borderWidth: 1,
-                            borderColor: '#E2E8F0',
-                            borderRadius: 12,
-                            shadowColor: '#000',
-                            shadowOffset: { width: 0, height: 4 },
-                            shadowOpacity: 0.1,
-                            shadowRadius: 10,
-                            padding: 6,
-                          }}>
-                            <ScrollView style={{ maxHeight: 200 }}>
-                              <TouchableOpacity
-                                style={{ padding: 8, borderRadius: 6, backgroundColor: !tripDriverFilter ? '#EFF6FF' : 'transparent' }}
-                                onPress={() => {
-                                  setTripDriverFilter('');
-                                  setDriverDropdownOpen(false);
-                                }}
-                              >
-                                <Text style={{ fontSize: 12, fontWeight: !tripDriverFilter ? '700' : '500', color: !tripDriverFilter ? '#1D4ED8' : '#334155', fontFamily: fontStyle }}>All Drivers</Text>
-                              </TouchableOpacity>
-                              {drivers.map((d) => {
-                                const isSel = tripDriverFilter === d.id;
-                                return (
-                                  <TouchableOpacity
-                                    key={d.id}
-                                    style={{ padding: 8, borderRadius: 6, backgroundColor: isSel ? '#EFF6FF' : 'transparent', marginTop: 2 }}
-                                    onPress={() => {
-                                      setTripDriverFilter(d.id);
-                                      setDriverDropdownOpen(false);
-                                    }}
-                                  >
-                                    <Text style={{ fontSize: 12, fontWeight: isSel ? '700' : '500', color: isSel ? '#1D4ED8' : '#334155', fontFamily: fontStyle }}>{d.name}</Text>
-                                  </TouchableOpacity>
-                                );
-                              })}
-                            </ScrollView>
-                          </View>
-                        )}
+                        </View>
                       </View>
 
-                      {/* Vehicle Dropdown Trigger */}
-                      <View style={{ position: 'relative', marginRight: 12, zIndex: 11 }}>
-                        <TouchableOpacity
-                          style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            backgroundColor: '#FFFFFF',
-                            borderWidth: 1,
-                            borderColor: '#E2E8F0',
-                            borderRadius: 8,
-                            paddingVertical: 8,
-                            paddingHorizontal: 12,
-                          }}
-                          onPress={() => {
-                            setVehicleDropdownOpen(!vehicleDropdownOpen);
-                            setDriverDropdownOpen(false);
-                          }}
-                        >
-                          <Text style={{ fontSize: 12, fontWeight: '600', color: '#1E293B', fontFamily: fontStyle, marginRight: 6 }}>
-                            Vehicle: {tripVehicleFilter ? (vehicles.find(v => v.id === tripVehicleFilter)?.number || 'Selected') : 'All'}
-                          </Text>
-                          <Ionicons name="chevron-down-outline" size={12} color="#64748B" />
-                        </TouchableOpacity>
+                      {/* Modern Filter Row */}
+                      <View style={{
+                        flexDirection: 'row',
+                        flexWrap: 'wrap',
+                        alignItems: 'center',
+                        backgroundColor: '#F8FAFC',
+                        borderWidth: 1,
+                        borderColor: '#E2E8F0',
+                        borderRadius: 12,
+                        padding: 12,
+                        marginBottom: 24,
+                        zIndex: 10,
+                      }}>
+                        <Ionicons name="filter-outline" size={18} color="#64748B" style={{ marginRight: 12 }} />
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: '#64748B', marginRight: 16, fontFamily: fontStyle }}>Filter by:</Text>
 
-                        {vehicleDropdownOpen && (
-                          <View style={{
-                            position: 'absolute',
-                            top: 38,
-                            left: 0,
-                            width: 200,
-                            backgroundColor: '#FFFFFF',
-                            borderWidth: 1,
-                            borderColor: '#E2E8F0',
-                            borderRadius: 12,
-                            shadowColor: '#000',
-                            shadowOffset: { width: 0, height: 4 },
-                            shadowOpacity: 0.1,
-                            shadowRadius: 10,
-                            padding: 6,
-                          }}>
-                            <ScrollView style={{ maxHeight: 200 }}>
-                              <TouchableOpacity
-                                style={{ padding: 8, borderRadius: 6, backgroundColor: !tripVehicleFilter ? '#EFF6FF' : 'transparent' }}
-                                onPress={() => {
-                                  setTripVehicleFilter('');
-                                  setVehicleDropdownOpen(false);
-                                }}
-                              >
-                                <Text style={{ fontSize: 12, fontWeight: !tripVehicleFilter ? '700' : '500', color: !tripVehicleFilter ? '#1D4ED8' : '#334155', fontFamily: fontStyle }}>All Vehicles</Text>
-                              </TouchableOpacity>
-                              {vehicles.map((v) => {
-                                const isSel = tripVehicleFilter === v.id;
-                                return (
-                                  <TouchableOpacity
-                                    key={v.id}
-                                    style={{ padding: 8, borderRadius: 6, backgroundColor: isSel ? '#EFF6FF' : 'transparent', marginTop: 2 }}
-                                    onPress={() => {
-                                      setTripVehicleFilter(v.id);
-                                      setVehicleDropdownOpen(false);
-                                    }}
-                                  >
-                                    <Text style={{ fontSize: 12, fontWeight: isSel ? '700' : '500', color: isSel ? '#1D4ED8' : '#334155', fontFamily: fontStyle }}>{v.number}</Text>
-                                  </TouchableOpacity>
-                                );
-                              })}
-                            </ScrollView>
-                          </View>
-                        )}
-                      </View>
+                        {/* Driver Dropdown Trigger */}
+                        <View style={{ position: 'relative', marginRight: 12, zIndex: 12 }}>
+                          <TouchableOpacity
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              backgroundColor: '#FFFFFF',
+                              borderWidth: 1,
+                              borderColor: '#E2E8F0',
+                              borderRadius: 8,
+                              paddingVertical: 8,
+                              paddingHorizontal: 12,
+                            }}
+                            onPress={() => {
+                              setDriverDropdownOpen(!driverDropdownOpen);
+                              setVehicleDropdownOpen(false);
+                            }}
+                          >
+                            <Text style={{ fontSize: 12, fontWeight: '600', color: '#1E293B', fontFamily: fontStyle, marginRight: 6 }}>
+                              Driver: {tripDriverFilter ? (drivers.find(d => d.id === tripDriverFilter)?.name || 'Selected') : 'All'}
+                            </Text>
+                            <Ionicons name="chevron-down-outline" size={12} color="#64748B" />
+                          </TouchableOpacity>
 
-                      {/* Clear Button */}
-                      {(tripDriverFilter || tripVehicleFilter) ? (
-                        <TouchableOpacity
-                          style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            backgroundColor: '#FEF2F2',
-                            borderRadius: 8,
-                            paddingVertical: 8,
-                            paddingHorizontal: 12,
-                          }}
-                          onPress={() => {
-                            setTripDriverFilter('');
-                            setTripVehicleFilter('');
-                          }}
-                        >
-                          <Ionicons name="refresh-outline" size={12} color="#EF4444" style={{ marginRight: 4 }} />
-                          <Text style={{ fontSize: 12, fontWeight: '700', color: '#EF4444', fontFamily: fontStyle }}>Reset Filters</Text>
-                        </TouchableOpacity>
-                      ) : null}
-                    </View>
-
-                    {/* Scrollable Table View */}
-                    <View style={[styles.table, { width: '100%' }]}>
-                        {/* Table Header Row */}
-                        <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10 }]}>
-                          <Text style={[styles.tableHeaderCell, { flex: 1.2, fontFamily: fontStyle }]}>START DATE</Text>
-                          <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>OPERATOR DRIVER</Text>
-                          <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>VEHICLE NO</Text>
-                          <Text style={[styles.tableHeaderCell, { flex: 2.2, fontFamily: fontStyle }]}>SOURCE LOCATION</Text>
-                          <Text style={[styles.tableHeaderCell, { flex: 2.2, fontFamily: fontStyle }]}>DESTINATION</Text>
-                          <Text style={[styles.tableHeaderCell, { flex: 1.8, textAlign: 'right', fontFamily: fontStyle }]}>ODOMETER PROGRESS</Text>
-                          <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'center', fontFamily: fontStyle }]}>STATUS</Text>
+                          {driverDropdownOpen && (
+                            <View style={{
+                              position: 'absolute',
+                              top: 38,
+                              left: 0,
+                              width: 200,
+                              backgroundColor: '#FFFFFF',
+                              borderWidth: 1,
+                              borderColor: '#E2E8F0',
+                              borderRadius: 12,
+                              shadowColor: '#000',
+                              shadowOffset: { width: 0, height: 4 },
+                              shadowOpacity: 0.1,
+                              shadowRadius: 10,
+                              padding: 6,
+                            }}>
+                              <ScrollView style={{ maxHeight: 200 }}>
+                                <TouchableOpacity
+                                  style={{ padding: 8, borderRadius: 6, backgroundColor: !tripDriverFilter ? '#EFF6FF' : 'transparent' }}
+                                  onPress={() => {
+                                    setTripDriverFilter('');
+                                    setDriverDropdownOpen(false);
+                                  }}
+                                >
+                                  <Text style={{ fontSize: 12, fontWeight: !tripDriverFilter ? '700' : '500', color: !tripDriverFilter ? '#1D4ED8' : '#334155', fontFamily: fontStyle }}>All Drivers</Text>
+                                </TouchableOpacity>
+                                {drivers.map((d) => {
+                                  const isSel = tripDriverFilter === d.id;
+                                  return (
+                                    <TouchableOpacity
+                                      key={d.id}
+                                      style={{ padding: 8, borderRadius: 6, backgroundColor: isSel ? '#EFF6FF' : 'transparent', marginTop: 2 }}
+                                      onPress={() => {
+                                        setTripDriverFilter(d.id);
+                                        setDriverDropdownOpen(false);
+                                      }}
+                                    >
+                                      <Text style={{ fontSize: 12, fontWeight: isSel ? '700' : '500', color: isSel ? '#1D4ED8' : '#334155', fontFamily: fontStyle }}>{d.name}</Text>
+                                    </TouchableOpacity>
+                                  );
+                                })}
+                              </ScrollView>
+                            </View>
+                          )}
                         </View>
 
-                        {/* Table Data Rows */}
+                        {/* Vehicle Dropdown Trigger */}
+                        <View style={{ position: 'relative', marginRight: 12, zIndex: 11 }}>
+                          <TouchableOpacity
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              backgroundColor: '#FFFFFF',
+                              borderWidth: 1,
+                              borderColor: '#E2E8F0',
+                              borderRadius: 8,
+                              paddingVertical: 8,
+                              paddingHorizontal: 12,
+                            }}
+                            onPress={() => {
+                              setVehicleDropdownOpen(!vehicleDropdownOpen);
+                              setDriverDropdownOpen(false);
+                            }}
+                          >
+                            <Text style={{ fontSize: 12, fontWeight: '600', color: '#1E293B', fontFamily: fontStyle, marginRight: 6 }}>
+                              Vehicle: {tripVehicleFilter ? (vehicles.find(v => v.id === tripVehicleFilter)?.number || 'Selected') : 'All'}
+                            </Text>
+                            <Ionicons name="chevron-down-outline" size={12} color="#64748B" />
+                          </TouchableOpacity>
+
+                          {vehicleDropdownOpen && (
+                            <View style={{
+                              position: 'absolute',
+                              top: 38,
+                              left: 0,
+                              width: 200,
+                              backgroundColor: '#FFFFFF',
+                              borderWidth: 1,
+                              borderColor: '#E2E8F0',
+                              borderRadius: 12,
+                              shadowColor: '#000',
+                              shadowOffset: { width: 0, height: 4 },
+                              shadowOpacity: 0.1,
+                              shadowRadius: 10,
+                              padding: 6,
+                            }}>
+                              <ScrollView style={{ maxHeight: 200 }}>
+                                <TouchableOpacity
+                                  style={{ padding: 8, borderRadius: 6, backgroundColor: !tripVehicleFilter ? '#EFF6FF' : 'transparent' }}
+                                  onPress={() => {
+                                    setTripVehicleFilter('');
+                                    setVehicleDropdownOpen(false);
+                                  }}
+                                >
+                                  <Text style={{ fontSize: 12, fontWeight: !tripVehicleFilter ? '700' : '500', color: !tripVehicleFilter ? '#1D4ED8' : '#334155', fontFamily: fontStyle }}>All Vehicles</Text>
+                                </TouchableOpacity>
+                                {vehicles.map((v) => {
+                                  const isSel = tripVehicleFilter === v.id;
+                                  return (
+                                    <TouchableOpacity
+                                      key={v.id}
+                                      style={{ padding: 8, borderRadius: 6, backgroundColor: isSel ? '#EFF6FF' : 'transparent', marginTop: 2 }}
+                                      onPress={() => {
+                                        setTripVehicleFilter(v.id);
+                                        setVehicleDropdownOpen(false);
+                                      }}
+                                    >
+                                      <Text style={{ fontSize: 12, fontWeight: isSel ? '700' : '500', color: isSel ? '#1D4ED8' : '#334155', fontFamily: fontStyle }}>{v.number}</Text>
+                                    </TouchableOpacity>
+                                  );
+                                })}
+                              </ScrollView>
+                            </View>
+                          )}
+                        </View>
+
+                        {/* Clear Button */}
+                        {(tripDriverFilter || tripVehicleFilter) ? (
+                          <TouchableOpacity
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              backgroundColor: '#FEF2F2',
+                              borderRadius: 8,
+                              paddingVertical: 8,
+                              paddingHorizontal: 12,
+                            }}
+                            onPress={() => {
+                              setTripDriverFilter('');
+                              setTripVehicleFilter('');
+                            }}
+                          >
+                            <Ionicons name="refresh-outline" size={12} color="#EF4444" style={{ marginRight: 4 }} />
+                            <Text style={{ fontSize: 12, fontWeight: '700', color: '#EF4444', fontFamily: fontStyle }}>Reset Filters</Text>
+                          </TouchableOpacity>
+                        ) : null}
+                      </View>
+
+                      {/* Custom Spaced Table Header Row (Fixed) */}
+                      <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10, marginBottom: 0 }]}>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.2, fontFamily: fontStyle }]}>START DATE</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 2, fontFamily: fontStyle }]}>OPERATOR DRIVER</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>VEHICLE NO</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 2.2, fontFamily: fontStyle }]}>SOURCE LOCATION</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 2.2, fontFamily: fontStyle }]}>DESTINATION</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.8, textAlign: 'right', fontFamily: fontStyle }]}>ODOMETER PROGRESS</Text>
+                        <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'center', fontFamily: fontStyle }]}>STATUS</Text>
+                      </View>
+
+                      {/* Scrollable table rows */}
+                      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+                        <View style={styles.table}>
                         {filteredTrips.map((trip) => {
                           const driverObj = drivers.find((d) => d.id === trip.driverId);
                           const driverName = driverObj?.name || 'Unknown';
@@ -1356,7 +1363,9 @@ export default function AdminDashboard() {
                             </View>
                           );
                         })}
-                      </View>
+                        </View>
+                      </ScrollView>
+                    </View>
                   </View>
                 )}
 
@@ -1574,7 +1583,7 @@ export default function AdminDashboard() {
                     </View>
                   </View>
                 )}
-              </ScrollView>
+              </View>
             )}
           </View>
         )}
