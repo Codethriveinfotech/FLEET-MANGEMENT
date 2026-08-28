@@ -806,56 +806,7 @@ export default function AdminDashboard() {
                   </View>
                 </View>
 
-                {/* Bottom Row: Maintenance Due (Table) */}
-                <View style={[styles.trackingChartRow, { marginTop: 4 }]}>
-                  {/* Maintenance Due Table */}
-                  <View style={[styles.sectionCard, { flex: 1, padding: 20 }]}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                      <Text style={styles.cardTitle}>Maintenance Due</Text>
-                      <TouchableOpacity onPress={() => setActiveTab('maintenance')}>
-                        <Text style={{ fontSize: 11, color: '#1D4ED8', fontWeight: '700' }}>View All</Text>
-                      </TouchableOpacity>
-                    </View>
-                    <View style={styles.table}>
-                      <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 8 }]}>
-                        <Text style={[styles.tableHeaderCell, { flex: 1.2 }]}>Vehicle</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 1.8 }]}>Service Type</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 1.3 }]}>Due Date</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'center' }]}>Priority</Text>
-                        <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'center' }]}>Status</Text>
-                      </View>
 
-                      {[
-                        { vehicleNo: 'MH-12-PQ-4567', type: 'Engine Oil Change', date: '14/08/2026', priority: 'Low', status: 'Resolved' },
-                        { vehicleNo: 'MH-12-PQ-4567', type: 'Brake Pad wear out', date: '20/08/2026', priority: 'Low', status: 'Due Soon' },
-                        { vehicleNo: 'TN 22 EF 9012', type: 'Tyre Replacement', date: 'Jun 07, 2025', priority: 'Medium', status: 'Due Soon' },
-                        { vehicleNo: 'TN 05 GH 3456', type: 'Brake Inspection', date: 'Jun 10, 2025', priority: 'Low', status: 'Scheduled' },
-                        { vehicleNo: 'TN 18 IJ 7890', type: 'Battery Check', date: 'Jun 12, 2025', priority: 'Low', status: 'Scheduled' },
-                      ].map((m, idx) => {
-                        const priColor = m.priority === 'High' ? '#EF4444' : m.priority === 'Medium' ? '#F97316' : '#10B981';
-                        const statColor = m.status === 'Due Soon' ? '#F97316' : m.status === 'Resolved' ? '#24D164' : '#1D4ED8';
-
-                        return (
-                          <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10 }]}>
-                            <Text style={[styles.tableCell, { flex: 1.2, fontWeight: '700', color: '#1E293B', fontFamily: fontStyle }]}>{m.vehicleNo}</Text>
-                            <Text style={[styles.tableCell, { flex: 1.8, color: '#475569', fontFamily: fontStyle }]}>{m.type}</Text>
-                            <Text style={[styles.tableCell, { flex: 1.3, color: '#64748B', fontFamily: fontStyle }]}>{m.date}</Text>
-                            <View style={{ flex: 1, alignItems: 'center' }}>
-                              <View style={{ backgroundColor: priColor + '15', paddingVertical: 3, paddingHorizontal: 8, borderRadius: 6 }}>
-                                <Text style={{ fontSize: 9, fontWeight: '800', color: priColor, fontFamily: fontStyle }}>{m.priority}</Text>
-                              </View>
-                            </View>
-                            <View style={{ flex: 1.2, alignItems: 'center' }}>
-                              <View style={{ backgroundColor: statColor + '15', paddingVertical: 3, paddingHorizontal: 8, borderRadius: 6 }}>
-                                <Text style={{ fontSize: 9, fontWeight: '800', color: statColor, fontFamily: fontStyle }}>{m.status}</Text>
-                              </View>
-                            </View>
-                          </View>
-                        );
-                      })}
-                    </View>
-                  </View>
-                </View>
 
 
 
