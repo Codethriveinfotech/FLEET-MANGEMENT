@@ -1308,14 +1308,28 @@ export default function AdminDashboard() {
                               <Text style={[styles.tableCell, { flex: 0.6, color: '#64748B', fontWeight: 'bold', fontFamily: fontStyle }]}>{idx + 1}</Text>
 
                               {/* Start Time Cell */}
-                              <Text style={[styles.tableCell, { flex: 1.6, color: '#475569', fontWeight: '500', fontFamily: fontStyle }]}>
-                                {trip.startDate} {trip.startTime ? `@ ${trip.startTime}` : ''}
-                              </Text>
+                              <View style={{ flex: 1.6, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
+                                <Text style={{ fontSize: 13, color: '#334155', fontWeight: '600', fontFamily: fontStyle }}>{trip.startDate}</Text>
+                                {trip.startTime ? (
+                                  <Text style={{ fontSize: 11, color: '#64748B', marginTop: 2, fontFamily: fontStyle }}>{trip.startTime}</Text>
+                                ) : null}
+                              </View>
 
                               {/* End Time Cell */}
-                              <Text style={[styles.tableCell, { flex: 1.6, color: isDone ? '#475569' : '#10B981', fontWeight: isDone ? '500' : '700', fontFamily: fontStyle }]}>
-                                {trip.endDate ? `${trip.endDate}${trip.endTime ? ` @ ${trip.endTime}` : ''}` : (isDone ? 'N/A' : 'Active')}
-                              </Text>
+                              <View style={{ flex: 1.6, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
+                                {trip.endDate ? (
+                                  <>
+                                    <Text style={{ fontSize: 13, color: '#334155', fontWeight: '600', fontFamily: fontStyle }}>{trip.endDate}</Text>
+                                    {trip.endTime ? (
+                                      <Text style={{ fontSize: 11, color: '#64748B', marginTop: 2, fontFamily: fontStyle }}>{trip.endTime}</Text>
+                                    ) : null}
+                                  </>
+                                ) : (
+                                  <Text style={{ fontSize: 12, color: isDone ? '#64748B' : '#10B981', fontWeight: isDone ? '500' : '700', fontFamily: fontStyle }}>
+                                    {isDone ? 'N/A' : 'Active'}
+                                  </Text>
+                                )}
+                              </View>
 
                               {/* Driver avatar cell */}
                               <View style={{ flex: 1.8, flexDirection: 'row', alignItems: 'center' }}>
