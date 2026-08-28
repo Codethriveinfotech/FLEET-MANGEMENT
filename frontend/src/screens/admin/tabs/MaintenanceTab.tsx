@@ -50,7 +50,7 @@ export default function MaintenanceTab() {
 
         <View style={styles.statCard}>
           <View style={[styles.statIconBg, { backgroundColor: '#10B981' }]}>
-            <Ionicons name="oil" size={26} color="#FFFFFF" />
+            <Ionicons name="water-outline" size={26} color="#FFFFFF" />
           </View>
           <View style={{ marginLeft: 16, flex: 1 }}>
             <Text style={styles.statLabel}>Oil Changes Done</Text>
