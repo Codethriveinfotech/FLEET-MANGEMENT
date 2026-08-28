@@ -100,3 +100,15 @@ object Maintenance : Table("maintenance") {
     val isBreakdownReport = bool("is_breakdown_report").default(false)
     override val primaryKey = PrimaryKey(id)
 }
+
+object FuelLogs : Table("fuel_logs") {
+    val id = text("id")
+    val vehicleId = text("vehicle_id").references(Vehicles.id, onDelete = ReferenceOption.CASCADE)
+    val driverId = text("driver_id").references(Users.id, onDelete = ReferenceOption.CASCADE)
+    val date = text("date")
+    val time = text("time").default("")
+    val liters = text("liters")
+    val cost = text("cost")
+    val odometerReading = text("odometer_reading").default("0")
+    override val primaryKey = PrimaryKey(id)
+}

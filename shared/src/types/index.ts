@@ -89,6 +89,19 @@ export interface MaintenanceRecord {
   updatedAt?: string;
 }
 
+export interface FuelLog {
+  id: string;
+  vehicleId: string;
+  driverId: string;
+  date: string;
+  time: string;
+  liters: string;
+  cost: string;
+  odometerReading: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 // API Response Formats
 export interface ApiResponse<T = any> {
   success: boolean;

@@ -20,6 +20,7 @@ fun Application.module() {
     val vehicleRepository: VehicleRepository = VehicleRepositoryImpl()
     val tripRepository: TripRepository = TripRepositoryImpl()
     val maintenanceRepository: MaintenanceRepository = MaintenanceRepositoryImpl()
+    val fuelRepository: FuelRepository = FuelRepositoryImpl()
     
     val authService = AuthService(userRepository, tokenRepository, jwtConfig)
 
@@ -40,6 +41,7 @@ fun Application.module() {
             vehicleRoutes(vehicleRepository)
             tripRoutes(tripRepository)
             maintenanceRoutes(maintenanceRepository)
+            fuelRoutes(fuelRepository)
         }
     }
 }

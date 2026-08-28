@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
-import { User, Vehicle } from '@fleettrack/shared';
+import { User, Vehicle, FuelLog } from '@fleettrack/shared';
 
 interface DashboardDataContextType {
   drivers: User[];
@@ -11,6 +11,8 @@ interface DashboardDataContextType {
   setTrips: React.Dispatch<React.SetStateAction<any[]>>;
   maintenance: any[];
   setMaintenance: React.Dispatch<React.SetStateAction<any[]>>;
+  fuelLogs: FuelLog[];
+  setFuelLogs: React.Dispatch<React.SetStateAction<FuelLog[]>>;
   loading: boolean;
   isLiveBlinking: boolean;
   fetchData: (quiet?: boolean) => Promise<void>;
@@ -23,17 +25,19 @@ export function DashboardDataProvider({ children }: { children: React.ReactNode 
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [trips, setTrips] = useState<any[]>([]);
   const [maintenance, setMaintenance] = useState<any[]>([]);
+  const [fuelLogs, setFuelLogs] = useState<FuelLog[]>([]);
   const [loading, setLoading] = useState(false);
   const [isLiveBlinking, setIsLiveBlinking] = useState(true);
 
   const fetchData = async (quiet = false) => {
     if (!quiet) setLoading(true);
     try {
-      const [drRes, vRes, tRes, mRes] = await Promise.all([
+      const [drRes, vRes, tRes, mRes, fRes] = await Promise.all([
         apiClient.get('/users'),
         apiClient.get('/vehicles'),
         apiClient.get('/trips'),
         apiClient.get('/maintenance'),
+        apiClient.get('/fuel'),
       ]);
 
       if (drRes.data.success) {
@@ -43,6 +47,7 @@ export function DashboardDataProvider({ children }: { children: React.ReactNode 
       if (vRes.data.success) setVehicles(vRes.data.data);
       if (tRes.data.success) setTrips(tRes.data.data);
       if (mRes.data.success) setMaintenance(mRes.data.data);
+      if (fRes.data.success) setFuelLogs(fRes.data.data);
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
     } finally {
@@ -78,6 +83,8 @@ export function DashboardDataProvider({ children }: { children: React.ReactNode 
         setTrips,
         maintenance,
         setMaintenance,
+        fuelLogs,
+        setFuelLogs,
         loading,
         isLiveBlinking,
         fetchData,

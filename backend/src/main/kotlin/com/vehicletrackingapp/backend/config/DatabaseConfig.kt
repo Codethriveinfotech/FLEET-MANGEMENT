@@ -53,7 +53,7 @@ object DatabaseConfig {
         Database.connect(dataSource)
 
         transaction {
-            SchemaUtils.createMissingTablesAndColumns(Users, RefreshTokens, Vehicles, Trips, Maintenance)
+            SchemaUtils.createMissingTablesAndColumns(Users, RefreshTokens, Vehicles, Trips, Maintenance, FuelLogs)
             logger.info("Database initialized and schema created.")
         }
     }
