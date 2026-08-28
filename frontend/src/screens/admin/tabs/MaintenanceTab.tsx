@@ -8,17 +8,32 @@ export default function MaintenanceTab() {
   const { maintenance, vehicles, drivers } = useDashboardData();
   const [filterVehicleId, setFilterVehicleId] = useState('');
   const [filterDriverId, setFilterDriverId] = useState('');
+  const [filterFromDate, setFilterFromDate] = useState('');
+  const [filterToDate, setFilterToDate] = useState('');
 
   const totalCost = maintenance.reduce((acc, m) => acc + (parseFloat(m.cost) || 0), 0);
   const breakdowns = maintenance.filter((m) => m.isBreakdownReport).length;
   const oilChanges = maintenance.filter((m) => m.oilChangeDone).length;
 
+  // Parse DD/MM/YYYY -> Date for comparison
+  const parseDate = (str: string): Date | null => {
+    if (!str) return null;
+    const parts = str.split('/');
+    if (parts.length !== 3) return null;
+    return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+  };
+
   // Apply filters
   const filtered = maintenance.filter((m) => {
     const vehMatch = filterVehicleId ? m.vehicleId === filterVehicleId : true;
     const drvMatch = filterDriverId ? m.driverId === filterDriverId : true;
-    return vehMatch && drvMatch;
+    const recordDate = parseDate(m.date);
+    const fromMatch = filterFromDate ? (recordDate ? recordDate >= new Date(filterFromDate) : false) : true;
+    const toMatch = filterToDate ? (recordDate ? recordDate <= new Date(filterToDate) : false) : true;
+    return vehMatch && drvMatch && fromMatch && toMatch;
   });
+
+  const hasFilters = filterVehicleId || filterDriverId || filterFromDate || filterToDate;
 
   return (
     <View style={{ flex: 1 }}>
@@ -152,8 +167,72 @@ export default function MaintenanceTab() {
             </select>
           </View>
 
+          {/* From Date */}
+          <View style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            borderWidth: 1,
+            borderColor: '#E2E8F0',
+            borderRadius: 10,
+            backgroundColor: '#FFFFFF',
+            paddingHorizontal: 12,
+            overflow: 'hidden',
+          }}>
+            <Ionicons name="calendar-outline" size={16} color="#64748B" style={{ marginRight: 8 }} />
+            <Text style={{ fontSize: 11, color: '#64748B', marginRight: 6, fontFamily: fontStyle }}>From</Text>
+            <input
+              type="date"
+              style={{
+                flex: 1,
+                padding: '6px 0',
+                fontSize: 13,
+                border: 'none',
+                outline: 'none',
+                color: filterFromDate ? '#0F172A' : '#94A3B8',
+                backgroundColor: 'transparent',
+                fontFamily: fontStyle,
+                cursor: 'pointer',
+              } as any}
+              value={filterFromDate}
+              onChange={(e: any) => setFilterFromDate(e.target.value)}
+            />
+          </View>
+
+          {/* To Date */}
+          <View style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            borderWidth: 1,
+            borderColor: '#E2E8F0',
+            borderRadius: 10,
+            backgroundColor: '#FFFFFF',
+            paddingHorizontal: 12,
+            overflow: 'hidden',
+          }}>
+            <Ionicons name="calendar-outline" size={16} color="#64748B" style={{ marginRight: 8 }} />
+            <Text style={{ fontSize: 11, color: '#64748B', marginRight: 6, fontFamily: fontStyle }}>To</Text>
+            <input
+              type="date"
+              style={{
+                flex: 1,
+                padding: '6px 0',
+                fontSize: 13,
+                border: 'none',
+                outline: 'none',
+                color: filterToDate ? '#0F172A' : '#94A3B8',
+                backgroundColor: 'transparent',
+                fontFamily: fontStyle,
+                cursor: 'pointer',
+              } as any}
+              value={filterToDate}
+              onChange={(e: any) => setFilterToDate(e.target.value)}
+            />
+          </View>
+
           {/* Clear Filters Button */}
-          {(filterVehicleId || filterDriverId) && (
+          {hasFilters && (
             <View
               style={{
                 borderWidth: 1,
@@ -167,7 +246,7 @@ export default function MaintenanceTab() {
                 cursor: 'pointer',
               } as any}
               // @ts-ignore
-              onClick={() => { setFilterVehicleId(''); setFilterDriverId(''); }}
+              onClick={() => { setFilterVehicleId(''); setFilterDriverId(''); setFilterFromDate(''); setFilterToDate(''); }}
             >
               <Ionicons name="close-circle-outline" size={15} color="#EF4444" style={{ marginRight: 6 }} />
               <Text style={{ fontSize: 12, color: '#EF4444', fontWeight: '700', fontFamily: fontStyle }}>Clear</Text>
