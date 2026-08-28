@@ -650,7 +650,7 @@ export default function AdminDashboard() {
                   {/* Card 1: Total Drivers */}
                   <View style={styles.statCard}>
                     <View style={[styles.statIconBg, { backgroundColor: '#10B981' }]}>
-                      <Ionicons name="people" size={22} color="#FFFFFF" />
+                      <Ionicons name="people" size={26} color="#FFFFFF" />
                     </View>
                     <View style={{ marginLeft: 16, flex: 1 }}>
                       <Text style={styles.statLabel}>Total Drivers</Text>
@@ -664,7 +664,7 @@ export default function AdminDashboard() {
                   {/* Card 2: Total Vehicles */}
                   <View style={styles.statCard}>
                     <View style={[styles.statIconBg, { backgroundColor: '#3B82F6' }]}>
-                      <Ionicons name="car-sport" size={22} color="#FFFFFF" />
+                      <Ionicons name="car-sport" size={26} color="#FFFFFF" />
                     </View>
                     <View style={{ marginLeft: 16, flex: 1 }}>
                       <Text style={styles.statLabel}>Total Vehicles</Text>
@@ -678,7 +678,7 @@ export default function AdminDashboard() {
                   {/* Card 3: Live Trips */}
                   <View style={styles.statCard}>
                     <View style={[styles.statIconBg, { backgroundColor: '#F59E0B' }]}>
-                      <Ionicons name="pulse" size={22} color="#FFFFFF" />
+                      <Ionicons name="pulse" size={26} color="#FFFFFF" />
                     </View>
                     <View style={{ marginLeft: 16, flex: 1 }}>
                       <Text style={styles.statLabel}>Live Trips</Text>
@@ -692,7 +692,7 @@ export default function AdminDashboard() {
                   {/* Card 4: Breakdown */}
                   <View style={styles.statCard}>
                     <View style={[styles.statIconBg, { backgroundColor: '#EF4444' }]}>
-                      <Ionicons name="alert-circle" size={22} color="#FFFFFF" />
+                      <Ionicons name="alert-circle" size={26} color="#FFFFFF" />
                     </View>
                     <View style={{ marginLeft: 16, flex: 1 }}>
                       <Text style={styles.statLabel}>Breakdown</Text>
@@ -704,7 +704,7 @@ export default function AdminDashboard() {
                   {/* Card 5: Total Trips */}
                   <View style={styles.statCard}>
                     <View style={[styles.statIconBg, { backgroundColor: '#6366F1' }]}>
-                      <Ionicons name="git-commit" size={22} color="#FFFFFF" />
+                      <Ionicons name="git-commit" size={26} color="#FFFFFF" />
                     </View>
                     <View style={{ marginLeft: 16, flex: 1 }}>
                       <Text style={styles.statLabel}>Total Trips</Text>
@@ -1629,13 +1629,13 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    minWidth: 180,
+    minWidth: 210,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E2E8F0',
     borderRadius: 16,
-    paddingVertical: 18,
-    paddingHorizontal: 20,
+    paddingVertical: 24,
+    paddingHorizontal: 26,
     marginHorizontal: 8,
     marginBottom: 16,
     flexDirection: 'row',
@@ -1646,25 +1646,25 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   statIconBg: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
+    width: 56,
+    height: 56,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
   },
   statLabel: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '600',
     color: '#64748B',
   },
   statValue: {
-    fontSize: 22,
+    fontSize: 28,
     fontWeight: '800',
     color: '#0F172A',
     marginVertical: 2,
   },
   statTrendText: {
-    fontSize: 10,
+    fontSize: 11,
     color: '#64748B',
   },
   trackingChartRow: {
