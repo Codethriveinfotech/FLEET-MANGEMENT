@@ -1489,6 +1489,10 @@ export default function AdminDashboard() {
   );
 }
 
+const fontStyle = Platform.OS === 'web'
+  ? 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+  : undefined;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -1519,15 +1523,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '900',
     color: '#FFFFFF',
+    fontFamily: fontStyle,
   },
   sidebarTitle: {
     fontSize: 16,
     fontWeight: '800',
     color: '#FFFFFF',
+    fontFamily: fontStyle,
   },
   sidebarSubtitle: {
     fontSize: 10,
     color: '#94A3B8',
+    fontFamily: fontStyle,
   },
   menuItems: {
     flex: 1,
@@ -1552,6 +1559,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#94A3B8',
     letterSpacing: 0.5,
+    fontFamily: fontStyle,
   },
   menuItemTextActive: {
     color: '#FFFFFF', // White text on active tab
@@ -1577,6 +1585,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
     color: '#FFFFFF',
+    fontFamily: fontStyle,
   },
   adminInfo: {
     flex: 1,
@@ -1586,10 +1595,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: '#FFFFFF',
+    fontFamily: fontStyle,
   },
   adminEmail: {
     fontSize: 9,
     color: '#94A3B8',
+    fontFamily: fontStyle,
   },
   logoutMiniBtn: {
     padding: 4,
@@ -1609,6 +1620,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '800',
     color: '#0F172A',
+    fontFamily: fontStyle,
   },
   headerRight: {
     flexDirection: 'row',
@@ -1629,6 +1641,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: '#0F172A',
+    fontFamily: fontStyle,
   },
   headerProfileBadge: {
     flexDirection: 'row',
@@ -1773,6 +1786,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#0F172A',
     marginBottom: 16,
+    fontFamily: fontStyle,
   },
   mockMapContainer: {
     height: 220,
@@ -1836,21 +1850,25 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#0F172A',
     marginBottom: 2,
+    fontFamily: fontStyle,
   },
   popupSpeed: {
     fontSize: 9,
     fontWeight: '700',
     color: '#24D164',
     marginBottom: 4,
+    fontFamily: fontStyle,
   },
   popupLoc: {
     fontSize: 10,
     color: '#64748B',
     marginBottom: 2,
+    fontFamily: fontStyle,
   },
   popupTime: {
     fontSize: 8,
     color: '#94A3B8',
+    fontFamily: fontStyle,
   },
   donutCard: {
     flex: 1,
@@ -1887,10 +1905,12 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '800',
     color: '#0F172A',
+    fontFamily: fontStyle,
   },
   donutMiddleLabel: {
     fontSize: 10,
     color: '#64748B',
+    fontFamily: fontStyle,
   },
   donutLegend: {
     justifyContent: 'center',
@@ -1911,11 +1931,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#64748B',
     width: 60,
+    fontFamily: fontStyle,
   },
   legendVal: {
     fontSize: 11,
     fontWeight: '700',
     color: '#0F172A',
+    fontFamily: fontStyle,
   },
   bottomStatCard: {
     flex: 1,
