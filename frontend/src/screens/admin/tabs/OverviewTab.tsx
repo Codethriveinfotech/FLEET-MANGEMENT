@@ -10,10 +10,21 @@ export default function OverviewTab() {
   const navigation = useNavigation<any>();
 
   const activeTripsCount = trips.filter((t) => t.status === 'started').length;
+  const breakdownCount = trips.filter((t) => t.isBreakdown).length;
+
+  // Dynamic calculations for vehicle stats
+  const totalVehiclesCount = vehicles.length;
+  const activeVehiclesCount = vehicles.filter((v) => (v.status || '').toLowerCase() === 'active').length;
+  const maintenanceVehiclesCount = vehicles.filter((v) => (v.status || '').toLowerCase().includes('maint') || (v.status || '').toLowerCase().includes('service')).length;
+  const inactiveVehiclesCount = totalVehiclesCount - activeVehiclesCount - maintenanceVehiclesCount;
+
+  const activePct = totalVehiclesCount > 0 ? ((activeVehiclesCount / totalVehiclesCount) * 100).toFixed(1) : '0';
+  const maintPct = totalVehiclesCount > 0 ? ((maintenanceVehiclesCount / totalVehiclesCount) * 100).toFixed(1) : '0';
+  const inactivePct = totalVehiclesCount > 0 ? ((inactiveVehiclesCount / totalVehiclesCount) * 100).toFixed(1) : '0';
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
-      {/* Top 5 Metric Cards matching exact user request */}
+      {/* Top 5 Metric Cards */}
       <View style={styles.statsGrid}>
         {/* Card 1: Total Drivers */}
         <View style={styles.statCard}>
@@ -22,10 +33,8 @@ export default function OverviewTab() {
           </View>
           <View style={{ marginLeft: 16, flex: 1 }}>
             <Text style={styles.statLabel}>Total Drivers</Text>
-            <Text style={styles.statValue}>{drivers.length || 98}</Text>
-            <Text style={styles.statTrendText}>
-              <Text style={{ color: '#10B981', fontWeight: 'bold' }}>↑ 6.3%</Text> vs last month
-            </Text>
+            <Text style={styles.statValue}>{drivers.length}</Text>
+            <Text style={styles.statTrendText}>Registered operators</Text>
           </View>
         </View>
 
@@ -36,10 +45,8 @@ export default function OverviewTab() {
           </View>
           <View style={{ marginLeft: 16, flex: 1 }}>
             <Text style={styles.statLabel}>Total Vehicles</Text>
-            <Text style={styles.statValue}>{vehicles.length || 120}</Text>
-            <Text style={styles.statTrendText}>
-              <Text style={{ color: '#10B981', fontWeight: 'bold' }}>↑ 8.5%</Text> vs last month
-            </Text>
+            <Text style={styles.statValue}>{totalVehiclesCount}</Text>
+            <Text style={styles.statTrendText}>Registered vehicles</Text>
           </View>
         </View>
 
@@ -50,10 +57,8 @@ export default function OverviewTab() {
           </View>
           <View style={{ marginLeft: 16, flex: 1 }}>
             <Text style={styles.statLabel}>Live Trips</Text>
-            <Text style={styles.statValue}>{activeTripsCount || 24}</Text>
-            <Text style={styles.statTrendText}>
-              <Text style={{ color: '#10B981', fontWeight: 'bold' }}>↑ 12.1%</Text> vs yesterday
-            </Text>
+            <Text style={styles.statValue}>{activeTripsCount}</Text>
+            <Text style={styles.statTrendText}>Trips currently running</Text>
           </View>
         </View>
 
@@ -63,9 +68,11 @@ export default function OverviewTab() {
             <Ionicons name="alert-circle" size={26} color="#FFFFFF" />
           </View>
           <View style={{ marginLeft: 16, flex: 1 }}>
-            <Text style={styles.statLabel}>Breakdown</Text>
-            <Text style={styles.statValue}>{trips.filter(t => t.isBreakdown).length || 5}</Text>
-            <Text style={[styles.statTrendText, { color: '#EF4444', fontWeight: '700' }]}>3 Urgent</Text>
+            <Text style={styles.statLabel}>Breakdowns</Text>
+            <Text style={styles.statValue}>{breakdownCount}</Text>
+            <Text style={[styles.statTrendText, { color: breakdownCount > 0 ? '#EF4444' : '#64748B', fontWeight: '700' }]}>
+              {breakdownCount} reported incidents
+            </Text>
           </View>
         </View>
 
@@ -76,10 +83,8 @@ export default function OverviewTab() {
           </View>
           <View style={{ marginLeft: 16, flex: 1 }}>
             <Text style={styles.statLabel}>Total Trips</Text>
-            <Text style={styles.statValue}>{trips.length || 245}</Text>
-            <Text style={styles.statTrendText}>
-              <Text style={{ color: '#10B981', fontWeight: 'bold' }}>↑ 12.7%</Text> vs last month
-            </Text>
+            <Text style={styles.statValue}>{trips.length}</Text>
+            <Text style={styles.statTrendText}>Trips historically logged</Text>
           </View>
         </View>
       </View>
@@ -92,7 +97,7 @@ export default function OverviewTab() {
           <View style={styles.chartContentWrapper}>
             <View style={styles.donutCircle}>
               <View style={styles.donutInnerCircle}>
-                <Text style={styles.donutMiddleNum}>{vehicles.length || 120}</Text>
+                <Text style={styles.donutMiddleNum}>{totalVehiclesCount}</Text>
                 <Text style={styles.donutMiddleLabel}>Total</Text>
               </View>
             </View>
@@ -100,23 +105,18 @@ export default function OverviewTab() {
             <View style={styles.donutLegend}>
               <View style={styles.legendRow}>
                 <View style={[styles.legendDot, { backgroundColor: '#24D164' }]} />
-                <Text style={styles.legendLabel}>Running</Text>
-                <Text style={styles.legendVal}>89 (74.2%)</Text>
+                <Text style={styles.legendLabel}>Active</Text>
+                <Text style={styles.legendVal}>{activeVehiclesCount} ({activePct}%)</Text>
               </View>
               <View style={styles.legendRow}>
-                <View style={[styles.legendDot, { backgroundColor: '#1D4ED8' }]} />
-                <Text style={styles.legendLabel}>Idle</Text>
-                <Text style={styles.legendVal}>15 (12.5%)</Text>
-              </View>
-              <View style={styles.legendRow}>
-                <View style={[styles.legendDot, { backgroundColor: '#F97316' }]} />
-                <Text style={styles.legendLabel}>Stopped</Text>
-                <Text style={styles.legendVal}>10 (8.3%)</Text>
+                <View style={[styles.legendDot, { backgroundColor: '#F59E0B' }]} />
+                <Text style={styles.legendLabel}>Maintenance</Text>
+                <Text style={styles.legendVal}>{maintenanceVehiclesCount} ({maintPct}%)</Text>
               </View>
               <View style={styles.legendRow}>
                 <View style={[styles.legendDot, { backgroundColor: '#94A3B8' }]} />
-                <Text style={styles.legendLabel}>Offline</Text>
-                <Text style={styles.legendVal}>6 (5.0%)</Text>
+                <Text style={styles.legendLabel}>Inactive</Text>
+                <Text style={styles.legendVal}>{inactiveVehiclesCount} ({inactivePct}%)</Text>
               </View>
             </View>
           </View>
@@ -132,44 +132,44 @@ export default function OverviewTab() {
           </View>
           <View style={styles.table}>
             <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 8 }]}>
-              <Text style={[styles.tableHeaderCell, { flex: 1.2 }]}>Trip ID</Text>
-              <Text style={[styles.tableHeaderCell, { flex: 1.2 }]}>Vehicle</Text>
-              <Text style={[styles.tableHeaderCell, { flex: 1.2 }]}>Driver</Text>
-              <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Route</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>Trip ID</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>Vehicle</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>Driver</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 2.2 }]}>Route</Text>
               <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>Date</Text>
               <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'center' }]}>Status</Text>
             </View>
 
-            {(trips.length > 0 ? trips.slice(0, 5) : [
-              { id: 'TRP-2025-245', veh: 'TN 09 AB 1234', drv: 'Karthik R', route: 'Coimbatore → Chennai', date: 'May 31, 2025', status: 'Completed' },
-              { id: 'TRP-2025-244', veh: 'TN 01 CD 5678', drv: 'Manoj S', route: 'Coimbatore → Madurai', date: 'May 31, 2025', status: 'Completed' },
-              { id: 'TRP-2025-243', veh: 'TN 22 EF 9012', drv: 'Ramesh P', route: 'Chennai → Salem', date: 'May 31, 2025', status: 'Completed' },
-              { id: 'TRP-2025-242', veh: 'TN 05 GH 3456', drv: 'Suresh B', route: 'Madurai → Trichy', date: 'May 31, 2025', status: 'In Progress' },
-              { id: 'TRP-2025-241', veh: 'TN 18 IJ 7890', drv: 'Vignesh M', route: 'Coimbatore → Erode', date: 'May 31, 2025', status: 'In Progress' },
-            ]).map((t, idx) => {
-              const tripIdStr = t.id.startsWith('TRP') ? t.id : `TRP-2026-${t.id.substring(0, 3).toUpperCase()}`;
-              const vehicleNo = t.veh || (vehicles.find((v) => v.id === t.vehicleId)?.number || 'TN 09 AB 1234');
-              const driverName = t.drv || (drivers.find((d) => d.id === t.driverId)?.name || 'Karthik R');
-              const routeStr = t.route || `${t.sourceLocation} → ${t.destinationLocation}`;
-              const dateStr = t.date || t.startDate;
-              const statusStr = t.status || (t.status === 'submitted' ? 'Completed' : 'In Progress');
-              const statusColor = statusStr === 'Completed' ? '#24D164' : '#1D4ED8';
+            {trips.length > 0 ? (
+              trips.slice(0, 5).map((t, idx) => {
+                const vehicleNo = vehicles.find((v) => v.id === t.vehicleId)?.number || '—';
+                const driverName = drivers.find((d) => d.id === t.driverId)?.name || '—';
+                const routeStr = (t.sourceLocation && t.destinationLocation) ? `${t.sourceLocation} → ${t.destinationLocation}` : 'No route';
+                const dateStr = t.startDate || '—';
+                const statusStr = t.status === 'submitted' ? 'Completed' : t.status === 'started' ? 'In Progress' : 'Draft';
+                const statusColor = statusStr === 'Completed' ? '#24D164' : statusStr === 'In Progress' ? '#1D4ED8' : '#64748B';
 
-              return (
-                <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10 }]}>
-                  <Text style={[styles.tableCell, { flex: 1.2, fontWeight: '700', color: '#1E293B' }]}>{tripIdStr}</Text>
-                  <Text style={[styles.tableCell, { flex: 1.2, fontWeight: '700', color: '#1E293B' }]}>{vehicleNo}</Text>
-                  <Text style={[styles.tableCell, { flex: 1.2, color: '#475569' }]}>{driverName}</Text>
-                  <Text style={[styles.tableCell, { flex: 2, color: '#475569' }]} numberOfLines={1}>{routeStr}</Text>
-                  <Text style={[styles.tableCell, { flex: 1.5, color: '#64748B' }]}>{dateStr}</Text>
-                  <View style={{ flex: 1.2, alignItems: 'center' }}>
-                    <View style={{ backgroundColor: statusColor + '15', paddingVertical: 4, paddingHorizontal: 10, borderRadius: 20 }}>
-                      <Text style={{ fontSize: 10, fontWeight: '800', color: statusColor }}>{statusStr}</Text>
+                return (
+                  <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10 }]}>
+                    <Text style={[styles.tableCell, { flex: 1.5, fontWeight: '700', color: '#1E293B' }]}>{t.id.substring(0, 8).toUpperCase()}</Text>
+                    <Text style={[styles.tableCell, { flex: 1.5, fontWeight: '700', color: '#1E293B' }]}>{vehicleNo}</Text>
+                    <Text style={[styles.tableCell, { flex: 1.5, color: '#475569' }]}>{driverName}</Text>
+                    <Text style={[styles.tableCell, { flex: 2.2, color: '#475569' }]} numberOfLines={1}>{routeStr}</Text>
+                    <Text style={[styles.tableCell, { flex: 1.5, color: '#64748B' }]}>{dateStr}</Text>
+                    <View style={{ flex: 1.2, alignItems: 'center' }}>
+                      <View style={{ backgroundColor: statusColor + '15', paddingVertical: 4, paddingHorizontal: 10, borderRadius: 20 }}>
+                        <Text style={{ fontSize: 10, fontWeight: '800', color: statusColor }}>{statusStr}</Text>
+                      </View>
                     </View>
                   </View>
-                </View>
-              );
-            })}
+                );
+              })
+            ) : (
+              <View style={{ alignItems: 'center', paddingVertical: 40 }}>
+                <Ionicons name="map-outline" size={32} color="#CBD5E1" />
+                <Text style={{ color: '#94A3B8', fontSize: 13, marginTop: 10 }}>No recent trips logged in the database</Text>
+              </View>
+            )}
           </View>
         </View>
       </View>
