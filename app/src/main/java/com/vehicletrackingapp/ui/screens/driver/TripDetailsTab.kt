@@ -367,14 +367,30 @@ fun TripDetailsTab(driverId: String) {
                             label = stringResource(R.string.odometer_reading), 
                             leadingIcon = Icons.Default.Speed, 
                             keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, 
-                            enabled = false,
+                            enabled = !isLocked,
                             modifier = Modifier.weight(1f)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         EliteTextField(value = startHmr, onValueChange = { startHmr = it; persistDraft() }, label = "Start HMR", leadingIcon = Icons.Default.Timer, keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, modifier = Modifier.weight(1f))
                     }
                     Spacer(modifier = Modifier.height(20.dp))
-                    CameraOnlyPicker(label = "INITIAL ODOMETER EVIDENCE", imageUri = startOdoUri, onImageSelected = { startOdoUri = it; persistDraft() }, enabled = true )
+                    CameraOnlyPicker(
+                        label = "INITIAL ODOMETER EVIDENCE", 
+                        imageUri = startOdoUri, 
+                        onImageSelected = { uri -> 
+                            startOdoUri = uri
+                            persistDraft()
+                            if (uri != null) {
+                                com.vehicletrackingapp.util.OcrUtils.extractOdometerValue(context, uri) { extracted ->
+                                    if (extracted.isNotBlank()) {
+                                        startOdo = extracted
+                                        persistDraft()
+                                    }
+                                }
+                            }
+                        }, 
+                        enabled = true 
+                    )
                 }
             }
 
@@ -532,7 +548,25 @@ fun TripDetailsTab(driverId: String) {
                         }
                     }
                     Spacer(modifier = Modifier.height(20.dp))
-                    CameraOnlyPicker(label = "FINAL ODOMETER EVIDENCE", imageUri = endOdoUri, onImageSelected = { if (!isLocked) { endOdoUri = it; persistDraft() } }, enabled = !isLocked)
+                    CameraOnlyPicker(
+                        label = "FINAL ODOMETER EVIDENCE", 
+                        imageUri = endOdoUri, 
+                        onImageSelected = { uri -> 
+                            if (!isLocked) { 
+                                endOdoUri = uri
+                                persistDraft()
+                                if (uri != null) {
+                                    com.vehicletrackingapp.util.OcrUtils.extractOdometerValue(context, uri) { extracted ->
+                                        if (extracted.isNotBlank()) {
+                                            endOdo = extracted
+                                            persistDraft()
+                                        }
+                                    }
+                                }
+                            } 
+                        }, 
+                        enabled = !isLocked
+                    )
                 }
             }
 

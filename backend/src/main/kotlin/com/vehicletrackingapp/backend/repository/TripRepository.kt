@@ -78,9 +78,24 @@ class TripRepositoryImpl : TripRepository {
             it[status] = trip.status
             it[isBreakdown] = trip.isBreakdown
         }
-        if (trip.status == "submitted" && trip.vehicleId != null && trip.endOdometer.isNotBlank()) {
-            Vehicles.update({ Vehicles.id eq trip.vehicleId }) {
-                it[mileage] = trip.endOdometer
+        if (trip.vehicleId != null) {
+            val nextStatus = when {
+                trip.isBreakdown -> "Breakdown"
+                trip.status == "started" -> "Running"
+                trip.status == "submitted" -> "Active"
+                else -> null
+            }
+            if (nextStatus != null) {
+                Vehicles.update({ Vehicles.id eq trip.vehicleId }) {
+                    it[status] = nextStatus
+                    if (trip.status == "submitted" && trip.endOdometer.isNotBlank()) {
+                        it[mileage] = trip.endOdometer
+                    }
+                }
+            } else if (trip.status == "submitted" && trip.endOdometer.isNotBlank()) {
+                Vehicles.update({ Vehicles.id eq trip.vehicleId }) {
+                    it[mileage] = trip.endOdometer
+                }
             }
         }
         insertStatement.resultedValues?.singleOrNull()?.let(::resultRowToTrip)
@@ -130,9 +145,24 @@ class TripRepositoryImpl : TripRepository {
             it[status] = trip.status
             it[isBreakdown] = trip.isBreakdown
         } > 0
-        if (updated && trip.status == "submitted" && trip.vehicleId != null && trip.endOdometer.isNotBlank()) {
-            Vehicles.update({ Vehicles.id eq trip.vehicleId }) {
-                it[mileage] = trip.endOdometer
+        if (updated && trip.vehicleId != null) {
+            val nextStatus = when {
+                trip.isBreakdown -> "Breakdown"
+                trip.status == "started" -> "Running"
+                trip.status == "submitted" -> "Active"
+                else -> null
+            }
+            if (nextStatus != null) {
+                Vehicles.update({ Vehicles.id eq trip.vehicleId }) {
+                    it[status] = nextStatus
+                    if (trip.status == "submitted" && trip.endOdometer.isNotBlank()) {
+                        it[mileage] = trip.endOdometer
+                    }
+                }
+            } else if (trip.status == "submitted" && trip.endOdometer.isNotBlank()) {
+                Vehicles.update({ Vehicles.id eq trip.vehicleId }) {
+                    it[mileage] = trip.endOdometer
+                }
             }
         }
         updated

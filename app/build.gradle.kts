@@ -82,5 +82,8 @@ dependencies {
     implementation("androidx.room:room-ktx:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
 
+    // ML Kit Text Recognition for Odometer scanner
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.1")
+
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
