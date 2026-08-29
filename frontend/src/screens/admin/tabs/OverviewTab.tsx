@@ -268,43 +268,54 @@ export default function OverviewTab() {
                 <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'center' }]}>Status</Text>
               </View>
 
-              {trips.length > 0 ? (
-                [...trips]
-                  .sort((a, b) => {
-                    const dateTimeA = `${a.startDate || ''}T${a.startTime || ''}`;
-                    const dateTimeB = `${b.startDate || ''}T${b.startTime || ''}`;
-                    return dateTimeB.localeCompare(dateTimeA);
-                  })
-                  .slice(0, 5)
-                  .map((t, idx) => {
-                    const vehicleNo = vehicles.find((v) => v.id === t.vehicleId)?.number || '—';
-                    const driverName = drivers.find((d) => d.id === t.driverId)?.name || '—';
-                    const routeStr = (t.sourceLocation && t.destinationLocation) ? `${t.sourceLocation} → ${t.destinationLocation}` : 'No route';
-                    const dateStr = t.startDate || '—';
-                  const statusStr = t.status === 'submitted' ? 'Completed' : t.status === 'started' ? 'In Progress' : 'Draft';
-                  const statusColor = statusStr === 'Completed' ? '#24D164' : statusStr === 'In Progress' ? '#1D4ED8' : '#64748B';
+              {(() => {
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                const today1 = `${yyyy}-${mm}-${dd}`;
+                const today2 = `${dd}/${mm}/${yyyy}`;
+                
+                const todaysTrips = trips.filter(t => t.startDate && (t.startDate === today1 || t.startDate === today2));
+                
+                return todaysTrips.length > 0 ? (
+                  [...todaysTrips]
+                    .sort((a, b) => {
+                      const dateTimeA = `${a.startDate || ''}T${a.startTime || ''}`;
+                      const dateTimeB = `${b.startDate || ''}T${b.startTime || ''}`;
+                      return dateTimeB.localeCompare(dateTimeA);
+                    })
+                    .slice(0, 5)
+                    .map((t, idx) => {
+                      const vehicleNo = vehicles.find((v) => v.id === t.vehicleId)?.number || '—';
+                      const driverName = drivers.find((d) => d.id === t.driverId)?.name || '—';
+                      const routeStr = (t.sourceLocation && t.destinationLocation) ? `${t.sourceLocation} → ${t.destinationLocation}` : 'No route';
+                      const dateStr = t.startDate || '—';
+                      const statusStr = t.status === 'submitted' ? 'Completed' : t.status === 'started' ? 'In Progress' : 'Draft';
+                      const statusColor = statusStr === 'Completed' ? '#24D164' : statusStr === 'In Progress' ? '#1D4ED8' : '#64748B';
 
-                  return (
-                    <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10 }]}>
-                      <Text style={[styles.tableCell, { flex: 1.5, fontWeight: '700', color: '#1E293B' }]}>{t.id.substring(0, 8).toUpperCase()}</Text>
-                      <Text style={[styles.tableCell, { flex: 1.5, fontWeight: '700', color: '#1E293B' }]}>{vehicleNo}</Text>
-                      <Text style={[styles.tableCell, { flex: 1.5, color: '#475569' }]}>{driverName}</Text>
-                      <Text style={[styles.tableCell, { flex: 2.2, color: '#475569' }]} numberOfLines={1}>{routeStr}</Text>
-                      <Text style={[styles.tableCell, { flex: 1.5, color: '#64748B' }]}>{dateStr}</Text>
-                      <View style={{ flex: 1.2, alignItems: 'center' }}>
-                        <View style={{ backgroundColor: statusColor + '15', paddingVertical: 4, paddingHorizontal: 10, borderRadius: 20 }}>
-                          <Text style={{ fontSize: 10, fontWeight: '800', color: statusColor }}>{statusStr}</Text>
+                      return (
+                        <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10 }]}>
+                          <Text style={[styles.tableCell, { flex: 1.5, fontWeight: '700', color: '#1E293B' }]}>{t.id.substring(0, 8).toUpperCase()}</Text>
+                          <Text style={[styles.tableCell, { flex: 1.5, fontWeight: '700', color: '#1E293B' }]}>{vehicleNo}</Text>
+                          <Text style={[styles.tableCell, { flex: 1.5, color: '#475569' }]}>{driverName}</Text>
+                          <Text style={[styles.tableCell, { flex: 2.2, color: '#475569' }]} numberOfLines={1}>{routeStr}</Text>
+                          <Text style={[styles.tableCell, { flex: 1.5, color: '#64748B' }]}>{dateStr}</Text>
+                          <View style={{ flex: 1.2, alignItems: 'center' }}>
+                            <View style={{ backgroundColor: statusColor + '15', paddingVertical: 4, paddingHorizontal: 10, borderRadius: 20 }}>
+                              <Text style={{ fontSize: 10, fontWeight: '800', color: statusColor }}>{statusStr}</Text>
+                            </View>
+                          </View>
                         </View>
-                      </View>
-                    </View>
-                  );
-                })
-              ) : (
-                <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-                  <Ionicons name="map-outline" size={32} color="#CBD5E1" />
-                  <Text style={{ color: '#94A3B8', fontSize: 13, marginTop: 10 }}>No recent trips logged in the database</Text>
-                </View>
-              )}
+                      );
+                    })
+                ) : (
+                  <View style={{ alignItems: 'center', paddingVertical: 40 }}>
+                    <Ionicons name="map-outline" size={32} color="#CBD5E1" />
+                    <Text style={{ color: '#94A3B8', fontSize: 13, marginTop: 10 }}>No trips logged today</Text>
+                  </View>
+                );
+              })()}
             </View>
           </ScrollView>
         </View>
