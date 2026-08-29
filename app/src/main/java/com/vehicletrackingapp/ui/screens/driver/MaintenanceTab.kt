@@ -174,6 +174,48 @@ fun MaintenanceTab(driverId: String) {
             Spacer(modifier = Modifier.height(20.dp))
         }
 
+        // Breakdown Recovery Card — always visible when vehicle is in Breakdown status
+        vehicle?.let { v ->
+            if (v.status.equals("Breakdown", ignoreCase = true)) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = DangerCrimson.copy(alpha = 0.08f)),
+                    border = androidx.compose.foundation.BorderStroke(2.dp, DangerCrimson)
+                ) {
+                    Column(modifier = Modifier.padding(20.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.ReportProblem, null, tint = DangerCrimson, modifier = Modifier.size(22.dp))
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text("VEHICLE IN BREAKDOWN STATUS", color = DangerCrimson, fontWeight = FontWeight.Black, fontSize = 13.sp, letterSpacing = 1.sp)
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            "${v.number} has been marked as broken down. Once the vehicle is repaired, tap the button below to restore it to Active status.",
+                            color = DangerCrimson.copy(alpha = 0.8f),
+                            fontSize = 12.sp
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = {
+                                scope.launch {
+                                    AppRepository.updateVehicle(v.copy(status = "Active"))
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = SuccessEmerald)
+                        ) {
+                            Icon(Icons.Default.CheckCircle, null, tint = Color.White, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("MARK VEHICLE AS ACTIVE", color = Color.White, fontWeight = FontWeight.Black, fontSize = 13.sp, letterSpacing = 1.sp)
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+
         // Auto-Asset / Selection Card
         StaggeredItem(visible, 0) {
             UltraGlassCard(glowColor = BrandYellow) {
