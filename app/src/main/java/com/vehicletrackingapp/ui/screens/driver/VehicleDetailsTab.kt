@@ -28,12 +28,14 @@ import com.vehicletrackingapp.data.model.Vehicle
 import com.vehicletrackingapp.data.repo.AppRepository
 import com.vehicletrackingapp.ui.screens.common.*
 import com.vehicletrackingapp.ui.theme.*
+import kotlinx.coroutines.launch
 
 @Composable
 fun VehicleDetailsTab(driverId: String) {
     val allVehicles by AppRepository.getAllVehicles().collectAsState(initial = emptyList())
     val myVehicle = allVehicles.find { it.assignedDriverId == driverId }
     var selectedVehicle by remember { mutableStateOf<Vehicle?>(null) }
+    val scope = rememberCoroutineScope()
     
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { visible = true }
@@ -85,6 +87,42 @@ fun VehicleDetailsTab(driverId: String) {
                                         Text("${vehicle.model} • ${vehicle.type.uppercase()}", style = MaterialTheme.typography.bodySmall, color = BrandGrey, fontWeight = FontWeight.Bold)
                                     }
                                     Icon(Icons.Default.ChevronRight, null, tint = BrandGrey, modifier = Modifier.size(24.dp))
+                                }
+                            }
+                        }
+
+                        // Breakdown alert card — shown when vehicle is in Breakdown status
+                        if (vehicle.status.equals("Breakdown", ignoreCase = true)) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(containerColor = DangerCrimson.copy(alpha = 0.08f)),
+                                border = androidx.compose.foundation.BorderStroke(1.5.dp, DangerCrimson)
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(Icons.Default.ReportProblem, null, tint = DangerCrimson, modifier = Modifier.size(20.dp))
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text("VEHICLE IN BREAKDOWN STATUS", color = DangerCrimson, fontWeight = FontWeight.Black, fontSize = 12.sp, letterSpacing = 1.sp)
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text("This vehicle has been marked as broken down. Once repaired, tap below to restore operational status.", color = DangerCrimson.copy(alpha = 0.8f), fontSize = 11.sp)
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    Button(
+                                        onClick = {
+                                            scope.launch {
+                                                AppRepository.updateVehicle(vehicle.copy(status = "Active"))
+                                            }
+                                        },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = RoundedCornerShape(12.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = SuccessEmerald)
+                                    ) {
+                                        Icon(Icons.Default.CheckCircle, null, tint = Color.White, modifier = Modifier.size(16.dp))
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text("MARK AS ACTIVE", color = Color.White, fontWeight = FontWeight.Black, letterSpacing = 1.sp)
+                                    }
                                 }
                             }
                         }

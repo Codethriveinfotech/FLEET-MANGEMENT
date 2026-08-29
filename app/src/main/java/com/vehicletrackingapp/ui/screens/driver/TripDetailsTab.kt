@@ -55,6 +55,8 @@ fun TripDetailsTab(driverId: String) {
     var shiftType by remember { mutableStateOf("Day Shift") }
     var startHmr by remember { mutableStateOf("") }
     var endHmr by remember { mutableStateOf("") }
+    var sourceLocation by remember { mutableStateOf("") }
+    var destinationLocation by remember { mutableStateOf("") }
     
     var startDate by remember { mutableStateOf("") }
     var startTime by remember { mutableStateOf("") }
@@ -89,6 +91,8 @@ fun TripDetailsTab(driverId: String) {
         shiftType = "Day Shift"
         startHmr = ""
         endHmr = ""
+        sourceLocation = ""
+        destinationLocation = ""
         startOdo = ""
         endOdo = ""
         fuel = ""
@@ -119,6 +123,8 @@ fun TripDetailsTab(driverId: String) {
             shiftType = draft.shift
             startHmr = draft.startHmr
             endHmr = draft.endHmr
+            sourceLocation = draft.sourceLocation
+            destinationLocation = draft.destinationLocation
             startDate = draft.startDate
             startTime = draft.startTime
             startOdo = draft.startOdometer
@@ -213,6 +219,7 @@ fun TripDetailsTab(driverId: String) {
             val trip = TripEntry(
                 id = tripId, driverId = driverId, vehicleId = selectedVehicleId,
                 day = dayOfWeek, shift = shiftType, startHmr = startHmr, endHmr = endHmr,
+                sourceLocation = sourceLocation, destinationLocation = destinationLocation,
                 startDate = startDate, startTime = startTime, startOdometer = startOdo,
                 startOdometerPhotoUri = startOdoUri?.toString(), startVehiclePlatePhotoUri = startPlateUri?.toString(),
                 endDate = endDate, endTime = endTime, endOdometer = endOdo,
@@ -360,19 +367,30 @@ fun TripDetailsTab(driverId: String) {
                     }
                     
                     Spacer(modifier = Modifier.height(16.dp))
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        EliteTextField(
-                            value = startOdo, 
-                            onValueChange = { startOdo = it; persistDraft() }, 
-                            label = stringResource(R.string.odometer_reading), 
-                            leadingIcon = Icons.Default.Speed, 
-                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, 
-                            enabled = !isLocked,
-                            modifier = Modifier.weight(1f)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        EliteTextField(value = startHmr, onValueChange = { startHmr = it; persistDraft() }, label = "Start HMR", leadingIcon = Icons.Default.Timer, keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, modifier = Modifier.weight(1f))
-                    }
+                    EliteTextField(
+                        value = startOdo, 
+                        onValueChange = { startOdo = it; persistDraft() }, 
+                        label = stringResource(R.string.odometer_reading), 
+                        leadingIcon = Icons.Default.Speed, 
+                        keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, 
+                        enabled = !isLocked
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    EliteTextField(
+                        value = sourceLocation,
+                        onValueChange = { sourceLocation = it; persistDraft() },
+                        label = "Source Location",
+                        leadingIcon = Icons.Default.LocationOn,
+                        enabled = !isLocked
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    EliteTextField(
+                        value = destinationLocation,
+                        onValueChange = { destinationLocation = it; persistDraft() },
+                        label = "Destination Location",
+                        leadingIcon = Icons.Default.Place,
+                        enabled = !isLocked
+                    )
                     Spacer(modifier = Modifier.height(20.dp))
                     CameraOnlyPicker(
                         label = "INITIAL ODOMETER EVIDENCE", 
@@ -615,8 +633,8 @@ fun TripDetailsTab(driverId: String) {
                 StaggeredItem(visible, 4) {
                     Column {
                         GradientButton(text = "START TRIP") {
-                            if (selectedVehicleId == null || (startOdo.isBlank() && startHmr.isBlank()) || startOdoUri == null || startPlateUri == null) {
-                                error = "ERROR: Complete Start Mission Data Required (Asset, KM/HMR, Odometer Photo, License Plate Photo)."
+                            if (selectedVehicleId == null || startOdo.isBlank() || startOdoUri == null || startPlateUri == null || sourceLocation.isBlank() || destinationLocation.isBlank()) {
+                                error = "ERROR: Complete Start Mission Data Required (Asset, Odometer KM, Source, Destination, Odometer Photo, Plate Photo)."
                             } else {
                                 scope.launch {
                                     // Retrospective update for previous auto-ended trip
@@ -719,6 +737,7 @@ fun TripDetailsTab(driverId: String) {
                                 val trip = TripEntry(
                                     id = tripId, driverId = driverId, vehicleId = selectedVehicleId,
                                     day = dayOfWeek, shift = shiftType, startHmr = startHmr, endHmr = endHmr,
+                                    sourceLocation = sourceLocation, destinationLocation = destinationLocation,
                                     startDate = startDate, startTime = startTime, startOdometer = startOdo,
                                     startOdometerPhotoUri = startOdoUri?.toString(), startVehiclePlatePhotoUri = startPlateUri?.toString(),
                                     endDate = endDate, endTime = endTime, endOdometer = endOdo, endOdometerPhotoUri = endOdoUri?.toString(),
@@ -750,6 +769,8 @@ fun TripDetailsTab(driverId: String) {
                                     shiftType = "Day Shift"
                                     startHmr = ""
                                     endHmr = ""
+                                    sourceLocation = ""
+                                    destinationLocation = ""
                                     startOdo = ""
                                     endOdo = ""
                                     fuel = ""

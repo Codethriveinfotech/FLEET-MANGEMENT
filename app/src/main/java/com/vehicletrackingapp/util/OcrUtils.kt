@@ -16,14 +16,36 @@ object OcrUtils {
                 .addOnSuccessListener { visionText ->
                     val text = visionText.text
                     
-                    // Find all numeric values in the recognized text
-                    val regex = Regex("\\d+")
-                    val matches = regex.findAll(text).map { it.value }.toList()
+                    val lines = text.split("\n")
+                    var candidate = ""
                     
-                    // Filter numbers of typical odometer length (3 to 7 digits)
-                    val candidate = matches.firstOrNull { it.length in 3..7 }
-                        ?: matches.firstOrNull()
-                        ?: ""
+                    // Look for numbers in lines containing context keywords
+                    for (line in lines) {
+                        val lowerLine = line.lowercase()
+                        if (lowerLine.contains("km") || lowerLine.contains("odo") || lowerLine.contains("read") || lowerLine.contains("speed")) {
+                            val numberInLine = Regex("\\d+").findAll(line).map { it.value }.firstOrNull { it.length in 3..7 }
+                            if (numberInLine != null) {
+                                candidate = numberInLine
+                                break
+                            }
+                        }
+                    }
+                    
+                    if (candidate.isEmpty()) {
+                        val regex = Regex("\\d+")
+                        val matches = regex.findAll(text).map { it.value }.toList()
+                        
+                        // Filter out years (2020-2030) and find typical odometer lengths
+                        val cleanCandidates = matches.filter {
+                            val num = it.toIntOrNull() ?: 0
+                            it.length in 3..7 && num !in 2020..2030
+                        }
+                        
+                        candidate = cleanCandidates.firstOrNull()
+                            ?: matches.firstOrNull { it.length in 3..7 }
+                            ?: matches.firstOrNull()
+                            ?: ""
+                    }
                         
                     onResult(candidate)
                 }

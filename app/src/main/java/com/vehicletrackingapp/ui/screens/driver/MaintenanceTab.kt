@@ -459,6 +459,8 @@ fun MaintenanceTab(driverId: String) {
                                             draftTrip?.let { 
                                                 AppRepository.upsertTrip(it.copy(isBreakdown = true))
                                             }
+                                            // Set vehicle status to Breakdown
+                                            AppRepository.updateVehicle(vehicle.copy(status = "Breakdown"))
                                             delay(1500)
                                             resetForm()
                                         } else {

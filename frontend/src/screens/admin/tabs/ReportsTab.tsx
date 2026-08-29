@@ -69,7 +69,7 @@ export default function ReportsTab() {
     let filename = `${selectedReportType.replace(/\s+/g, '_')}_${duration}m_Report.csv`;
 
     if (selectedReportType === 'Trip Summary Report') {
-      headers = ['S.No', 'Date', 'Time', 'Operator Driver', 'Vehicle No', 'Source', 'Destination', 'Start Odometer', 'End Odometer', 'Start HMR', 'End HMR', 'Status'];
+      headers = ['S.No', 'Date', 'Time', 'Operator Driver', 'Vehicle No', 'Source', 'Destination', 'Start Odometer', 'End Odometer', 'End HMR', 'Status', 'Breakdown'];
       rows = filteredTrips.map((t, idx) => {
         const d = drivers.find(drv => drv.id === t.driverId)?.name || 'Unknown';
         const v = vehicles.find(veh => veh.id === t.vehicleId)?.number || 'Unknown';
@@ -83,9 +83,9 @@ export default function ReportsTab() {
           t.destinationLocation || '',
           t.startOdometer || '',
           t.endOdometer || 'Active',
-          t.startHmr || '',
-          t.endHmr || 'Active',
-          t.status || ''
+          t.endHmr || '',
+          t.status || '',
+          t.isBreakdown ? 'YES' : 'NO'
         ];
       });
     } else if (selectedReportType === 'Fuel Report') {
@@ -117,9 +117,9 @@ export default function ReportsTab() {
           const start = parseFloat(t.startOdometer) || 0;
           const end = parseFloat(t.endOdometer) || 0;
           const dist = end >= start ? (end - start) : 0;
-          const startH = parseFloat(t.startHmr) || 0;
           const endH = parseFloat(t.endHmr) || 0;
-          const hmr = endH >= startH ? (endH - startH) : 0;
+          const startH = parseFloat(t.startHmr) || 0;
+          const hmr = endH >= startH ? (endH - startH) : endH;
           return [
             (idx + 1).toString(),
             t.startDate ? `="\t${t.startDate}"` : '',
