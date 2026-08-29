@@ -361,20 +361,21 @@ export default function OverviewTab() {
               const todaysFuel = (fuelLogs || []).filter(f => f.date && (f.date === t1 || f.date === t2));
               
               return todaysFuel.length > 0 ? (
-                [...todaysFuel]
-                  .sort((a, b) => (b.time || '').localeCompare(a.time || ''))
-                  .slice(0, 5)
-                  .map((f, idx) => {
-                    const vehicleNo = vehicles.find((v) => v.id === f.vehicleId)?.number || '—';
-                    return (
-                      <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10, alignItems: 'center' }]}>
-                        <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '700', color: '#1E293B' }}>{vehicleNo}</Text></View>
-                        <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, color: '#475569' }}>{f.liters} L</Text></View>
-                        <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, color: '#10B981', fontWeight: '700' }}>₹{f.cost}</Text></View>
-                        <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, color: '#64748B' }}>{f.date}</Text></View>
-                      </View>
-                    );
-                  })
+                <ScrollView style={{ maxHeight: 220 }} nestedScrollEnabled={true} showsVerticalScrollIndicator={false}>
+                  {[...todaysFuel]
+                    .sort((a, b) => (b.time || '').localeCompare(a.time || ''))
+                    .map((f, idx) => {
+                      const vehicleNo = vehicles.find((v) => v.id === f.vehicleId)?.number || '—';
+                      return (
+                        <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10, alignItems: 'center' }]}>
+                          <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '700', color: '#1E293B' }}>{vehicleNo}</Text></View>
+                          <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, color: '#475569' }}>{f.liters} L</Text></View>
+                          <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, color: '#10B981', fontWeight: '700' }}>₹{f.cost}</Text></View>
+                          <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, color: '#64748B' }}>{f.date}</Text></View>
+                        </View>
+                      );
+                    })}
+                </ScrollView>
               ) : (
                 <View style={{ alignItems: 'center', paddingVertical: 30 }}>
                   <Ionicons name="color-fill-outline" size={24} color="#CBD5E1" />
@@ -411,27 +412,28 @@ export default function OverviewTab() {
               const todaysMaint = (maintenance || []).filter(m => m.date && (m.date === t1 || m.date === t2));
               
               return todaysMaint.length > 0 ? (
-                [...todaysMaint]
-                  .sort((a, b) => (b.time || '').localeCompare(a.time || ''))
-                  .slice(0, 5)
-                  .map((m, idx) => {
-                    const vehicleNo = vehicles.find((v) => v.id === m.vehicleId)?.number || '—';
-                    const mType = m.maintenanceType || 'General';
-                    const mStatus = m.status === 'submitted' || m.status === 'completed' ? 'Completed' : 'Pending';
-                    const statusColor = mStatus === 'Completed' ? '#24D164' : '#EA580C';
-                    return (
-                      <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10, alignItems: 'center' }]}>
-                        <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '700', color: '#1E293B' }}>{vehicleNo}</Text></View>
-                        <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, color: '#475569', fontWeight: '500' }}>{mType}</Text></View>
-                        <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, color: '#EF4444', fontWeight: '700' }}>₹{m.cost}</Text></View>
-                        <View style={{ flex: 1.2, alignItems: 'center' }}>
-                          <View style={{ backgroundColor: statusColor + '15', paddingVertical: 2, paddingHorizontal: 8, borderRadius: 12 }}>
-                            <Text style={{ fontSize: 10, fontWeight: '800', color: statusColor }}>{mStatus}</Text>
+                <ScrollView style={{ maxHeight: 220 }} nestedScrollEnabled={true} showsVerticalScrollIndicator={false}>
+                  {[...todaysMaint]
+                    .sort((a, b) => (b.time || '').localeCompare(a.time || ''))
+                    .map((m, idx) => {
+                      const vehicleNo = vehicles.find((v) => v.id === m.vehicleId)?.number || '—';
+                      const mType = m.maintenanceType || 'General';
+                      const mStatus = m.status === 'submitted' || m.status === 'completed' ? 'Completed' : 'Pending';
+                      const statusColor = mStatus === 'Completed' ? '#24D164' : '#EA580C';
+                      return (
+                        <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10, alignItems: 'center' }]}>
+                          <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '700', color: '#1E293B' }}>{vehicleNo}</Text></View>
+                          <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, color: '#475569', fontWeight: '500' }}>{mType}</Text></View>
+                          <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, color: '#EF4444', fontWeight: '700' }}>₹{m.cost}</Text></View>
+                          <View style={{ flex: 1.2, alignItems: 'center' }}>
+                            <View style={{ backgroundColor: statusColor + '15', paddingVertical: 2, paddingHorizontal: 8, borderRadius: 12 }}>
+                              <Text style={{ fontSize: 10, fontWeight: '800', color: statusColor }}>{mStatus}</Text>
+                            </View>
                           </View>
                         </View>
-                      </View>
-                    );
-                  })
+                      );
+                    })}
+                </ScrollView>
               ) : (
                 <View style={{ alignItems: 'center', paddingVertical: 30 }}>
                   <Ionicons name="construct-outline" size={24} color="#CBD5E1" />
