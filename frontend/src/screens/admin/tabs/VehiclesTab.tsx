@@ -193,10 +193,10 @@ export default function VehiclesTab() {
           marginBottom: 16,
           alignItems: 'center'
         }]}>
-          <View style={{ flex: 1.6 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Plate Number</Text></View>
-          <View style={{ flex: 1.2 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Type</Text></View>
+          <View style={{ flex: 1.5 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Plate Number</Text></View>
+          <View style={{ flex: 2.2 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Type</Text></View>
           <View style={{ flex: 1.8 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Model</Text></View>
-          <View style={{ flex: 1.3 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Fuel Type</Text></View>
+          <View style={{ flex: 1.2 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Fuel Type</Text></View>
           <View style={{ flex: 1.8 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Registration No.</Text></View>
           <View style={{ flex: 1.5 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Mileage</Text></View>
           <View style={{ flex: 1.3 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Status</Text></View>
@@ -213,10 +213,10 @@ export default function VehiclesTab() {
               const mileageVal = veh.mileage ? `${Number(veh.mileage).toLocaleString()} km` : '0 km';
               
               // Resolve Type Icon & Color
-              const vType = (veh.type || 'Truck').toLowerCase();
-              let typeIcon: any = 'bus-outline';
-              let typeColor = '#2563EB';
-              let typeLabel = 'Truck';
+              const vType = (veh.type || 'Sedan').toLowerCase();
+              let typeIcon: any = 'car-sport';
+              let typeColor = '#3B82F6';
+              let typeLabel = veh.type || 'Sedan';
               
               if (vType.includes('sedan')) {
                 typeIcon = 'car-sport';
@@ -234,6 +234,10 @@ export default function VehiclesTab() {
                 typeIcon = 'car';
                 typeColor = '#4F46E5';
                 typeLabel = 'Van';
+              } else if (vType.includes('traveller') || vType.includes('seater')) {
+                typeIcon = 'bus';
+                typeColor = '#EC4899';
+                typeLabel = veh.type;
               }
               
               // Resolve Status Badge styling
@@ -264,7 +268,7 @@ export default function VehiclesTab() {
                   borderColor: '#F8FAFC',
                 }}>
                   {/* Plate Number (White pill badge with rounded border & custom letter spacing) */}
-                  <View style={{ flex: 1.6, flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ flex: 1.5, flexDirection: 'row', alignItems: 'center' }}>
                     <View style={{
                       backgroundColor: '#FFFFFF',
                       borderWidth: 1,
@@ -278,49 +282,49 @@ export default function VehiclesTab() {
                       shadowOpacity: 0.02,
                       shadowRadius: 4,
                     }}>
-                      <Text style={{ fontSize: 11, fontWeight: '800', color: '#1E293B', fontFamily: 'monospace', letterSpacing: 0.5 }}>{displayPlate.toUpperCase()}</Text>
+                      <Text style={{ fontSize: 13, fontWeight: '800', color: '#1E293B', fontFamily: 'monospace', letterSpacing: 0.5 }}>{displayPlate.toUpperCase()}</Text>
                     </View>
                   </View>
 
                   {/* Type (Colored icon next to type text) */}
-                  <View style={{ flex: 1.2, flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ flex: 2.2, flexDirection: 'row', alignItems: 'center' }}>
                     <Ionicons name={typeIcon} size={15} color={typeColor} style={{ marginRight: 6 }} />
-                    <Text style={{ fontSize: 13, color: typeColor, fontWeight: '600', fontFamily: fontStyle }}>{typeLabel}</Text>
+                    <Text style={{ fontSize: 14, color: typeColor, fontWeight: '700', fontFamily: fontStyle }}>{typeLabel}</Text>
                   </View>
 
                   {/* Model */}
                   <View style={{ flex: 1.8 }}>
-                    <Text style={{ fontSize: 13, color: '#475569', fontFamily: fontStyle, fontWeight: '500' }}>{modelName}</Text>
+                    <Text style={{ fontSize: 14, color: '#475569', fontFamily: fontStyle, fontWeight: '600' }}>{modelName}</Text>
                   </View>
 
                   {/* Fuel Type */}
-                  <View style={{ flex: 1.3 }}>
-                    <Text style={{ fontSize: 13, color: '#475569', fontFamily: fontStyle }}>{veh.fuelType || 'Diesel'}</Text>
+                  <View style={{ flex: 1.2 }}>
+                    <Text style={{ fontSize: 14, color: '#475569', fontFamily: fontStyle }}>{veh.fuelType || 'Diesel'}</Text>
                   </View>
 
                   {/* Registration No */}
                   <View style={{ flex: 1.8 }}>
-                    <Text style={{ fontSize: 13, color: '#64748B', fontFamily: 'monospace' }}>{regNo}</Text>
+                    <Text style={{ fontSize: 14, color: '#64748B', fontFamily: 'monospace' }}>{regNo}</Text>
                   </View>
 
                   {/* Mileage with green speedometer icon */}
                   <View style={{ flex: 1.5, flexDirection: 'row', alignItems: 'center' }}>
                     <Ionicons name="speedometer-outline" size={14} color="#24D164" style={{ marginRight: 6 }} />
-                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#334155', fontFamily: fontStyle }}>{mileageVal}</Text>
+                    <Text style={{ fontSize: 14, fontWeight: '700', color: '#334155', fontFamily: fontStyle }}>{mileageVal}</Text>
                   </View>
 
                   {/* Status Pill Badge with colored indicator dot */}
                   <View style={{ flex: 1.3, flexDirection: 'row', alignItems: 'center' }}>
                     <View style={{
                       backgroundColor: statusBg,
-                      paddingVertical: 4,
-                      paddingHorizontal: 10,
+                      paddingVertical: 5,
+                      paddingHorizontal: 12,
                       borderRadius: 20,
                       flexDirection: 'row',
                       alignItems: 'center',
                     }}>
                       <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: statusDotColor, marginRight: 6 }} />
-                      <Text style={{ fontSize: 10, fontWeight: '800', color: statusTextColor, fontFamily: fontStyle }}>{statusText}</Text>
+                      <Text style={{ fontSize: 11, fontWeight: '800', color: statusTextColor, fontFamily: fontStyle }}>{statusText}</Text>
                     </View>
                   </View>
 
@@ -378,53 +382,64 @@ export default function VehiclesTab() {
               <TextInput style={styles.modalInput} value={vehicleForm.model} onChangeText={(val) => setVehicleForm({ ...vehicleForm, model: val })} />
               
               <Text style={styles.inputLabel}>VEHICLE TYPE</Text>
-              <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-                {['Sedan', 'Hatchback', 'SUV', 'Truck', 'Van'].map((t) => {
-                  const isSel = vehicleForm.type === t;
-                  return (
-                    <TouchableOpacity
-                      key={t}
-                      onPress={() => setVehicleForm({ ...vehicleForm, type: t })}
-                      style={{
-                        paddingVertical: 8,
-                        paddingHorizontal: 16,
-                        borderRadius: 8,
-                        borderWidth: 1,
-                        borderColor: isSel ? '#1D4ED8' : '#E2E8F0',
-                        backgroundColor: isSel ? '#EFF6FF' : '#FFFFFF',
-                      }}
-                    >
-                      <Text style={{ fontSize: 12, fontWeight: '700', color: isSel ? '#1D4ED8' : '#475569' }}>{t}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
+              <select
+                value={vehicleForm.type}
+                onChange={(e) => setVehicleForm({ ...vehicleForm, type: e.target.value })}
+                style={{
+                  width: '100%',
+                  height: 45,
+                  backgroundColor: '#FFFFFF',
+                  borderColor: '#E2E8F0',
+                  borderWidth: 1,
+                  borderRadius: 10,
+                  paddingHorizontal: 16,
+                  fontSize: 14,
+                  color: '#0F172A',
+                  marginBottom: 16,
+                  outlineStyle: 'none',
+                  fontFamily: fontStyle,
+                } as any}
+              >
+                {[
+                  'Sedan',
+                  'Hatchback',
+                  'SUV',
+                  'Van',
+                  'Tempo Traveller 9-Seater',
+                  'Tempo Traveller 12-Seater',
+                  'Tempo Traveller 17-Seater',
+                  'Tempo Traveller 20-Seater'
+                ].map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
 
               <Text style={styles.inputLabel}>REGISTRATION NUMBER</Text>
               <TextInput style={styles.modalInput} value={vehicleForm.registrationNumber} onChangeText={(val) => setVehicleForm({ ...vehicleForm, registrationNumber: val })} />
               
               <Text style={styles.inputLabel}>FUEL TYPE</Text>
-              <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-                {['Diesel', 'Petrol', 'CNG', 'Electric'].map((f) => {
-                  const isSel = vehicleForm.fuelType === f;
-                  return (
-                    <TouchableOpacity
-                      key={f}
-                      onPress={() => setVehicleForm({ ...vehicleForm, fuelType: f })}
-                      style={{
-                        paddingVertical: 8,
-                        paddingHorizontal: 16,
-                        borderRadius: 8,
-                        borderWidth: 1,
-                        borderColor: isSel ? '#1D4ED8' : '#E2E8F0',
-                        backgroundColor: isSel ? '#EFF6FF' : '#FFFFFF',
-                      }}
-                    >
-                      <Text style={{ fontSize: 12, fontWeight: '700', color: isSel ? '#1D4ED8' : '#475569' }}>{f}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
+              <select
+                value={vehicleForm.fuelType}
+                onChange={(e) => setVehicleForm({ ...vehicleForm, fuelType: e.target.value })}
+                style={{
+                  width: '100%',
+                  height: 45,
+                  backgroundColor: '#FFFFFF',
+                  borderColor: '#E2E8F0',
+                  borderWidth: 1,
+                  borderRadius: 10,
+                  paddingHorizontal: 16,
+                  fontSize: 14,
+                  color: '#0F172A',
+                  marginBottom: 16,
+                  outlineStyle: 'none',
+                  fontFamily: fontStyle,
+                } as any}
+              >
+                {['Diesel', 'Petrol', 'CNG', 'Electric'].map((f) => (
+                  <option key={f} value={f}>{f}</option>
+                ))}
+              </select>
 
               <Text style={styles.inputLabel}>MILEAGE (KM)</Text>
               <TextInput style={styles.modalInput} value={vehicleForm.mileage} onChangeText={(val) => setVehicleForm({ ...vehicleForm, mileage: val })} keyboardType="numeric" />
