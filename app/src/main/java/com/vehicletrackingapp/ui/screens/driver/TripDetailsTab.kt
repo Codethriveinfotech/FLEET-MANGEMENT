@@ -280,28 +280,36 @@ fun TripDetailsTab(driverId: String) {
                         )
                         Box(modifier = Modifier.matchParentSize().background(Color.Transparent).clickable { vehicleMenuExpanded = true })
                         DropdownMenu(expanded = vehicleMenuExpanded, onDismissRequest = { vehicleMenuExpanded = false }) {
-                            allVehicles.forEach { vehicle ->
+                            val activeVehicles = allVehicles.filter { it.status.equals("Active", ignoreCase = true) }
+                            if (activeVehicles.isEmpty()) {
                                 DropdownMenuItem(
-                                    text = { Text("${vehicle.number} - ${vehicle.model}", fontWeight = FontWeight.Black) },
-                                    onClick = {
-                                        selectedVehicleId = vehicle.id
-                                        vehicleMenuExpanded = false
-                                        
-                                        // Prefill from last trip or vehicle mileage
-                                        scope.launch {
-                                            val last = AppRepository.getLastTripForVehicle(vehicle.id)
-                                            if (last != null) {
-                                                startOdo = if (last.endOdometer.isNotBlank()) last.endOdometer else vehicle.mileage.ifBlank { "0" }
-                                                startHmr = if (last.endHmr.isNotBlank()) last.endHmr else "0"
-                                            } else {
-                                                startOdo = vehicle.mileage.ifBlank { "0" }
-                                                startHmr = "0"
-                                            }
-                                            isOdoFetched = startOdo.isNotBlank()
-                                            persistDraft()
-                                        }
-                                    }
+                                    text = { Text("No active vehicles available", color = BrandGrey, fontWeight = FontWeight.Bold) },
+                                    onClick = { vehicleMenuExpanded = false }
                                 )
+                            } else {
+                                activeVehicles.forEach { vehicle ->
+                                    DropdownMenuItem(
+                                        text = { Text("${vehicle.number} - ${vehicle.model}", fontWeight = FontWeight.Black) },
+                                        onClick = {
+                                            selectedVehicleId = vehicle.id
+                                            vehicleMenuExpanded = false
+                                            
+                                            // Prefill from last trip or vehicle mileage
+                                            scope.launch {
+                                                val last = AppRepository.getLastTripForVehicle(vehicle.id)
+                                                if (last != null) {
+                                                    startOdo = if (last.endOdometer.isNotBlank()) last.endOdometer else vehicle.mileage.ifBlank { "0" }
+                                                    startHmr = if (last.endHmr.isNotBlank()) last.endHmr else "0"
+                                                } else {
+                                                    startOdo = vehicle.mileage.ifBlank { "0" }
+                                                    startHmr = "0"
+                                                }
+                                                isOdoFetched = startOdo.isNotBlank()
+                                                persistDraft()
+                                            }
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
