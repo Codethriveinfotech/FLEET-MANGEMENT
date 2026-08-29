@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 export default function OverviewTab() {
-  const { drivers, vehicles, trips } = useDashboardData();
+  const { drivers, vehicles, trips, maintenance, fuelLogs } = useDashboardData();
   const navigation = useNavigation<any>();
   const { width } = useWindowDimensions();
   const isCompact = width < 1024;
@@ -330,6 +330,92 @@ export default function OverviewTab() {
               })()}
             </View>
           </ScrollView>
+        </View>
+      </View>
+
+      {/* Bottom Row: Recent Refuels & Maintenance Logs */}
+      <View style={[styles.trackingChartRow, isCompact && { flexDirection: 'column' }, { marginTop: 12 }]}>
+        {/* Recent Fuel Logs Card */}
+        <View style={[styles.sectionCard, { flex: 1, padding: 20 }, isCompact ? { marginRight: 0, marginBottom: 24 } : { marginRight: 24 }]}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <Text style={styles.cardTitle}>Recent Fuel Refuels</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('fuel')}>
+              <Text style={{ fontSize: 11, color: '#1D4ED8', fontWeight: '700' }}>View All</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.table}>
+            <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 8, alignItems: 'center' }]}>
+              <View style={{ flex: 1.5 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B' }}>Vehicle</Text></View>
+              <View style={{ flex: 1.2 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B' }}>Liters</Text></View>
+              <View style={{ flex: 1.2 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B' }}>Cost</Text></View>
+              <View style={{ flex: 1.5 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B' }}>Date</Text></View>
+            </View>
+            {fuelLogs && fuelLogs.length > 0 ? (
+              [...fuelLogs]
+                .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+                .slice(0, 3)
+                .map((f, idx) => {
+                  const vehicleNo = vehicles.find((v) => v.id === f.vehicleId)?.number || '—';
+                  return (
+                    <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10, alignItems: 'center' }]}>
+                      <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '700', color: '#1E293B' }}>{vehicleNo}</Text></View>
+                      <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, color: '#475569' }}>{f.liters} L</Text></View>
+                      <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, color: '#10B981', fontWeight: '700' }}>₹{f.cost}</Text></View>
+                      <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, color: '#64748B' }}>{f.date}</Text></View>
+                    </View>
+                  );
+                })
+            ) : (
+              <View style={{ alignItems: 'center', paddingVertical: 20 }}>
+                <Text style={{ color: '#94A3B8', fontSize: 12 }}>No recent fuel logs</Text>
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* Recent Maintenance Actions Card */}
+        <View style={[styles.sectionCard, { flex: 1, padding: 20 }]}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <Text style={styles.cardTitle}>Recent Maintenance Logs</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('maintenance')}>
+              <Text style={{ fontSize: 11, color: '#1D4ED8', fontWeight: '700' }}>View All</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.table}>
+            <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 8, alignItems: 'center' }]}>
+              <View style={{ flex: 1.5 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B' }}>Vehicle</Text></View>
+              <View style={{ flex: 1.5 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B' }}>Type</Text></View>
+              <View style={{ flex: 1.2 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B' }}>Cost</Text></View>
+              <View style={{ flex: 1.2, alignItems: 'center' }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B' }}>Status</Text></View>
+            </View>
+            {maintenance && maintenance.length > 0 ? (
+              [...maintenance]
+                .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+                .slice(0, 3)
+                .map((m, idx) => {
+                  const vehicleNo = vehicles.find((v) => v.id === m.vehicleId)?.number || '—';
+                  const mType = m.maintenanceType || 'General';
+                  const mStatus = m.status === 'submitted' || m.status === 'completed' ? 'Completed' : 'Pending';
+                  const statusColor = mStatus === 'Completed' ? '#24D164' : '#EA580C';
+                  return (
+                    <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10, alignItems: 'center' }]}>
+                      <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '700', color: '#1E293B' }}>{vehicleNo}</Text></View>
+                      <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, color: '#475569', fontWeight: '500' }}>{mType}</Text></View>
+                      <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, color: '#EF4444', fontWeight: '700' }}>₹{m.cost}</Text></View>
+                      <View style={{ flex: 1.2, alignItems: 'center' }}>
+                        <View style={{ backgroundColor: statusColor + '15', paddingVertical: 2, paddingHorizontal: 8, borderRadius: 12 }}>
+                          <Text style={{ fontSize: 10, fontWeight: '800', color: statusColor }}>{mStatus}</Text>
+                        </View>
+                      </View>
+                    </View>
+                  );
+                })
+            ) : (
+              <View style={{ alignItems: 'center', paddingVertical: 20 }}>
+                <Text style={{ color: '#94A3B8', fontSize: 12 }}>No recent maintenance actions</Text>
+              </View>
+            )}
+          </View>
         </View>
       </View>
 
