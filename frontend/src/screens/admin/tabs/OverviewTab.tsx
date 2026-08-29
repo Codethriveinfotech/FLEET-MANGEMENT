@@ -469,7 +469,7 @@ export default function OverviewTab() {
             {vehicles
               .filter((v) => (v.status || '').toLowerCase().includes('break') || (v.status || '').toLowerCase().includes('maint'))
               .map((v, idx) => {
-                const driver = drivers.find((d) => d.id === v.assignedDriverId);
+                const driver = drivers.find((d) => d.id === v.assignedUserId);
                 return (
                   <View key={idx} style={{ backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#FECACA', padding: 16, minWidth: 200, flex: 1 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
