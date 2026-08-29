@@ -19,12 +19,12 @@ export default function OverviewTab() {
   const runningVehiclesCount = vehicles.filter((v) => (v.status || '').toLowerCase() === 'running').length;
   const idleVehiclesCount = vehicles.filter((v) => (v.status || '').toLowerCase() === 'active').length;
   const breakdownVehiclesCount = vehicles.filter((v) => (v.status || '').toLowerCase().includes('break') || (v.status || '').toLowerCase().includes('maint')).length;
-  const inactiveVehiclesCount = totalVehiclesCount - runningVehiclesCount - idleVehiclesCount - breakdownVehiclesCount;
+  
+  const chartTotalCount = runningVehiclesCount + idleVehiclesCount + breakdownVehiclesCount;
 
-  const runningPct = totalVehiclesCount > 0 ? ((runningVehiclesCount / totalVehiclesCount) * 100).toFixed(1) : '0';
-  const idlePct = totalVehiclesCount > 0 ? ((idleVehiclesCount / totalVehiclesCount) * 100).toFixed(1) : '0';
-  const breakdownPct = totalVehiclesCount > 0 ? ((breakdownVehiclesCount / totalVehiclesCount) * 100).toFixed(1) : '0';
-  const inactivePct = totalVehiclesCount > 0 ? ((inactiveVehiclesCount / totalVehiclesCount) * 100).toFixed(1) : '0';
+  const runningPct = chartTotalCount > 0 ? ((runningVehiclesCount / chartTotalCount) * 100).toFixed(1) : '0';
+  const idlePct = chartTotalCount > 0 ? ((idleVehiclesCount / chartTotalCount) * 100).toFixed(1) : '0';
+  const breakdownPct = chartTotalCount > 0 ? ((breakdownVehiclesCount / chartTotalCount) * 100).toFixed(1) : '0';
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
@@ -105,20 +105,6 @@ export default function OverviewTab() {
                 {/* Background Gray Circle */}
                 <circle cx="55" cy="55" r="45" fill="transparent" stroke="#F1F5F9" strokeWidth="10" />
                 
-                {/* Inactive segment (Grey) */}
-                {inactiveVehiclesCount > 0 && (
-                  <circle
-                    cx="55"
-                    cy="55"
-                    r="45"
-                    fill="transparent"
-                    stroke="#94A3B8"
-                    strokeWidth="10"
-                    strokeDasharray={`${(inactiveVehiclesCount / (totalVehiclesCount || 1)) * 282.7} 282.7`}
-                    strokeDashoffset={0}
-                  />
-                )}
-
                 {/* Breakdown segment (Red) */}
                 {breakdownVehiclesCount > 0 && (
                   <circle
@@ -128,8 +114,8 @@ export default function OverviewTab() {
                     fill="transparent"
                     stroke="#EF4444"
                     strokeWidth="10"
-                    strokeDasharray={`${(breakdownVehiclesCount / (totalVehiclesCount || 1)) * 282.7} 282.7`}
-                    strokeDashoffset={-((inactiveVehiclesCount / (totalVehiclesCount || 1)) * 282.7)}
+                    strokeDasharray={`${(breakdownVehiclesCount / (chartTotalCount || 1)) * 282.7} 282.7`}
+                    strokeDashoffset={0}
                   />
                 )}
 
@@ -142,12 +128,12 @@ export default function OverviewTab() {
                     fill="transparent"
                     stroke="#1D4ED8"
                     strokeWidth="10"
-                    strokeDasharray={`${(runningVehiclesCount / (totalVehiclesCount || 1)) * 282.7} 282.7`}
-                    strokeDashoffset={-(((inactiveVehiclesCount + breakdownVehiclesCount) / (totalVehiclesCount || 1)) * 282.7)}
+                    strokeDasharray={`${(runningVehiclesCount / (chartTotalCount || 1)) * 282.7} 282.7`}
+                    strokeDashoffset={-((breakdownVehiclesCount / (chartTotalCount || 1)) * 282.7)}
                   />
                 )}
 
-                {/* Idle segment (Green) */}
+                {/* Active segment (Green) */}
                 {idleVehiclesCount > 0 && (
                   <circle
                     cx="55"
@@ -156,13 +142,13 @@ export default function OverviewTab() {
                     fill="transparent"
                     stroke="#24D164"
                     strokeWidth="10"
-                    strokeDasharray={`${(idleVehiclesCount / (totalVehiclesCount || 1)) * 282.7} 282.7`}
-                    strokeDashoffset={-(((inactiveVehiclesCount + breakdownVehiclesCount + runningVehiclesCount) / (totalVehiclesCount || 1)) * 282.7)}
+                    strokeDasharray={`${(idleVehiclesCount / (chartTotalCount || 1)) * 282.7} 282.7`}
+                    strokeDashoffset={-(((breakdownVehiclesCount + runningVehiclesCount) / (chartTotalCount || 1)) * 282.7)}
                   />
                 )}
               </svg>
               <View style={{ position: 'absolute', justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={styles.donutMiddleNum}>{totalVehiclesCount}</Text>
+                <Text style={styles.donutMiddleNum}>{chartTotalCount}</Text>
                 <Text style={styles.donutMiddleLabel}>Total</Text>
               </View>
             </View>
@@ -170,7 +156,7 @@ export default function OverviewTab() {
             <View style={styles.donutLegend}>
               <View style={styles.legendRow}>
                 <View style={[styles.legendDot, { backgroundColor: '#24D164' }]} />
-                <Text style={[styles.legendLabel, { width: 90 }]}>Idle</Text>
+                <Text style={[styles.legendLabel, { width: 90 }]}>Active</Text>
                 <Text style={styles.legendVal}>{idleVehiclesCount} ({idlePct}%)</Text>
               </View>
               <View style={styles.legendRow}>
@@ -182,11 +168,6 @@ export default function OverviewTab() {
                 <View style={[styles.legendDot, { backgroundColor: '#EF4444' }]} />
                 <Text style={[styles.legendLabel, { width: 90 }]}>Breakdown</Text>
                 <Text style={styles.legendVal}>{breakdownVehiclesCount} ({breakdownPct}%)</Text>
-              </View>
-              <View style={styles.legendRow}>
-                <View style={[styles.legendDot, { backgroundColor: '#94A3B8' }]} />
-                <Text style={[styles.legendLabel, { width: 90 }]}>Inactive</Text>
-                <Text style={styles.legendVal}>{inactiveVehiclesCount} ({inactivePct}%)</Text>
               </View>
             </View>
           </View>
