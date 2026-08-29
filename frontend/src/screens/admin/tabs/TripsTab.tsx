@@ -30,6 +30,17 @@ export default function TripsTab() {
     return true;
   });
 
+  const sortedTrips = [...filteredTrips].sort((a, b) => {
+    const dateA = parseDate(a.startDate) || new Date(0);
+    const dateB = parseDate(b.startDate) || new Date(0);
+    if (dateB.getTime() !== dateA.getTime()) {
+      return dateB.getTime() - dateA.getTime();
+    }
+    const timeA = a.startTime || '';
+    const timeB = b.startTime || '';
+    return timeB.localeCompare(timeA);
+  });
+
   const hasFilters = tripDriverFilter || tripVehicleFilter || filterFromDate || filterToDate;
 
   return (
@@ -306,7 +317,7 @@ export default function TripsTab() {
         {/* Scrollable table rows */}
         <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
           <View style={styles.table}>
-            {filteredTrips.map((trip, idx) => {
+            {sortedTrips.map((trip, idx) => {
               const driverObj = drivers.find((d) => d.id === trip.driverId);
               const driverName = driverObj?.name || 'Unknown';
               const initials = driverName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();

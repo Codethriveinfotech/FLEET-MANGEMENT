@@ -283,9 +283,18 @@ export default function OverviewTab() {
                 return tripsToShow.length > 0 ? (
                   [...tripsToShow]
                     .sort((a, b) => {
-                      const dateTimeA = `${a.startDate || ''}T${a.startTime || ''}`;
-                      const dateTimeB = `${b.startDate || ''}T${b.startTime || ''}`;
-                      return dateTimeB.localeCompare(dateTimeA);
+                      const parse = (dStr: string | undefined | null) => {
+                        if (!dStr) return 0;
+                        if (dStr.includes('/')) {
+                          const p = dStr.split('/');
+                          return new Date(`${p[2]}-${p[1]}-${p[0]}`).getTime();
+                        }
+                        return new Date(dStr).getTime();
+                      };
+                      const tA = parse(a.startDate);
+                      const tB = parse(b.startDate);
+                      if (tB !== tA) return tB - tA;
+                      return (b.startTime || '').localeCompare(a.startTime || '');
                     })
                     .slice(0, 5)
                     .map((t, idx) => {
