@@ -96,113 +96,169 @@ export default function OverviewTab() {
       {/* Middle Row: Fleet Overview (Donut) & Recent Trips (Table) */}
       <View style={[styles.trackingChartRow, isCompact && { flexDirection: 'column' }]}>
         {/* Fleet Overview Donut Chart */}
-        <View style={[styles.donutCard, { flex: 1, padding: 24, shadowColor: '#0F172A', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.03, shadowRadius: 12 }, isCompact ? { marginRight: 0, marginBottom: 24 } : { marginRight: 24 }]}>
-          <Text style={[styles.cardTitle, { fontSize: 15, fontWeight: '800', color: '#0F172A', marginBottom: 20 }]}>Fleet Status Overview</Text>
-          <View style={[styles.chartContentWrapper, { height: 'auto', gap: 16 }]}>
-            {/* Dynamic Interactive SVG Donut Chart */}
-            <View style={{ width: 120, height: 120, justifyContent: 'center', alignItems: 'center' }}>
-              <svg width="120" height="120" viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)' }}>
-                {/* Background Gray Circle */}
-                <circle cx="60" cy="60" r="50" fill="transparent" stroke="#F1F5F9" strokeWidth="12" />
-                
-                {/* Breakdown segment (Red) */}
-                {breakdownVehiclesCount > 0 && (
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="50"
-                    fill="transparent"
-                    stroke="#EF4444"
-                    strokeWidth="12"
-                    strokeDasharray={`${(breakdownVehiclesCount / (chartTotalCount || 1)) * 314.16} 314.16`}
-                    strokeDashoffset={0}
-                    strokeLinecap="round"
-                  />
-                )}
+        <View style={[styles.donutCard, { flex: 1, padding: 24, backgroundColor: '#FFFFFF', borderRadius: 16, borderWidth: 1, borderColor: '#E2E8F0' }, isCompact ? { marginRight: 0, marginBottom: 24 } : { marginRight: 24 }]}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: '#0F172A', letterSpacing: 0.3 }}>Fleet Status Overview</Text>
+            <View style={{ backgroundColor: '#F1F5F9', paddingVertical: 4, paddingHorizontal: 8, borderRadius: 6 }}>
+              <Text style={{ fontSize: 10, fontWeight: '700', color: '#475569' }}>Real-time</Text>
+            </View>
+          </View>
+          
+          <View style={[styles.chartContentWrapper, { height: 'auto', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
+            {/* Dynamic Refined 3D SVG Cylinder Donut Chart */}
+            <View style={{ width: 130, height: 130, justifyContent: 'center', alignItems: 'center', marginRight: 20 }}>
+              <svg width="130" height="130" viewBox="0 0 120 120" style={{ transform: 'perspective(300px) rotateX(45deg) rotateZ(-90deg)', overflow: 'visible' }}>
+                {/* --- 3D DEPTH LAYER (Lower/Offset) --- */}
+                <g transform="translate(0, 6)">
+                  <circle cx="60" cy="60" r="45" fill="transparent" stroke="#E2E8F0" strokeWidth="12" />
+                  
+                  {/* Breakdown depth (Dark Red) */}
+                  {breakdownVehiclesCount > 0 && (
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="45"
+                      fill="transparent"
+                      stroke="#991B1B"
+                      strokeWidth="12"
+                      strokeDasharray={`${(breakdownVehiclesCount / (chartTotalCount || 1)) * 282.7} 282.7`}
+                      strokeDashoffset={0}
+                    />
+                  )}
 
-                {/* Running segment (Blue) */}
-                {runningVehiclesCount > 0 && (
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="50"
-                    fill="transparent"
-                    stroke="#1D4ED8"
-                    strokeWidth="12"
-                    strokeDasharray={`${(runningVehiclesCount / (chartTotalCount || 1)) * 314.16} 314.16`}
-                    strokeDashoffset={-((breakdownVehiclesCount / (chartTotalCount || 1)) * 314.16)}
-                    strokeLinecap="round"
-                  />
-                )}
+                  {/* Running depth (Dark Blue) */}
+                  {runningVehiclesCount > 0 && (
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="45"
+                      fill="transparent"
+                      stroke="#1E40AF"
+                      strokeWidth="12"
+                      strokeDasharray={`${(runningVehiclesCount / (chartTotalCount || 1)) * 282.7} 282.7`}
+                      strokeDashoffset={-((breakdownVehiclesCount / (chartTotalCount || 1)) * 282.7)}
+                    />
+                  )}
 
-                {/* Active segment (Green) */}
-                {idleVehiclesCount > 0 && (
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="50"
-                    fill="transparent"
-                    stroke="#24D164"
-                    strokeWidth="12"
-                    strokeDasharray={`${(idleVehiclesCount / (chartTotalCount || 1)) * 314.16} 314.16`}
-                    strokeDashoffset={-(((breakdownVehiclesCount + runningVehiclesCount) / (chartTotalCount || 1)) * 314.16)}
-                    strokeLinecap="round"
-                  />
-                )}
+                  {/* Active depth (Dark Green) */}
+                  {idleVehiclesCount > 0 && (
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="45"
+                      fill="transparent"
+                      stroke="#065F46"
+                      strokeWidth="12"
+                      strokeDasharray={`${(idleVehiclesCount / (chartTotalCount || 1)) * 282.7} 282.7`}
+                      strokeDashoffset={-(((breakdownVehiclesCount + runningVehiclesCount) / (chartTotalCount || 1)) * 282.7)}
+                    />
+                  )}
+                </g>
+
+                {/* --- SURFACE LAYER (Upper/Front) --- */}
+                <g transform="translate(0, 0)">
+                  <circle cx="60" cy="60" r="45" fill="transparent" stroke="#F1F5F9" strokeWidth="12" />
+                  
+                  {/* Breakdown segment (Red) */}
+                  {breakdownVehiclesCount > 0 && (
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="45"
+                      fill="transparent"
+                      stroke="#EF4444"
+                      strokeWidth="12"
+                      strokeDasharray={`${(breakdownVehiclesCount / (chartTotalCount || 1)) * 282.7} 282.7`}
+                      strokeDashoffset={0}
+                    />
+                  )}
+
+                  {/* Running segment (Blue) */}
+                  {runningVehiclesCount > 0 && (
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="45"
+                      fill="transparent"
+                      stroke="#2563EB"
+                      strokeWidth="12"
+                      strokeDasharray={`${(runningVehiclesCount / (chartTotalCount || 1)) * 282.7} 282.7`}
+                      strokeDashoffset={-((breakdownVehiclesCount / (chartTotalCount || 1)) * 282.7)}
+                    />
+                  )}
+
+                  {/* Active segment (Green) */}
+                  {idleVehiclesCount > 0 && (
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="45"
+                      fill="transparent"
+                      stroke="#10B981"
+                      strokeWidth="12"
+                      strokeDasharray={`${(idleVehiclesCount / (chartTotalCount || 1)) * 282.7} 282.7`}
+                      strokeDashoffset={-(((breakdownVehiclesCount + runningVehiclesCount) / (chartTotalCount || 1)) * 282.7)}
+                    />
+                  )}
+                </g>
               </svg>
-              <View style={{ position: 'absolute', justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={[styles.donutMiddleNum, { fontSize: 26, fontWeight: '900', color: '#0F172A' }]}>{chartTotalCount}</Text>
-                <Text style={[styles.donutMiddleLabel, { fontSize: 10, fontWeight: '700', color: '#64748B', textTransform: 'uppercase', letterSpacing: 0.5 }]}>Vehicles</Text>
+              {/* Keep metrics text flat/unrotated on top */}
+              <View style={{ position: 'absolute', justifyContent: 'center', alignItems: 'center', top: 38 }}>
+                <Text style={{ fontSize: 24, fontWeight: '800', color: '#0F172A', lineHeight: 28 }}>{chartTotalCount}</Text>
+                <Text style={{ fontSize: 8, fontWeight: '700', color: '#64748B', textTransform: 'uppercase', letterSpacing: 0.5 }}>Active Fleet</Text>
               </View>
             </View>
             
-            {/* Elegant Status Progress Bars list */}
-            <View style={{ flex: 1.3, gap: 10 }}>
+            {/* Professional Table Legend */}
+            <View style={{ flex: 1, gap: 12 }}>
+              <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderColor: '#F1F5F9', paddingBottom: 6, marginBottom: 4 }}>
+                <Text style={{ fontSize: 9, fontWeight: '700', color: '#94A3B8', flex: 2 }}>STATUS</Text>
+                <Text style={{ fontSize: 9, fontWeight: '700', color: '#94A3B8', flex: 1.2, textAlign: 'right' }}>VEHICLES</Text>
+                <Text style={{ fontSize: 9, fontWeight: '700', color: '#94A3B8', flex: 1.2, textAlign: 'right' }}>RATIO</Text>
+              </View>
+
               {/* Active segment item */}
-              <View style={{ backgroundColor: '#F8FAFC', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#EFF6FF' }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#24D164', marginRight: 8 }} />
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#334155' }}>Active</Text>
+              <View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 2 }}>
+                    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981', marginRight: 8 }} />
+                    <Text style={{ fontSize: 11, fontWeight: '600', color: '#475569' }}>Active</Text>
                   </View>
-                  <Text style={{ fontSize: 12, fontWeight: '800', color: '#0F172A' }}>
-                    {idleVehiclesCount} <Text style={{ fontSize: 10, color: '#64748B', fontWeight: '500' }}>({idlePct}%)</Text>
-                  </Text>
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#0F172A', flex: 1.2, textAlign: 'right' }}>{idleVehiclesCount}</Text>
+                  <Text style={{ fontSize: 11, fontWeight: '600', color: '#64748B', flex: 1.2, textAlign: 'right' }}>{idlePct}%</Text>
                 </View>
-                <View style={{ height: 6, backgroundColor: '#E2E8F0', borderRadius: 3, overflow: 'hidden' }}>
-                  <View style={{ width: `${idlePct}%` as any, height: '100%', backgroundColor: '#24D164', borderRadius: 3 }} />
+                <View style={{ height: 3, backgroundColor: '#F1F5F9', borderRadius: 1.5, overflow: 'hidden' }}>
+                  <View style={{ width: `${idlePct}%` as any, height: '100%', backgroundColor: '#10B981' }} />
                 </View>
               </View>
 
               {/* Running segment item */}
-              <View style={{ backgroundColor: '#F8FAFC', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#EFF6FF' }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#1D4ED8', marginRight: 8 }} />
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#334155' }}>Running</Text>
+              <View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 2 }}>
+                    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#2563EB', marginRight: 8 }} />
+                    <Text style={{ fontSize: 11, fontWeight: '600', color: '#475569' }}>Running</Text>
                   </View>
-                  <Text style={{ fontSize: 12, fontWeight: '800', color: '#0F172A' }}>
-                    {runningVehiclesCount} <Text style={{ fontSize: 10, color: '#64748B', fontWeight: '500' }}>({runningPct}%)</Text>
-                  </Text>
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#0F172A', flex: 1.2, textAlign: 'right' }}>{runningVehiclesCount}</Text>
+                  <Text style={{ fontSize: 11, fontWeight: '600', color: '#64748B', flex: 1.2, textAlign: 'right' }}>{runningPct}%</Text>
                 </View>
-                <View style={{ height: 6, backgroundColor: '#E2E8F0', borderRadius: 3, overflow: 'hidden' }}>
-                  <View style={{ width: `${runningPct}%` as any, height: '100%', backgroundColor: '#1D4ED8', borderRadius: 3 }} />
+                <View style={{ height: 3, backgroundColor: '#F1F5F9', borderRadius: 1.5, overflow: 'hidden' }}>
+                  <View style={{ width: `${runningPct}%` as any, height: '100%', backgroundColor: '#2563EB' }} />
                 </View>
               </View>
 
               {/* Breakdown segment item */}
-              <View style={{ backgroundColor: '#F8FAFC', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#EFF6FF' }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#EF4444', marginRight: 8 }} />
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#334155' }}>Breakdown</Text>
+              <View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 2 }}>
+                    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#EF4444', marginRight: 8 }} />
+                    <Text style={{ fontSize: 11, fontWeight: '600', color: '#475569' }}>Breakdown</Text>
                   </View>
-                  <Text style={{ fontSize: 12, fontWeight: '800', color: '#0F172A' }}>
-                    {breakdownVehiclesCount} <Text style={{ fontSize: 10, color: '#64748B', fontWeight: '500' }}>({breakdownPct}%)</Text>
-                  </Text>
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#0F172A', flex: 1.2, textAlign: 'right' }}>{breakdownVehiclesCount}</Text>
+                  <Text style={{ fontSize: 11, fontWeight: '600', color: '#64748B', flex: 1.2, textAlign: 'right' }}>{breakdownPct}%</Text>
                 </View>
-                <View style={{ height: 6, backgroundColor: '#E2E8F0', borderRadius: 3, overflow: 'hidden' }}>
-                  <View style={{ width: `${breakdownPct}%` as any, height: '100%', backgroundColor: '#EF4444', borderRadius: 3 }} />
+                <View style={{ height: 3, backgroundColor: '#F1F5F9', borderRadius: 1.5, overflow: 'hidden' }}>
+                  <View style={{ width: `${breakdownPct}%` as any, height: '100%', backgroundColor: '#EF4444' }} />
                 </View>
               </View>
             </View>
