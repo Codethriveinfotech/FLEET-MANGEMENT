@@ -5,8 +5,6 @@ import { styles } from '../AdminStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
-import ThreeDVehicle from '../../../components/ThreeDVehicle';
-
 export default function OverviewTab() {
   const { drivers, vehicles, trips } = useDashboardData();
   const navigation = useNavigation<any>();
@@ -95,90 +93,120 @@ export default function OverviewTab() {
         </View>
       </View>
 
-      {/* Middle Row: Fleet Overview, 3D Showcase & Recent Trips */}
+      {/* Middle Row: Fleet Overview (Donut) & Recent Trips (Table) */}
       <View style={[styles.trackingChartRow, isCompact && { flexDirection: 'column' }]}>
         {/* Fleet Overview Donut Chart */}
-        <View style={[styles.donutCard, { flex: 1.1 }, isCompact ? { marginRight: 0, marginBottom: 24 } : { marginRight: 16 }]}>
-          <Text style={styles.cardTitle}>Fleet Overview</Text>
-          <View style={styles.chartContentWrapper}>
+        <View style={[styles.donutCard, { flex: 1, padding: 24, shadowColor: '#0F172A', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.03, shadowRadius: 12 }, isCompact ? { marginRight: 0, marginBottom: 24 } : { marginRight: 24 }]}>
+          <Text style={[styles.cardTitle, { fontSize: 15, fontWeight: '800', color: '#0F172A', marginBottom: 20 }]}>Fleet Status Overview</Text>
+          <View style={[styles.chartContentWrapper, { height: 'auto', gap: 16 }]}>
             {/* Dynamic Interactive SVG Donut Chart */}
-            <View style={{ width: 110, height: 110, justifyContent: 'center', alignItems: 'center' }}>
-              <svg width="110" height="110" viewBox="0 0 110 110" style={{ transform: 'rotate(-90deg)' }}>
+            <View style={{ width: 120, height: 120, justifyContent: 'center', alignItems: 'center' }}>
+              <svg width="120" height="120" viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)' }}>
                 {/* Background Gray Circle */}
-                <circle cx="55" cy="55" r="45" fill="transparent" stroke="#F1F5F9" strokeWidth="10" />
+                <circle cx="60" cy="60" r="50" fill="transparent" stroke="#F1F5F9" strokeWidth="12" />
                 
                 {/* Breakdown segment (Red) */}
                 {breakdownVehiclesCount > 0 && (
                   <circle
-                    cx="55"
-                    cy="55"
-                    r="45"
+                    cx="60"
+                    cy="60"
+                    r="50"
                     fill="transparent"
                     stroke="#EF4444"
-                    strokeWidth="10"
-                    strokeDasharray={`${(breakdownVehiclesCount / (chartTotalCount || 1)) * 282.7} 282.7`}
+                    strokeWidth="12"
+                    strokeDasharray={`${(breakdownVehiclesCount / (chartTotalCount || 1)) * 314.16} 314.16`}
                     strokeDashoffset={0}
+                    strokeLinecap="round"
                   />
                 )}
 
                 {/* Running segment (Blue) */}
                 {runningVehiclesCount > 0 && (
                   <circle
-                    cx="55"
-                    cy="55"
-                    r="45"
+                    cx="60"
+                    cy="60"
+                    r="50"
                     fill="transparent"
                     stroke="#1D4ED8"
-                    strokeWidth="10"
-                    strokeDasharray={`${(runningVehiclesCount / (chartTotalCount || 1)) * 282.7} 282.7`}
-                    strokeDashoffset={-((breakdownVehiclesCount / (chartTotalCount || 1)) * 282.7)}
+                    strokeWidth="12"
+                    strokeDasharray={`${(runningVehiclesCount / (chartTotalCount || 1)) * 314.16} 314.16`}
+                    strokeDashoffset={-((breakdownVehiclesCount / (chartTotalCount || 1)) * 314.16)}
+                    strokeLinecap="round"
                   />
                 )}
 
                 {/* Active segment (Green) */}
                 {idleVehiclesCount > 0 && (
                   <circle
-                    cx="55"
-                    cy="55"
-                    r="45"
+                    cx="60"
+                    cy="60"
+                    r="50"
                     fill="transparent"
                     stroke="#24D164"
-                    strokeWidth="10"
-                    strokeDasharray={`${(idleVehiclesCount / (chartTotalCount || 1)) * 282.7} 282.7`}
-                    strokeDashoffset={-(((breakdownVehiclesCount + runningVehiclesCount) / (chartTotalCount || 1)) * 282.7)}
+                    strokeWidth="12"
+                    strokeDasharray={`${(idleVehiclesCount / (chartTotalCount || 1)) * 314.16} 314.16`}
+                    strokeDashoffset={-(((breakdownVehiclesCount + runningVehiclesCount) / (chartTotalCount || 1)) * 314.16)}
+                    strokeLinecap="round"
                   />
                 )}
               </svg>
               <View style={{ position: 'absolute', justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={styles.donutMiddleNum}>{chartTotalCount}</Text>
-                <Text style={styles.donutMiddleLabel}>Total</Text>
+                <Text style={[styles.donutMiddleNum, { fontSize: 26, fontWeight: '900', color: '#0F172A' }]}>{chartTotalCount}</Text>
+                <Text style={[styles.donutMiddleLabel, { fontSize: 10, fontWeight: '700', color: '#64748B', textTransform: 'uppercase', letterSpacing: 0.5 }]}>Vehicles</Text>
               </View>
             </View>
             
-            <View style={styles.donutLegend}>
-              <View style={styles.legendRow}>
-                <View style={[styles.legendDot, { backgroundColor: '#24D164' }]} />
-                <Text style={[styles.legendLabel, { width: 90 }]}>Active</Text>
-                <Text style={styles.legendVal}>{idleVehiclesCount} ({idlePct}%)</Text>
+            {/* Elegant Status Progress Bars list */}
+            <View style={{ flex: 1.3, gap: 10 }}>
+              {/* Active segment item */}
+              <View style={{ backgroundColor: '#F8FAFC', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#EFF6FF' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#24D164', marginRight: 8 }} />
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#334155' }}>Active</Text>
+                  </View>
+                  <Text style={{ fontSize: 12, fontWeight: '800', color: '#0F172A' }}>
+                    {idleVehiclesCount} <Text style={{ fontSize: 10, color: '#64748B', fontWeight: '500' }}>({idlePct}%)</Text>
+                  </Text>
+                </View>
+                <View style={{ height: 6, backgroundColor: '#E2E8F0', borderRadius: 3, overflow: 'hidden' }}>
+                  <View style={{ width: `${idlePct}%` as any, height: '100%', backgroundColor: '#24D164', borderRadius: 3 }} />
+                </View>
               </View>
-              <View style={styles.legendRow}>
-                <View style={[styles.legendDot, { backgroundColor: '#1D4ED8' }]} />
-                <Text style={[styles.legendLabel, { width: 90 }]}>Running</Text>
-                <Text style={styles.legendVal}>{runningVehiclesCount} ({runningPct}%)</Text>
+
+              {/* Running segment item */}
+              <View style={{ backgroundColor: '#F8FAFC', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#EFF6FF' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#1D4ED8', marginRight: 8 }} />
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#334155' }}>Running</Text>
+                  </View>
+                  <Text style={{ fontSize: 12, fontWeight: '800', color: '#0F172A' }}>
+                    {runningVehiclesCount} <Text style={{ fontSize: 10, color: '#64748B', fontWeight: '500' }}>({runningPct}%)</Text>
+                  </Text>
+                </View>
+                <View style={{ height: 6, backgroundColor: '#E2E8F0', borderRadius: 3, overflow: 'hidden' }}>
+                  <View style={{ width: `${runningPct}%` as any, height: '100%', backgroundColor: '#1D4ED8', borderRadius: 3 }} />
+                </View>
               </View>
-              <View style={styles.legendRow}>
-                <View style={[styles.legendDot, { backgroundColor: '#EF4444' }]} />
-                <Text style={[styles.legendLabel, { width: 90 }]}>Breakdown</Text>
-                <Text style={styles.legendVal}>{breakdownVehiclesCount} ({breakdownPct}%)</Text>
+
+              {/* Breakdown segment item */}
+              <View style={{ backgroundColor: '#F8FAFC', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#EFF6FF' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#EF4444', marginRight: 8 }} />
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#334155' }}>Breakdown</Text>
+                  </View>
+                  <Text style={{ fontSize: 12, fontWeight: '800', color: '#0F172A' }}>
+                    {breakdownVehiclesCount} <Text style={{ fontSize: 10, color: '#64748B', fontWeight: '500' }}>({breakdownPct}%)</Text>
+                  </Text>
+                </View>
+                <View style={{ height: 6, backgroundColor: '#E2E8F0', borderRadius: 3, overflow: 'hidden' }}>
+                  <View style={{ width: `${breakdownPct}%` as any, height: '100%', backgroundColor: '#EF4444', borderRadius: 3 }} />
+                </View>
               </View>
             </View>
           </View>
-        </View>
-
-        {/* 3D Telemetry Twin Showcase Card */}
-        <View style={[styles.donutCard, { flex: 1.1 }, isCompact ? { marginRight: 0, marginBottom: 24 } : { marginRight: 16 }]}>
-          <Text style={styles.cardTitle}>3D Telemetry Showcase</Text>
-          <ThreeDVehicle />
         </View>
 
         {/* Recent Trips Table */}
@@ -201,11 +229,18 @@ export default function OverviewTab() {
               </View>
 
               {trips.length > 0 ? (
-                trips.slice(0, 5).map((t, idx) => {
-                  const vehicleNo = vehicles.find((v) => v.id === t.vehicleId)?.number || '—';
-                  const driverName = drivers.find((d) => d.id === t.driverId)?.name || '—';
-                  const routeStr = (t.sourceLocation && t.destinationLocation) ? `${t.sourceLocation} → ${t.destinationLocation}` : 'No route';
-                  const dateStr = t.startDate || '—';
+                [...trips]
+                  .sort((a, b) => {
+                    const dateTimeA = `${a.startDate || ''}T${a.startTime || ''}`;
+                    const dateTimeB = `${b.startDate || ''}T${b.startTime || ''}`;
+                    return dateTimeB.localeCompare(dateTimeA);
+                  })
+                  .slice(0, 5)
+                  .map((t, idx) => {
+                    const vehicleNo = vehicles.find((v) => v.id === t.vehicleId)?.number || '—';
+                    const driverName = drivers.find((d) => d.id === t.driverId)?.name || '—';
+                    const routeStr = (t.sourceLocation && t.destinationLocation) ? `${t.sourceLocation} → ${t.destinationLocation}` : 'No route';
+                    const dateStr = t.startDate || '—';
                   const statusStr = t.status === 'submitted' ? 'Completed' : t.status === 'started' ? 'In Progress' : 'Draft';
                   const statusColor = statusStr === 'Completed' ? '#24D164' : statusStr === 'In Progress' ? '#1D4ED8' : '#64748B';
 
