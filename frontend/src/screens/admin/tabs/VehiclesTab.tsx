@@ -109,11 +109,36 @@ export default function VehiclesTab() {
   return (
     <View style={{ flex: 1 }}>
       {/* Vehicles Search & Action Card */}
-      <View style={[styles.sectionCard, { flex: 1, padding: 24 }]}>
+      <View style={[styles.sectionCard, {
+        flex: 1,
+        padding: 24,
+        borderRadius: 16,
+        shadowColor: '#0F172A',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.04,
+        shadowRadius: 20,
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
+      }]}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <View>
-            <Text style={{ fontSize: 18, fontWeight: '800', color: '#0F172A', fontFamily: fontStyle, marginBottom: 2 }}>Vehicle List</Text>
-            <Text style={{ fontSize: 12, color: '#64748B', fontFamily: fontStyle }}>Manage and track your vehicles</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{
+              width: 44,
+              height: 44,
+              borderRadius: 12,
+              backgroundColor: '#EFF6FF',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginRight: 14,
+              borderWidth: 1,
+              borderColor: '#DBEAFE',
+            }}>
+              <Ionicons name="car" size={24} color="#1D4ED8" />
+            </View>
+            <View>
+              <Text style={{ fontSize: 18, fontWeight: '800', color: '#0F172A', fontFamily: fontStyle, marginBottom: 2 }}>Vehicle List</Text>
+              <Text style={{ fontSize: 12, color: '#64748B', fontFamily: fontStyle }}>Manage and track your vehicles</Text>
+            </View>
           </View>
           <TouchableOpacity
             style={{
@@ -123,6 +148,10 @@ export default function VehiclesTab() {
               paddingVertical: 10,
               paddingHorizontal: 16,
               borderRadius: 8,
+              shadowColor: '#1D4ED8',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.2,
+              shadowRadius: 8,
             }}
             onPress={() => openVehicleModal()}
           >
@@ -135,12 +164,12 @@ export default function VehiclesTab() {
         <View style={{
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: '#FFFFFF',
+          backgroundColor: '#F8FAFC',
           borderWidth: 1,
           borderColor: '#E2E8F0',
           borderRadius: 12,
           paddingHorizontal: 16,
-          paddingVertical: 10,
+          paddingVertical: 11,
           marginBottom: 24,
         }}>
           <Ionicons name="search-outline" size={18} color="#94A3B8" style={{ marginRight: 10 }} />
@@ -153,24 +182,25 @@ export default function VehiclesTab() {
           />
         </View>
 
-        {/* Custom Spaced Modern Table Headers (Fixed to Match Second Mockup) */}
+        {/* Custom Spaced Modern Table Headers */}
         <View style={[styles.tableHeaderRow, {
-          backgroundColor: '#F1F5F9',
-          borderBottomWidth: 0,
-          paddingVertical: 12,
+          backgroundColor: '#F8FAFC',
+          borderWidth: 1,
+          borderColor: '#E2E8F0',
+          paddingVertical: 14,
           paddingHorizontal: 16,
-          borderRadius: 8,
+          borderRadius: 10,
           marginBottom: 16,
           alignItems: 'center'
         }]}>
-          <View style={{ flex: 1.8 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Vehicle</Text></View>
-          <View style={{ flex: 1.6 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Plate Number</Text></View>
-          <View style={{ flex: 1.2 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Type</Text></View>
-          <View style={{ flex: 1.8 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Model</Text></View>
-          <View style={{ flex: 1.8 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Registration No.</Text></View>
-          <View style={{ flex: 1.5 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Mileage</Text></View>
-          <View style={{ flex: 1.3 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Status</Text></View>
-          <View style={{ flex: 1.2, alignItems: 'center' }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Actions</Text></View>
+          <View style={{ flex: 1.8 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Vehicle</Text></View>
+          <View style={{ flex: 1.6 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Plate Number</Text></View>
+          <View style={{ flex: 1.2 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Type</Text></View>
+          <View style={{ flex: 1.8 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Model</Text></View>
+          <View style={{ flex: 1.8 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Registration No.</Text></View>
+          <View style={{ flex: 1.5 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Mileage</Text></View>
+          <View style={{ flex: 1.3 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Status</Text></View>
+          <View style={{ flex: 1.2, alignItems: 'center' }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Actions</Text></View>
         </View>
 
         {/* Scrollable table rows */}
@@ -207,42 +237,49 @@ export default function VehiclesTab() {
               let statusBg = '#E8F5E9';
               let statusTextColor = '#2E7D32';
               let statusText = 'Active';
+              let statusDotColor = '#10B981';
               
               if (vStatus.includes('main')) {
                 statusBg = '#FFF3E0';
                 statusTextColor = '#E65100';
                 statusText = 'In Maintenance';
+                statusDotColor = '#EA580C';
               } else if (vStatus.includes('inact')) {
                 statusBg = '#ECEFF1';
                 statusTextColor = '#455A64';
                 statusText = 'Inactive';
+                statusDotColor = '#64748B';
               }
 
               return (
                 <View key={veh.id} style={{
                   flexDirection: 'row',
                   alignItems: 'center',
-                  paddingVertical: 16,
+                  paddingVertical: 14,
                   borderBottomWidth: 1,
-                  borderColor: '#F1F5F9',
+                  borderColor: '#F8FAFC',
                 }}>
                   {/* Vehicle column (text only, no image) */}
                   <View style={{ flex: 1.8 }}>
                     <Text style={{ fontSize: 13, fontWeight: '700', color: '#1E293B', fontFamily: fontStyle }}>{modelName}</Text>
                   </View>
 
-                  {/* Plate Number (White pill badge with rounded border) */}
+                  {/* Plate Number (White pill badge with rounded border & custom letter spacing) */}
                   <View style={{ flex: 1.6, flexDirection: 'row', alignItems: 'center' }}>
                     <View style={{
                       backgroundColor: '#FFFFFF',
                       borderWidth: 1,
                       borderColor: '#CBD5E1',
                       borderRadius: 8,
-                      paddingVertical: 4,
+                      paddingVertical: 5,
                       paddingHorizontal: 12,
-                      alignSelf: 'flex-start'
+                      alignSelf: 'flex-start',
+                      shadowColor: '#0F172A',
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.02,
+                      shadowRadius: 4,
                     }}>
-                      <Text style={{ fontSize: 11, fontWeight: '700', color: '#1E293B', fontFamily: 'monospace' }}>{displayPlate.toUpperCase()}</Text>
+                      <Text style={{ fontSize: 11, fontWeight: '800', color: '#1E293B', fontFamily: 'monospace', letterSpacing: 0.5 }}>{displayPlate.toUpperCase()}</Text>
                     </View>
                   </View>
 
@@ -254,29 +291,32 @@ export default function VehiclesTab() {
 
                   {/* Model */}
                   <View style={{ flex: 1.8 }}>
-                    <Text style={{ fontSize: 13, color: '#334155', fontFamily: fontStyle }}>{modelName}</Text>
+                    <Text style={{ fontSize: 13, color: '#475569', fontFamily: fontStyle, fontWeight: '500' }}>{modelName}</Text>
                   </View>
 
                   {/* Registration No */}
                   <View style={{ flex: 1.8 }}>
-                    <Text style={{ fontSize: 13, color: '#64748B', fontFamily: fontStyle }}>{regNo}</Text>
+                    <Text style={{ fontSize: 13, color: '#64748B', fontFamily: 'monospace' }}>{regNo}</Text>
                   </View>
 
                   {/* Mileage with green speedometer icon */}
                   <View style={{ flex: 1.5, flexDirection: 'row', alignItems: 'center' }}>
                     <Ionicons name="speedometer-outline" size={14} color="#24D164" style={{ marginRight: 6 }} />
-                    <Text style={{ fontSize: 13, fontWeight: '600', color: '#475569', fontFamily: fontStyle }}>{mileageVal}</Text>
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#334155', fontFamily: fontStyle }}>{mileageVal}</Text>
                   </View>
 
-                  {/* Status Pill Badge */}
+                  {/* Status Pill Badge with colored indicator dot */}
                   <View style={{ flex: 1.3, flexDirection: 'row', alignItems: 'center' }}>
                     <View style={{
                       backgroundColor: statusBg,
                       paddingVertical: 4,
                       paddingHorizontal: 10,
                       borderRadius: 20,
+                      flexDirection: 'row',
+                      alignItems: 'center',
                     }}>
-                      <Text style={{ fontSize: 11, fontWeight: '700', color: statusTextColor, fontFamily: fontStyle }}>{statusText}</Text>
+                      <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: statusDotColor, marginRight: 6 }} />
+                      <Text style={{ fontSize: 10, fontWeight: '800', color: statusTextColor, fontFamily: fontStyle }}>{statusText}</Text>
                     </View>
                   </View>
 
@@ -288,6 +328,8 @@ export default function VehiclesTab() {
                         height: 32,
                         borderRadius: 16,
                         backgroundColor: '#EFF6FF',
+                        borderWidth: 1,
+                        borderColor: '#DBEAFE',
                         justifyContent: 'center',
                         alignItems: 'center',
                         marginRight: 8,
@@ -302,6 +344,8 @@ export default function VehiclesTab() {
                         height: 32,
                         borderRadius: 16,
                         backgroundColor: '#FEF2F2',
+                        borderWidth: 1,
+                        borderColor: '#FEE2E2',
                         justifyContent: 'center',
                         alignItems: 'center',
                       }}
