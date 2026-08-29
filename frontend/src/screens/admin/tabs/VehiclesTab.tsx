@@ -193,10 +193,10 @@ export default function VehiclesTab() {
           marginBottom: 16,
           alignItems: 'center'
         }]}>
-          <View style={{ flex: 1.8 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Vehicle</Text></View>
           <View style={{ flex: 1.6 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Plate Number</Text></View>
           <View style={{ flex: 1.2 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Type</Text></View>
           <View style={{ flex: 1.8 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Model</Text></View>
+          <View style={{ flex: 1.3 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Fuel Type</Text></View>
           <View style={{ flex: 1.8 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Registration No.</Text></View>
           <View style={{ flex: 1.5 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Mileage</Text></View>
           <View style={{ flex: 1.3 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Status</Text></View>
@@ -259,11 +259,6 @@ export default function VehiclesTab() {
                   borderBottomWidth: 1,
                   borderColor: '#F8FAFC',
                 }}>
-                  {/* Vehicle column (text only, no image) */}
-                  <View style={{ flex: 1.8 }}>
-                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#1E293B', fontFamily: fontStyle }}>{modelName}</Text>
-                  </View>
-
                   {/* Plate Number (White pill badge with rounded border & custom letter spacing) */}
                   <View style={{ flex: 1.6, flexDirection: 'row', alignItems: 'center' }}>
                     <View style={{
@@ -292,6 +287,11 @@ export default function VehiclesTab() {
                   {/* Model */}
                   <View style={{ flex: 1.8 }}>
                     <Text style={{ fontSize: 13, color: '#475569', fontFamily: fontStyle, fontWeight: '500' }}>{modelName}</Text>
+                  </View>
+
+                  {/* Fuel Type */}
+                  <View style={{ flex: 1.3 }}>
+                    <Text style={{ fontSize: 13, color: '#475569', fontFamily: fontStyle }}>{veh.fuelType || 'Diesel'}</Text>
                   </View>
 
                   {/* Registration No */}
