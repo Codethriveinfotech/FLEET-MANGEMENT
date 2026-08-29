@@ -277,9 +277,11 @@ export default function OverviewTab() {
                 const today2 = `${dd}/${mm}/${yyyy}`;
                 
                 const todaysTrips = trips.filter(t => t.startDate && (t.startDate === today1 || t.startDate === today2));
+                const tripsToShow = todaysTrips.length > 0 ? todaysTrips : trips;
+                const isShowingFallback = todaysTrips.length === 0;
                 
-                return todaysTrips.length > 0 ? (
-                  [...todaysTrips]
+                return tripsToShow.length > 0 ? (
+                  [...tripsToShow]
                     .sort((a, b) => {
                       const dateTimeA = `${a.startDate || ''}T${a.startTime || ''}`;
                       const dateTimeB = `${b.startDate || ''}T${b.startTime || ''}`;
@@ -322,7 +324,7 @@ export default function OverviewTab() {
                 ) : (
                   <View style={{ alignItems: 'center', paddingVertical: 40 }}>
                     <Ionicons name="map-outline" size={32} color="#CBD5E1" />
-                    <Text style={{ color: '#94A3B8', fontSize: 13, marginTop: 10 }}>No trips logged today</Text>
+                    <Text style={{ color: '#94A3B8', fontSize: 13, marginTop: 10 }}>No trips logged in the system</Text>
                   </View>
                 );
               })()}
