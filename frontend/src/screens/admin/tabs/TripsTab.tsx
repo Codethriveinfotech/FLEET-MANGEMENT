@@ -314,7 +314,6 @@ export default function TripsTab() {
           <Text style={[styles.tableHeaderCell, { flex: 1.6, textAlign: 'right', fontFamily: fontStyle }]}>ODOMETER PROGRESS</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>END HMR</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1.0, textAlign: 'center', fontFamily: fontStyle }]}>STATUS</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 0.9, textAlign: 'center', fontFamily: fontStyle }]}>BREAKDOWN</Text>
         </View>
 
         {/* Scrollable table rows */}
@@ -426,22 +425,6 @@ export default function TripsTab() {
                     }}>
                       <Text style={{ fontSize: 9, fontWeight: '800', color: statusText, fontFamily: fontStyle }}>
                         {isDone ? 'COMPLETED' : 'ACTIVE'}
-                      </Text>
-                    </View>
-                  </View>
-
-                  {/* Breakdown badge */}
-                  <View style={{ flex: 0.9, alignItems: 'center' }}>
-                    <View style={{
-                      backgroundColor: trip.isBreakdown ? '#FEF2F2' : '#F0FDF4',
-                      borderColor: trip.isBreakdown ? '#FECACA' : '#BBF7D0',
-                      borderWidth: 1,
-                      paddingVertical: 3,
-                      paddingHorizontal: 8,
-                      borderRadius: 6,
-                    }}>
-                      <Text style={{ fontSize: 9, fontWeight: '800', color: trip.isBreakdown ? '#DC2626' : '#16A34A', fontFamily: fontStyle }}>
-                        {trip.isBreakdown ? 'YES' : 'NO'}
                       </Text>
                     </View>
                   </View>
