@@ -259,13 +259,13 @@ export default function OverviewTab() {
           </View>
           <ScrollView horizontal={width < 768} showsHorizontalScrollIndicator={false}>
             <View style={[styles.table, width < 768 && { minWidth: 650 }]}>
-              <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 8 }]}>
-                <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>Trip ID</Text>
-                <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>Vehicle</Text>
-                <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>Driver</Text>
-                <Text style={[styles.tableHeaderCell, { flex: 2.2 }]}>Route</Text>
-                <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>Date</Text>
-                <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'center' }]}>Status</Text>
+              <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 8, alignItems: 'center' }]}>
+                <View style={{ flex: 1.5 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B' }}>Trip ID</Text></View>
+                <View style={{ flex: 1.8 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B' }}>Vehicle</Text></View>
+                <View style={{ flex: 1.2 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B' }}>Driver</Text></View>
+                <View style={{ flex: 2.2 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B' }}>Route</Text></View>
+                <View style={{ flex: 1.5 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B' }}>Date</Text></View>
+                <View style={{ flex: 1.2, alignItems: 'center' }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B' }}>Status</Text></View>
               </View>
 
               {(() => {
@@ -295,12 +295,22 @@ export default function OverviewTab() {
                       const statusColor = statusStr === 'Completed' ? '#24D164' : statusStr === 'In Progress' ? '#1D4ED8' : '#64748B';
 
                       return (
-                        <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10 }]}>
-                          <Text style={[styles.tableCell, { flex: 1.5, fontWeight: '700', color: '#1E293B' }]}>{t.id.substring(0, 8).toUpperCase()}</Text>
-                          <Text style={[styles.tableCell, { flex: 1.5, fontWeight: '700', color: '#1E293B' }]}>{vehicleNo}</Text>
-                          <Text style={[styles.tableCell, { flex: 1.5, color: '#475569' }]}>{driverName}</Text>
-                          <Text style={[styles.tableCell, { flex: 2.2, color: '#475569' }]} numberOfLines={1}>{routeStr}</Text>
-                          <Text style={[styles.tableCell, { flex: 1.5, color: '#64748B' }]}>{dateStr}</Text>
+                        <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10, alignItems: 'center' }]}>
+                          <View style={{ flex: 1.5 }}>
+                            <Text style={{ fontSize: 13, fontWeight: '700', color: '#1E293B' }}>{t.id.substring(0, 8).toUpperCase()}</Text>
+                          </View>
+                          <View style={{ flex: 1.8 }}>
+                            <Text style={{ fontSize: 13, fontWeight: '700', color: '#1E293B' }}>{vehicleNo}</Text>
+                          </View>
+                          <View style={{ flex: 1.2 }}>
+                            <Text style={{ fontSize: 13, color: '#475569' }}>{driverName}</Text>
+                          </View>
+                          <View style={{ flex: 2.2 }}>
+                            <Text style={{ fontSize: 13, color: '#475569' }} numberOfLines={1}>{routeStr}</Text>
+                          </View>
+                          <View style={{ flex: 1.5 }}>
+                            <Text style={{ fontSize: 13, color: '#64748B' }}>{dateStr}</Text>
+                          </View>
                           <View style={{ flex: 1.2, alignItems: 'center' }}>
                             <View style={{ backgroundColor: statusColor + '15', paddingVertical: 4, paddingHorizontal: 10, borderRadius: 20 }}>
                               <Text style={{ fontSize: 10, fontWeight: '800', color: statusColor }}>{statusStr}</Text>
