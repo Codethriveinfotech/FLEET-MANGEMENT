@@ -174,9 +174,9 @@ fun MaintenanceTab(driverId: String) {
             Spacer(modifier = Modifier.height(20.dp))
         }
 
-        // Breakdown Recovery Card — always visible when vehicle is in Breakdown status
+        // Breakdown Recovery Card — only visible to the driver assigned to this vehicle
         vehicle?.let { v ->
-            if (v.status.equals("Breakdown", ignoreCase = true)) {
+            if (v.status.equals("Breakdown", ignoreCase = true) && v.assignedDriverId == driverId) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
@@ -217,6 +217,7 @@ fun MaintenanceTab(driverId: String) {
         }
 
         // Auto-Asset / Selection Card
+
         StaggeredItem(visible, 0) {
             UltraGlassCard(glowColor = BrandYellow) {
                 Text("SERVICE ASSET IDENTIFICATION", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = TextHint, letterSpacing = 1.sp)
