@@ -77,6 +77,8 @@ fun TripDetailsTab(driverId: String) {
     var vehicleMenuExpanded by remember { mutableStateOf(false) }
     var dayMenuExpanded by remember { mutableStateOf(false) }
     var shiftMenuExpanded by remember { mutableStateOf(false) }
+    var isOcrReadingStart by remember { mutableStateOf(false) }
+    var isOcrReadingEnd by remember { mutableStateOf(false) }
     
     var tripStatus by remember { mutableStateOf("draft") }
     var isLocked = tripStatus == "submitted"
@@ -106,6 +108,8 @@ fun TripDetailsTab(driverId: String) {
         submitted = false
         error = null
         isOdoFetched = false
+        isOcrReadingStart = false
+        isOcrReadingEnd = false
         
         // Refresh Day/Shift
         val now = Date()
@@ -368,12 +372,12 @@ fun TripDetailsTab(driverId: String) {
                     
                     Spacer(modifier = Modifier.height(16.dp))
                     EliteTextField(
-                        value = startOdo, 
-                        onValueChange = { startOdo = it; persistDraft() }, 
+                        value = if (isOcrReadingStart) "Reading from image..." else startOdo, 
+                        onValueChange = { if (!isOcrReadingStart) { startOdo = it; persistDraft() } }, 
                         label = stringResource(R.string.odometer_reading), 
-                        leadingIcon = Icons.Default.Speed, 
+                        leadingIcon = if (isOcrReadingStart) Icons.Default.HourglassTop else Icons.Default.Speed, 
                         keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, 
-                        enabled = !isLocked
+                        enabled = !isLocked && !isOcrReadingStart
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     EliteTextField(
@@ -399,7 +403,9 @@ fun TripDetailsTab(driverId: String) {
                             startOdoUri = uri
                             persistDraft()
                             if (uri != null) {
+                                isOcrReadingStart = true
                                 com.vehicletrackingapp.util.OcrUtils.extractOdometerValue(context, uri) { extracted ->
+                                    isOcrReadingStart = false
                                     if (extracted.isNotBlank()) {
                                         startOdo = extracted
                                         persistDraft()
@@ -473,7 +479,7 @@ fun TripDetailsTab(driverId: String) {
                     
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(modifier = Modifier.fillMaxWidth()) {
-                        EliteTextField(value = endOdo, onValueChange = { endOdo = it; persistDraft() }, label = stringResource(R.string.end_km), leadingIcon = Icons.Default.Speed, keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, enabled = !isLocked, modifier = Modifier.weight(1f))
+                        EliteTextField(value = if (isOcrReadingEnd) "Reading from image..." else endOdo, onValueChange = { if (!isOcrReadingEnd) { endOdo = it; persistDraft() } }, label = stringResource(R.string.end_km), leadingIcon = if (isOcrReadingEnd) Icons.Default.HourglassTop else Icons.Default.Speed, keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, enabled = !isLocked && !isOcrReadingEnd, modifier = Modifier.weight(1f))
                         Spacer(modifier = Modifier.width(12.dp))
                         EliteTextField(
                             value = endHmr,
@@ -574,7 +580,9 @@ fun TripDetailsTab(driverId: String) {
                                 endOdoUri = uri
                                 persistDraft()
                                 if (uri != null) {
+                                    isOcrReadingEnd = true
                                     com.vehicletrackingapp.util.OcrUtils.extractOdometerValue(context, uri) { extracted ->
+                                        isOcrReadingEnd = false
                                         if (extracted.isNotBlank()) {
                                             endOdo = extracted
                                             persistDraft()
