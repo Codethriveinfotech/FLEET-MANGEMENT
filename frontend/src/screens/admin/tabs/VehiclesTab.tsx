@@ -136,8 +136,8 @@ export default function VehiclesTab() {
               <Ionicons name="car" size={24} color="#1D4ED8" />
             </View>
             <View>
-              <Text style={{ fontSize: 18, fontWeight: '800', color: '#0F172A', fontFamily: fontStyle, marginBottom: 2 }}>Vehicle List</Text>
-              <Text style={{ fontSize: 12, color: '#64748B', fontFamily: fontStyle }}>Manage and track your vehicles</Text>
+              <Text style={{ fontSize: 20, fontWeight: '800', color: '#0F172A', fontFamily: fontStyle, marginBottom: 2 }}>Vehicle List</Text>
+              <Text style={{ fontSize: 14, color: '#64748B', fontFamily: fontStyle }}>Manage and track your vehicles</Text>
             </View>
           </View>
           <TouchableOpacity
@@ -156,7 +156,7 @@ export default function VehiclesTab() {
             onPress={() => openVehicleModal()}
           >
             <Ionicons name="add" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
-            <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF', fontFamily: fontStyle }}>Add Vehicle</Text>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: '#FFFFFF', fontFamily: fontStyle }}>Add Vehicle</Text>
           </TouchableOpacity>
         </View>
 
@@ -174,7 +174,7 @@ export default function VehiclesTab() {
         }}>
           <Ionicons name="search-outline" size={18} color="#94A3B8" style={{ marginRight: 10 }} />
           <TextInput
-            style={{ flex: 1, fontSize: 13, color: '#0F172A', outlineStyle: 'none', fontFamily: fontStyle } as any}
+            style={{ flex: 1, fontSize: 14, color: '#0F172A', outlineStyle: 'none', fontFamily: fontStyle } as any}
             placeholder="Search fleet by license plate, vehicle model or brand..."
             placeholderTextColor="#94A3B8"
             value={vehicleSearch}
@@ -193,14 +193,14 @@ export default function VehiclesTab() {
           marginBottom: 16,
           alignItems: 'center'
         }]}>
-          <View style={{ flex: 1.5 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Plate Number</Text></View>
-          <View style={{ flex: 2.2 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Type</Text></View>
-          <View style={{ flex: 1.8 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Model</Text></View>
-          <View style={{ flex: 1.2 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Fuel Type</Text></View>
-          <View style={{ flex: 1.8 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Registration No.</Text></View>
-          <View style={{ flex: 1.5 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Mileage</Text></View>
-          <View style={{ flex: 1.3 }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Status</Text></View>
-          <View style={{ flex: 1.2, alignItems: 'center' }}><Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Actions</Text></View>
+          <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Plate Number</Text></View>
+          <View style={{ flex: 2.2 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Type</Text></View>
+          <View style={{ flex: 1.8 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Model</Text></View>
+          <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Fuel Type</Text></View>
+          <View style={{ flex: 1.8 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Registration No.</Text></View>
+          <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Mileage</Text></View>
+          <View style={{ flex: 1.3 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Status</Text></View>
+          <View style={{ flex: 1.2, alignItems: 'center' }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Actions</Text></View>
         </View>
 
         {/* Scrollable table rows */}
