@@ -165,7 +165,7 @@ export default function VehiclesTab() {
           />
         </View>
 
-        {/* Custom Spaced Modern Table Headers (Fixed to Match Screenshot) */}
+        {/* Custom Spaced Modern Table Headers (Fixed to Match Second Mockup) */}
         <View style={[styles.tableHeaderRow, {
           backgroundColor: '#F1F5F9',
           borderBottomWidth: 0,
@@ -175,30 +175,14 @@ export default function VehiclesTab() {
           marginBottom: 16,
           alignItems: 'center'
         }]}>
-          <View style={{ flex: 2, flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="card" size={14} color="#0052CC" style={{ marginRight: 6 }} />
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Plate Number</Text>
-          </View>
-          <View style={{ flex: 2, flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="car" size={14} color="#0052CC" style={{ marginRight: 6 }} />
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Model</Text>
-          </View>
-          <View style={{ flex: 1.2, flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="pricetag" size={14} color="#0052CC" style={{ marginRight: 6 }} />
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Type</Text>
-          </View>
-          <View style={{ flex: 2, flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="document-text" size={14} color="#0052CC" style={{ marginRight: 6 }} />
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Registration No</Text>
-          </View>
-          <View style={{ flex: 1.6, flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="speedometer" size={14} color="#0052CC" style={{ marginRight: 6 }} />
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Mileage</Text>
-          </View>
-          <View style={{ flex: 1.2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons name="settings" size={14} color="#0052CC" style={{ marginRight: 6 }} />
-            <Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Actions</Text>
-          </View>
+          <View style={{ flex: 1.8 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Vehicle</Text></View>
+          <View style={{ flex: 1.6 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Plate Number</Text></View>
+          <View style={{ flex: 1.2 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Type</Text></View>
+          <View style={{ flex: 1.8 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Model</Text></View>
+          <View style={{ flex: 1.8 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Registration No.</Text></View>
+          <View style={{ flex: 1.5 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Mileage</Text></View>
+          <View style={{ flex: 1.3 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Status</Text></View>
+          <View style={{ flex: 1.2, alignItems: 'center' }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Actions</Text></View>
         </View>
 
         {/* Scrollable table rows */}
@@ -206,10 +190,45 @@ export default function VehiclesTab() {
           <View style={{ paddingHorizontal: 4 }}>
             {filteredVehicles.map((veh) => {
               const displayPlate = veh.number || 'UNKNOWN';
-              const isTruck = !veh.type || veh.type.toLowerCase().includes('truck');
-              const tagBg = isTruck ? '#EFF6FF' : '#FFF7ED';
-              const tagBorder = isTruck ? '#DBEAFE' : '#FFEDD5';
-              const tagText = isTruck ? '#1D4ED8' : '#EA580C';
+              const modelName = veh.model || '—';
+              const regNo = veh.registrationNumber || '—';
+              const mileageVal = veh.mileage ? `${Number(veh.mileage).toLocaleString()} km` : '0 km';
+              
+              // Resolve Type Icon & Color
+              const vType = (veh.type || 'Truck').toLowerCase();
+              let typeIcon: any = 'bus-outline';
+              let typeColor = '#2563EB';
+              let typeLabel = 'Truck';
+              
+              if (vType.includes('bus')) {
+                typeIcon = 'bus';
+                typeColor = '#7C3AED';
+                typeLabel = 'Bus';
+              } else if (vType.includes('car')) {
+                typeIcon = 'car-sport';
+                typeColor = '#EA580C';
+                typeLabel = 'Car';
+              } else if (vType.includes('van')) {
+                typeIcon = 'car';
+                typeColor = '#4F46E5';
+                typeLabel = 'Van';
+              }
+              
+              // Resolve Status Badge styling
+              const vStatus = (veh.status || 'Active').toLowerCase();
+              let statusBg = '#E8F5E9';
+              let statusTextColor = '#2E7D32';
+              let statusText = 'Active';
+              
+              if (vStatus.includes('main')) {
+                statusBg = '#FFF3E0';
+                statusTextColor = '#E65100';
+                statusText = 'In Maintenance';
+              } else if (vStatus.includes('inact')) {
+                statusBg = '#ECEFF1';
+                statusTextColor = '#455A64';
+                statusText = 'Inactive';
+              }
 
               return (
                 <View key={veh.id} style={{
@@ -219,74 +238,61 @@ export default function VehiclesTab() {
                   borderBottomWidth: 1,
                   borderColor: '#F1F5F9',
                 }}>
-                  {/* Plate Badge design with IND flag */}
-                  <View style={{ flex: 2, flexDirection: 'row', alignItems: 'center' }}>
+                  {/* Vehicle column (text only, no image) */}
+                  <View style={{ flex: 1.8 }}>
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#1E293B', fontFamily: fontStyle }}>{modelName}</Text>
+                  </View>
+
+                  {/* Plate Number (White pill badge with rounded border) */}
+                  <View style={{ flex: 1.6, flexDirection: 'row', alignItems: 'center' }}>
                     <View style={{
-                      flexDirection: 'row',
                       backgroundColor: '#FFFFFF',
                       borderWidth: 1,
-                      borderColor: '#E2E8F0',
-                      borderRadius: 6,
-                      overflow: 'hidden',
-                      height: 38,
-                      alignItems: 'center',
-                      minWidth: 130
-                    }}>
-                      <View style={{
-                        width: 18,
-                        height: '100%',
-                        backgroundColor: '#0052CC',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        paddingVertical: 2
-                      }}>
-                        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: '#FFD700', marginBottom: 2 }} />
-                        <Text style={{ fontSize: 5, fontWeight: '900', color: '#FFFFFF' }}>IND</Text>
-                      </View>
-                      <View style={{ flex: 1, paddingHorizontal: 8, justifyContent: 'center' }}>
-                        <Text style={{ fontSize: 12, fontWeight: '700', color: '#1E293B', letterSpacing: 0.5, fontFamily: 'monospace' }}>{displayPlate}</Text>
-                      </View>
-                    </View>
-                  </View>
-
-                  {/* Model column with vehicle thumbnail image */}
-                  <View style={{ flex: 2, flexDirection: 'row', alignItems: 'center' }}>
-                    <Image
-                      source={{ uri: isTruck ? "https://cdn-icons-png.flaticon.com/128/744/744465.png" : "https://cdn-icons-png.flaticon.com/128/741/741407.png" }}
-                      style={{ width: 34, height: 34, marginRight: 12, resizeMode: 'contain' }}
-                    />
-                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#334155', fontFamily: fontStyle }}>{veh.model}</Text>
-                  </View>
-
-                  {/* Pill Badge */}
-                  <View style={{ flex: 1.2 }}>
-                    <View style={{
-                      alignSelf: 'flex-start',
-                      backgroundColor: tagBg,
-                      borderColor: tagBorder,
-                      borderWidth: 1,
+                      borderColor: '#CBD5E1',
+                      borderRadius: 8,
                       paddingVertical: 4,
-                      paddingHorizontal: 10,
-                      borderRadius: 6,
+                      paddingHorizontal: 12,
+                      alignSelf: 'flex-start'
                     }}>
-                      <Text style={{ fontSize: 9, fontWeight: '800', color: tagText, fontFamily: fontStyle }}>{(veh.type || 'Truck').toUpperCase()}</Text>
+                      <Text style={{ fontSize: 11, fontWeight: '700', color: '#1E293B', fontFamily: 'monospace' }}>{displayPlate.toUpperCase()}</Text>
                     </View>
+                  </View>
+
+                  {/* Type (Colored icon next to type text) */}
+                  <View style={{ flex: 1.2, flexDirection: 'row', alignItems: 'center' }}>
+                    <Ionicons name={typeIcon} size={15} color={typeColor} style={{ marginRight: 6 }} />
+                    <Text style={{ fontSize: 13, color: typeColor, fontWeight: '600', fontFamily: fontStyle }}>{typeLabel}</Text>
+                  </View>
+
+                  {/* Model */}
+                  <View style={{ flex: 1.8 }}>
+                    <Text style={{ fontSize: 13, color: '#334155', fontFamily: fontStyle }}>{modelName}</Text>
                   </View>
 
                   {/* Registration No */}
-                  <View style={{ flex: 2 }}>
-                    <Text style={{ fontSize: 13, color: '#64748B', fontFamily: fontStyle }}>{veh.registrationNumber}</Text>
+                  <View style={{ flex: 1.8 }}>
+                    <Text style={{ fontSize: 13, color: '#64748B', fontFamily: fontStyle }}>{regNo}</Text>
                   </View>
 
                   {/* Mileage with green speedometer icon */}
-                  <View style={{ flex: 1.6, flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ flex: 1.5, flexDirection: 'row', alignItems: 'center' }}>
                     <Ionicons name="speedometer-outline" size={14} color="#24D164" style={{ marginRight: 6 }} />
-                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#334155', fontFamily: fontStyle }}>
-                      {veh.mileage ? `${Number(veh.mileage).toLocaleString()}` : '0'} km
-                    </Text>
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: '#475569', fontFamily: fontStyle }}>{mileageVal}</Text>
                   </View>
 
-                  {/* Circular Icon Actions */}
+                  {/* Status Pill Badge */}
+                  <View style={{ flex: 1.3, flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{
+                      backgroundColor: statusBg,
+                      paddingVertical: 4,
+                      paddingHorizontal: 10,
+                      borderRadius: 20,
+                    }}>
+                      <Text style={{ fontSize: 11, fontWeight: '700', color: statusTextColor, fontFamily: fontStyle }}>{statusText}</Text>
+                    </View>
+                  </View>
+
+                  {/* Actions */}
                   <View style={{ flex: 1.2, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                     <TouchableOpacity
                       style={{
