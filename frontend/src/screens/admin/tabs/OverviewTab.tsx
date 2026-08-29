@@ -17,10 +17,10 @@ export default function OverviewTab() {
   // Dynamic calculations for vehicle stats
   const totalVehiclesCount = vehicles.length;
   const runningVehiclesCount = vehicles.filter((v) => (v.status || '').toLowerCase() === 'running').length;
-  const idleVehiclesCount = vehicles.filter((v) => (v.status || '').toLowerCase() === 'active').length;
   const breakdownVehiclesCount = vehicles.filter((v) => (v.status || '').toLowerCase().includes('break') || (v.status || '').toLowerCase().includes('maint')).length;
+  const idleVehiclesCount = totalVehiclesCount - runningVehiclesCount - breakdownVehiclesCount;
   
-  const chartTotalCount = runningVehiclesCount + idleVehiclesCount + breakdownVehiclesCount;
+  const chartTotalCount = totalVehiclesCount;
 
   const runningPct = chartTotalCount > 0 ? ((runningVehiclesCount / chartTotalCount) * 100).toFixed(1) : '0';
   const idlePct = chartTotalCount > 0 ? ((idleVehiclesCount / chartTotalCount) * 100).toFixed(1) : '0';
