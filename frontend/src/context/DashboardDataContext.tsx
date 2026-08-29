@@ -36,19 +36,12 @@ export function DashboardDataProvider({ children }: { children: React.ReactNode 
     if (!quiet) setLoading(true);
     try {
       const ts = Date.now();
-      const config = {
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
-      };
       const [drRes, vRes, tRes, mRes, fRes] = await Promise.all([
-        apiClient.get(`/users?_t=${ts}`, config),
-        apiClient.get(`/vehicles?_t=${ts}`, config),
-        apiClient.get(`/trips?_t=${ts}`, config),
-        apiClient.get(`/maintenance?_t=${ts}`, config),
-        apiClient.get(`/fuel?_t=${ts}`, config),
+        apiClient.get(`/users?_t=${ts}`),
+        apiClient.get(`/vehicles?_t=${ts}`),
+        apiClient.get(`/trips?_t=${ts}`),
+        apiClient.get(`/maintenance?_t=${ts}`),
+        apiClient.get(`/fuel?_t=${ts}`),
       ]);
 
       if (drRes.data.success) {

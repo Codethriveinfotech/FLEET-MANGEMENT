@@ -12,6 +12,7 @@ fun Application.configureCORS() {
         allowMethod(HttpMethod.Patch)
         allowHeader(HttpHeaders.Authorization)
         allowHeader(HttpHeaders.ContentType)
+        allowHeadersPrefixed("")
         anyHost() // In production, replace with specific origins
     }
 }
