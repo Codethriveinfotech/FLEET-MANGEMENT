@@ -5,6 +5,8 @@ import { styles } from '../AdminStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
+import ThreeDVehicle from '../../../components/ThreeDVehicle';
+
 export default function OverviewTab() {
   const { drivers, vehicles, trips } = useDashboardData();
   const navigation = useNavigation<any>();
@@ -93,10 +95,10 @@ export default function OverviewTab() {
         </View>
       </View>
 
-      {/* Middle Row: Fleet Overview (Donut) & Recent Trips (Table) */}
+      {/* Middle Row: Fleet Overview, 3D Showcase & Recent Trips */}
       <View style={[styles.trackingChartRow, isCompact && { flexDirection: 'column' }]}>
         {/* Fleet Overview Donut Chart */}
-        <View style={[styles.donutCard, { flex: 1 }, isCompact ? { marginRight: 0, marginBottom: 24 } : { marginRight: 24 }]}>
+        <View style={[styles.donutCard, { flex: 1.1 }, isCompact ? { marginRight: 0, marginBottom: 24 } : { marginRight: 16 }]}>
           <Text style={styles.cardTitle}>Fleet Overview</Text>
           <View style={styles.chartContentWrapper}>
             {/* Dynamic Interactive SVG Donut Chart */}
@@ -171,6 +173,12 @@ export default function OverviewTab() {
               </View>
             </View>
           </View>
+        </View>
+
+        {/* 3D Telemetry Twin Showcase Card */}
+        <View style={[styles.donutCard, { flex: 1.1 }, isCompact ? { marginRight: 0, marginBottom: 24 } : { marginRight: 16 }]}>
+          <Text style={styles.cardTitle}>3D Telemetry Showcase</Text>
+          <ThreeDVehicle />
         </View>
 
         {/* Recent Trips Table */}
