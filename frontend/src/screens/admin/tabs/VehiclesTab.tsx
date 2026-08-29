@@ -369,16 +369,62 @@ export default function VehiclesTab() {
             <ScrollView style={{ maxHeight: 400 }}>
               <Text style={styles.inputLabel}>PLATE NUMBER</Text>
               <TextInput style={styles.modalInput} value={vehicleForm.number} onChangeText={(val) => setVehicleForm({ ...vehicleForm, number: val })} />
+              
               <Text style={styles.inputLabel}>MODEL</Text>
               <TextInput style={styles.modalInput} value={vehicleForm.model} onChangeText={(val) => setVehicleForm({ ...vehicleForm, model: val })} />
+              
               <Text style={styles.inputLabel}>VEHICLE TYPE</Text>
-              <TextInput style={styles.modalInput} value={vehicleForm.type} onChangeText={(val) => setVehicleForm({ ...vehicleForm, type: val })} />
+              <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+                {['Truck', 'Bus', 'Car', 'Van'].map((t) => {
+                  const isSel = vehicleForm.type === t;
+                  return (
+                    <TouchableOpacity
+                      key={t}
+                      onPress={() => setVehicleForm({ ...vehicleForm, type: t })}
+                      style={{
+                        paddingVertical: 8,
+                        paddingHorizontal: 16,
+                        borderRadius: 8,
+                        borderWidth: 1,
+                        borderColor: isSel ? '#1D4ED8' : '#E2E8F0',
+                        backgroundColor: isSel ? '#EFF6FF' : '#FFFFFF',
+                      }}
+                    >
+                      <Text style={{ fontSize: 12, fontWeight: '700', color: isSel ? '#1D4ED8' : '#475569' }}>{t}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
               <Text style={styles.inputLabel}>REGISTRATION NUMBER</Text>
               <TextInput style={styles.modalInput} value={vehicleForm.registrationNumber} onChangeText={(val) => setVehicleForm({ ...vehicleForm, registrationNumber: val })} />
+              
               <Text style={styles.inputLabel}>FUEL TYPE</Text>
-              <TextInput style={styles.modalInput} value={vehicleForm.fuelType} onChangeText={(val) => setVehicleForm({ ...vehicleForm, fuelType: val })} />
+              <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+                {['Diesel', 'Petrol', 'CNG', 'Electric'].map((f) => {
+                  const isSel = vehicleForm.fuelType === f;
+                  return (
+                    <TouchableOpacity
+                      key={f}
+                      onPress={() => setVehicleForm({ ...vehicleForm, fuelType: f })}
+                      style={{
+                        paddingVertical: 8,
+                        paddingHorizontal: 16,
+                        borderRadius: 8,
+                        borderWidth: 1,
+                        borderColor: isSel ? '#1D4ED8' : '#E2E8F0',
+                        backgroundColor: isSel ? '#EFF6FF' : '#FFFFFF',
+                      }}
+                    >
+                      <Text style={{ fontSize: 12, fontWeight: '700', color: isSel ? '#1D4ED8' : '#475569' }}>{f}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
               <Text style={styles.inputLabel}>MILEAGE (KM)</Text>
               <TextInput style={styles.modalInput} value={vehicleForm.mileage} onChangeText={(val) => setVehicleForm({ ...vehicleForm, mileage: val })} keyboardType="numeric" />
+              
               <Text style={styles.inputLabel}>INSURANCE STATUS</Text>
               <TextInput style={styles.modalInput} value={vehicleForm.insuranceStatus} onChangeText={(val) => setVehicleForm({ ...vehicleForm, insuranceStatus: val })} />
             </ScrollView>
