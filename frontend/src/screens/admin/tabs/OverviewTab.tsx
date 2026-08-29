@@ -105,107 +105,91 @@ export default function OverviewTab() {
           </View>
           
           <View style={[styles.chartContentWrapper, { height: 'auto', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
-            {/* Dynamic Refined 3D SVG Cylinder Donut Chart */}
-            <View style={{ width: 130, height: 130, justifyContent: 'center', alignItems: 'center', marginRight: 20 }}>
-              <svg width="130" height="130" viewBox="0 0 120 120" style={{ transform: 'perspective(300px) rotateX(45deg) rotateZ(-90deg)', overflow: 'visible' }}>
-                {/* --- 3D DEPTH LAYER (Lower/Offset) --- */}
-                <g transform="translate(0, 6)">
-                  <circle cx="60" cy="60" r="45" fill="transparent" stroke="#E2E8F0" strokeWidth="12" />
-                  
-                  {/* Breakdown depth (Dark Red) */}
-                  {breakdownVehiclesCount > 0 && (
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="45"
-                      fill="transparent"
-                      stroke="#991B1B"
-                      strokeWidth="12"
-                      strokeDasharray={`${(breakdownVehiclesCount / (chartTotalCount || 1)) * 282.7} 282.7`}
-                      strokeDashoffset={0}
-                    />
-                  )}
+            {/* Glossy Gradient Donut Chart with glowing shadow effects */}
+            <View style={{ width: 120, height: 120, justifyContent: 'center', alignItems: 'center', marginRight: 20 }}>
+              <svg width="120" height="120" viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)', overflow: 'visible' }}>
+                <defs>
+                  {/* Glowing shadows */}
+                  <filter id="active-glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#10B981" flood-opacity="0.3" />
+                  </filter>
+                  <filter id="running-glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#2563EB" flood-opacity="0.3" />
+                  </filter>
+                  <filter id="breakdown-glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#EF4444" flood-opacity="0.3" />
+                  </filter>
 
-                  {/* Running depth (Dark Blue) */}
-                  {runningVehiclesCount > 0 && (
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="45"
-                      fill="transparent"
-                      stroke="#1E40AF"
-                      strokeWidth="12"
-                      strokeDasharray={`${(runningVehiclesCount / (chartTotalCount || 1)) * 282.7} 282.7`}
-                      strokeDashoffset={-((breakdownVehiclesCount / (chartTotalCount || 1)) * 282.7)}
-                    />
-                  )}
+                  {/* 3D Glossy Gradients */}
+                  <linearGradient id="active-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#34D399" />
+                    <stop offset="100%" stop-color="#059669" />
+                  </linearGradient>
+                  <linearGradient id="running-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#60A5FA" />
+                    <stop offset="100%" stop-color="#1D4ED8" />
+                  </linearGradient>
+                  <linearGradient id="breakdown-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#F87171" />
+                    <stop offset="100%" stop-color="#B91C1C" />
+                  </linearGradient>
+                </defs>
 
-                  {/* Active depth (Dark Green) */}
-                  {idleVehiclesCount > 0 && (
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="45"
-                      fill="transparent"
-                      stroke="#065F46"
-                      strokeWidth="12"
-                      strokeDasharray={`${(idleVehiclesCount / (chartTotalCount || 1)) * 282.7} 282.7`}
-                      strokeDashoffset={-(((breakdownVehiclesCount + runningVehiclesCount) / (chartTotalCount || 1)) * 282.7)}
-                    />
-                  )}
-                </g>
+                {/* Background Track Circle */}
+                <circle cx="60" cy="60" r="46" fill="transparent" stroke="#F8FAFC" strokeWidth="10" />
+                <circle cx="60" cy="60" r="46" fill="transparent" stroke="#E2E8F0" strokeWidth="1" opacity="0.5" />
+                
+                {/* Breakdown segment (Red) */}
+                {breakdownVehiclesCount > 0 && (
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="46"
+                    fill="transparent"
+                    stroke="url(#breakdown-grad)"
+                    strokeWidth="10"
+                    strokeDasharray={`${(breakdownVehiclesCount / (chartTotalCount || 1)) * 289.0} 289.0`}
+                    strokeDashoffset={0}
+                    filter="url(#breakdown-glow)"
+                    strokeLinecap="round"
+                  />
+                )}
 
-                {/* --- SURFACE LAYER (Upper/Front) --- */}
-                <g transform="translate(0, 0)">
-                  <circle cx="60" cy="60" r="45" fill="transparent" stroke="#F1F5F9" strokeWidth="12" />
-                  
-                  {/* Breakdown segment (Red) */}
-                  {breakdownVehiclesCount > 0 && (
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="45"
-                      fill="transparent"
-                      stroke="#EF4444"
-                      strokeWidth="12"
-                      strokeDasharray={`${(breakdownVehiclesCount / (chartTotalCount || 1)) * 282.7} 282.7`}
-                      strokeDashoffset={0}
-                    />
-                  )}
+                {/* Running segment (Blue) */}
+                {runningVehiclesCount > 0 && (
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="46"
+                    fill="transparent"
+                    stroke="url(#running-grad)"
+                    strokeWidth="10"
+                    strokeDasharray={`${(runningVehiclesCount / (chartTotalCount || 1)) * 289.0} 289.0`}
+                    strokeDashoffset={-((breakdownVehiclesCount / (chartTotalCount || 1)) * 289.0)}
+                    filter="url(#running-glow)"
+                    strokeLinecap="round"
+                  />
+                )}
 
-                  {/* Running segment (Blue) */}
-                  {runningVehiclesCount > 0 && (
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="45"
-                      fill="transparent"
-                      stroke="#2563EB"
-                      strokeWidth="12"
-                      strokeDasharray={`${(runningVehiclesCount / (chartTotalCount || 1)) * 282.7} 282.7`}
-                      strokeDashoffset={-((breakdownVehiclesCount / (chartTotalCount || 1)) * 282.7)}
-                    />
-                  )}
-
-                  {/* Active segment (Green) */}
-                  {idleVehiclesCount > 0 && (
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="45"
-                      fill="transparent"
-                      stroke="#10B981"
-                      strokeWidth="12"
-                      strokeDasharray={`${(idleVehiclesCount / (chartTotalCount || 1)) * 282.7} 282.7`}
-                      strokeDashoffset={-(((breakdownVehiclesCount + runningVehiclesCount) / (chartTotalCount || 1)) * 282.7)}
-                    />
-                  )}
-                </g>
+                {/* Active segment (Green) */}
+                {idleVehiclesCount > 0 && (
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="46"
+                    fill="transparent"
+                    stroke="url(#active-grad)"
+                    strokeWidth="10"
+                    strokeDasharray={`${(idleVehiclesCount / (chartTotalCount || 1)) * 289.0} 289.0`}
+                    strokeDashoffset={-(((breakdownVehiclesCount + runningVehiclesCount) / (chartTotalCount || 1)) * 289.0)}
+                    filter="url(#active-glow)"
+                    strokeLinecap="round"
+                  />
+                )}
               </svg>
-              {/* Keep metrics text flat/unrotated on top */}
-              <View style={{ position: 'absolute', justifyContent: 'center', alignItems: 'center', top: 38 }}>
+              <View style={{ position: 'absolute', justifyContent: 'center', alignItems: 'center' }}>
                 <Text style={{ fontSize: 24, fontWeight: '800', color: '#0F172A', lineHeight: 28 }}>{chartTotalCount}</Text>
-                <Text style={{ fontSize: 8, fontWeight: '700', color: '#64748B', textTransform: 'uppercase', letterSpacing: 0.5 }}>Active Fleet</Text>
+                <Text style={{ fontSize: 8, fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 0.5 }}>Active Fleet</Text>
               </View>
             </View>
             
