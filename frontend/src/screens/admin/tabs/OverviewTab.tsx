@@ -338,7 +338,7 @@ export default function OverviewTab() {
         {/* Recent Fuel Logs Card */}
         <View style={[styles.sectionCard, { flex: 1, padding: 20 }, isCompact ? { marginRight: 0, marginBottom: 24 } : { marginRight: 24 }]}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <Text style={styles.cardTitle}>Recent Fuel Refuels</Text>
+            <Text style={styles.cardTitle}>Today's Fuel Refuels</Text>
             <TouchableOpacity onPress={() => navigation.navigate('fuel')}>
               <Text style={{ fontSize: 11, color: '#1D4ED8', fontWeight: '700' }}>View All</Text>
             </TouchableOpacity>
@@ -350,33 +350,45 @@ export default function OverviewTab() {
               <View style={{ flex: 1.2 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B' }}>Cost</Text></View>
               <View style={{ flex: 1.5 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B' }}>Date</Text></View>
             </View>
-            {fuelLogs && fuelLogs.length > 0 ? (
-              [...fuelLogs]
-                .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
-                .slice(0, 3)
-                .map((f, idx) => {
-                  const vehicleNo = vehicles.find((v) => v.id === f.vehicleId)?.number || '—';
-                  return (
-                    <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10, alignItems: 'center' }]}>
-                      <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '700', color: '#1E293B' }}>{vehicleNo}</Text></View>
-                      <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, color: '#475569' }}>{f.liters} L</Text></View>
-                      <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, color: '#10B981', fontWeight: '700' }}>₹{f.cost}</Text></View>
-                      <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, color: '#64748B' }}>{f.date}</Text></View>
-                    </View>
-                  );
-                })
-            ) : (
-              <View style={{ alignItems: 'center', paddingVertical: 20 }}>
-                <Text style={{ color: '#94A3B8', fontSize: 12 }}>No recent fuel logs</Text>
-              </View>
-            )}
+            {(() => {
+              const today = new Date();
+              const yyyy = today.getFullYear();
+              const mm = String(today.getMonth() + 1).padStart(2, '0');
+              const dd = String(today.getDate()).padStart(2, '0');
+              const t1 = `${yyyy}-${mm}-${dd}`;
+              const t2 = `${dd}/${mm}/${yyyy}`;
+              
+              const todaysFuel = (fuelLogs || []).filter(f => f.date && (f.date === t1 || f.date === t2));
+              
+              return todaysFuel.length > 0 ? (
+                [...todaysFuel]
+                  .sort((a, b) => (b.time || '').localeCompare(a.time || ''))
+                  .slice(0, 5)
+                  .map((f, idx) => {
+                    const vehicleNo = vehicles.find((v) => v.id === f.vehicleId)?.number || '—';
+                    return (
+                      <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10, alignItems: 'center' }]}>
+                        <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '700', color: '#1E293B' }}>{vehicleNo}</Text></View>
+                        <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, color: '#475569' }}>{f.liters} L</Text></View>
+                        <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, color: '#10B981', fontWeight: '700' }}>₹{f.cost}</Text></View>
+                        <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, color: '#64748B' }}>{f.date}</Text></View>
+                      </View>
+                    );
+                  })
+              ) : (
+                <View style={{ alignItems: 'center', paddingVertical: 30 }}>
+                  <Ionicons name="color-fill-outline" size={24} color="#CBD5E1" />
+                  <Text style={{ color: '#94A3B8', fontSize: 12, marginTop: 8 }}>No refuels logged today</Text>
+                </View>
+              );
+            })()}
           </View>
         </View>
 
         {/* Recent Maintenance Actions Card */}
         <View style={[styles.sectionCard, { flex: 1, padding: 20 }]}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <Text style={styles.cardTitle}>Recent Maintenance Logs</Text>
+            <Text style={styles.cardTitle}>Today's Maintenance Logs</Text>
             <TouchableOpacity onPress={() => navigation.navigate('maintenance')}>
               <Text style={{ fontSize: 11, color: '#1D4ED8', fontWeight: '700' }}>View All</Text>
             </TouchableOpacity>
@@ -388,33 +400,45 @@ export default function OverviewTab() {
               <View style={{ flex: 1.2 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B' }}>Cost</Text></View>
               <View style={{ flex: 1.2, alignItems: 'center' }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B' }}>Status</Text></View>
             </View>
-            {maintenance && maintenance.length > 0 ? (
-              [...maintenance]
-                .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
-                .slice(0, 3)
-                .map((m, idx) => {
-                  const vehicleNo = vehicles.find((v) => v.id === m.vehicleId)?.number || '—';
-                  const mType = m.maintenanceType || 'General';
-                  const mStatus = m.status === 'submitted' || m.status === 'completed' ? 'Completed' : 'Pending';
-                  const statusColor = mStatus === 'Completed' ? '#24D164' : '#EA580C';
-                  return (
-                    <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10, alignItems: 'center' }]}>
-                      <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '700', color: '#1E293B' }}>{vehicleNo}</Text></View>
-                      <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, color: '#475569', fontWeight: '500' }}>{mType}</Text></View>
-                      <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, color: '#EF4444', fontWeight: '700' }}>₹{m.cost}</Text></View>
-                      <View style={{ flex: 1.2, alignItems: 'center' }}>
-                        <View style={{ backgroundColor: statusColor + '15', paddingVertical: 2, paddingHorizontal: 8, borderRadius: 12 }}>
-                          <Text style={{ fontSize: 10, fontWeight: '800', color: statusColor }}>{mStatus}</Text>
+            {(() => {
+              const today = new Date();
+              const yyyy = today.getFullYear();
+              const mm = String(today.getMonth() + 1).padStart(2, '0');
+              const dd = String(today.getDate()).padStart(2, '0');
+              const t1 = `${yyyy}-${mm}-${dd}`;
+              const t2 = `${dd}/${mm}/${yyyy}`;
+              
+              const todaysMaint = (maintenance || []).filter(m => m.date && (m.date === t1 || m.date === t2));
+              
+              return todaysMaint.length > 0 ? (
+                [...todaysMaint]
+                  .sort((a, b) => (b.time || '').localeCompare(a.time || ''))
+                  .slice(0, 5)
+                  .map((m, idx) => {
+                    const vehicleNo = vehicles.find((v) => v.id === m.vehicleId)?.number || '—';
+                    const mType = m.maintenanceType || 'General';
+                    const mStatus = m.status === 'submitted' || m.status === 'completed' ? 'Completed' : 'Pending';
+                    const statusColor = mStatus === 'Completed' ? '#24D164' : '#EA580C';
+                    return (
+                      <View key={idx} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 10, alignItems: 'center' }]}>
+                        <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '700', color: '#1E293B' }}>{vehicleNo}</Text></View>
+                        <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, color: '#475569', fontWeight: '500' }}>{mType}</Text></View>
+                        <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, color: '#EF4444', fontWeight: '700' }}>₹{m.cost}</Text></View>
+                        <View style={{ flex: 1.2, alignItems: 'center' }}>
+                          <View style={{ backgroundColor: statusColor + '15', paddingVertical: 2, paddingHorizontal: 8, borderRadius: 12 }}>
+                            <Text style={{ fontSize: 10, fontWeight: '800', color: statusColor }}>{mStatus}</Text>
+                          </View>
                         </View>
                       </View>
-                    </View>
-                  );
-                })
-            ) : (
-              <View style={{ alignItems: 'center', paddingVertical: 20 }}>
-                <Text style={{ color: '#94A3B8', fontSize: 12 }}>No recent maintenance actions</Text>
-              </View>
-            )}
+                    );
+                  })
+              ) : (
+                <View style={{ alignItems: 'center', paddingVertical: 30 }}>
+                  <Ionicons name="construct-outline" size={24} color="#CBD5E1" />
+                  <Text style={{ color: '#94A3B8', fontSize: 12, marginTop: 8 }}>No maintenance logged today</Text>
+                </View>
+              );
+            })()}
           </View>
         </View>
       </View>
