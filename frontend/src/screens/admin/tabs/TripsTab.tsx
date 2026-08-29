@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Modal, Pressable, Image } from 'react-native';
 import { useDashboardData } from '../../../context/DashboardDataContext';
 import { styles, fontStyle } from '../AdminStyles';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,6 +7,8 @@ import { Ionicons } from '@expo/vector-icons';
 export default function TripsTab() {
   const { trips, drivers, vehicles } = useDashboardData();
   const [tripDriverFilter, setTripDriverFilter] = useState('');
+  const [selectedTrip, setSelectedTrip] = useState<any>(null);
+  const [fullscreenImageUri, setFullscreenImageUri] = useState<string | null>(null);
   const [tripVehicleFilter, setTripVehicleFilter] = useState('');
   const [filterFromDate, setFilterFromDate] = useState('');
   const [filterToDate, setFilterToDate] = useState('');
@@ -333,7 +335,12 @@ export default function TripsTab() {
               const statusText = isDone ? '#1D4ED8' : '#EA580C';
 
               return (
-                <View key={trip.id} style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 14 }]}>
+                <TouchableOpacity
+                  key={trip.id}
+                  onPress={() => setSelectedTrip(trip)}
+                  activeOpacity={0.7}
+                  style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 14 }]}
+                >
                   {/* S.No Cell */}
                   <Text style={[styles.tableCell, { flex: 0.6, color: '#64748B', fontWeight: 'bold', fontFamily: fontStyle }]}>{idx + 1}</Text>
 
@@ -438,12 +445,285 @@ export default function TripsTab() {
                       </Text>
                     </View>
                   </View>
-                </View>
+                </TouchableOpacity>
               );
             })}
           </View>
         </ScrollView>
       </View>
+
+      {/* TRIP DETAIL INSPECT MODAL */}
+      <Modal
+        visible={selectedTrip !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSelectedTrip(null)}
+      >
+        <Pressable
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 24 }}
+          onPress={() => setSelectedTrip(null)}
+        >
+          <Pressable
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: 24,
+              padding: 32,
+              width: '100%',
+              maxWidth: 960,
+              maxHeight: '90%',
+              shadowColor: '#000',
+              shadowOpacity: 0.15,
+              shadowRadius: 20,
+            }}
+            onPress={(e) => e.stopPropagation()}
+          >
+            {selectedTrip && (() => {
+              const driverObj = drivers.find((d) => d.id === selectedTrip.driverId);
+              const vehicleObj = vehicles.find((v) => v.id === selectedTrip.vehicleId);
+              const driverName = driverObj?.name || 'Unknown Operator';
+              const plateNo = vehicleObj?.number || 'Unknown Vehicle';
+              const vehicleModel = vehicleObj?.model || '—';
+              const isDone = selectedTrip.status === 'submitted' || selectedTrip.status === 'completed';
+
+              return (
+                <View style={{ flex: 1 }}>
+                  {/* Modal Header */}
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                    <View>
+                      <Text style={{ fontSize: 18, fontWeight: '900', color: '#0F172A', fontFamily: fontStyle }}>
+                        TRIP INSPECTION RECORD
+                      </Text>
+                      <Text style={{ fontSize: 12, color: '#64748B', marginTop: 2, fontFamily: fontStyle }}>
+                        ID: {selectedTrip.id.toUpperCase()} • Driver: {driverName} • Vehicle: {plateNo}
+                      </Text>
+                    </View>
+                    <TouchableOpacity onPress={() => setSelectedTrip(null)} style={{ padding: 6, backgroundColor: '#F1F5F9', borderRadius: 20 }}>
+                      <Ionicons name="close" size={20} color="#64748B" />
+                    </TouchableOpacity>
+                  </View>
+
+                  <View style={{ height: 1, backgroundColor: '#E2E8F0', marginBottom: 24 }} />
+
+                  <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                    {/* Left Column: Info Grid */}
+                    <View style={{ flex: 1, minWidth: 320, paddingRight: 24 }}>
+                      <Text style={{ fontSize: 13, fontWeight: '800', color: '#1E293B', marginBottom: 16, fontFamily: fontStyle }}>
+                        MISSION INFORMATION
+                      </Text>
+
+                      <View style={{ backgroundColor: '#F8FAFC', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E2E8F0' }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+                          <Text style={{ fontSize: 12, fontWeight: '700', color: '#64748B', fontFamily: fontStyle }}>STATUS</Text>
+                          <Text style={{ fontSize: 12, fontWeight: '800', color: isDone ? '#10B981' : '#EA580C', fontFamily: fontStyle }}>
+                            {isDone ? 'COMPLETED' : 'ACTIVE IN PROGRESS'}
+                          </Text>
+                        </View>
+                        <View style={{ height: 1, backgroundColor: '#E2E8F0', marginVertical: 10 }} />
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+                          <Text style={{ fontSize: 12, fontWeight: '700', color: '#64748B', fontFamily: fontStyle }}>ROUTE</Text>
+                          <Text style={{ fontSize: 12, fontWeight: '700', color: '#0F172A', fontFamily: fontStyle }}>
+                            {selectedTrip.sourceLocation} → {selectedTrip.destinationLocation}
+                          </Text>
+                        </View>
+                        <View style={{ height: 1, backgroundColor: '#E2E8F0', marginVertical: 10 }} />
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+                          <Text style={{ fontSize: 12, fontWeight: '700', color: '#64748B', fontFamily: fontStyle }}>START TIME</Text>
+                          <Text style={{ fontSize: 12, fontWeight: '600', color: '#0F172A', fontFamily: fontStyle }}>
+                            {selectedTrip.startDate} • {selectedTrip.startTime || '—'}
+                          </Text>
+                        </View>
+                        {isDone && (
+                          <>
+                            <View style={{ height: 1, backgroundColor: '#E2E8F0', marginVertical: 10 }} />
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+                              <Text style={{ fontSize: 12, fontWeight: '700', color: '#64748B', fontFamily: fontStyle }}>END TIME</Text>
+                              <Text style={{ fontSize: 12, fontWeight: '600', color: '#0F172A', fontFamily: fontStyle }}>
+                                {selectedTrip.endDate} • {selectedTrip.endTime || '—'}
+                              </Text>
+                            </View>
+                          </>
+                        )}
+                        <View style={{ height: 1, backgroundColor: '#E2E8F0', marginVertical: 10 }} />
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+                          <Text style={{ fontSize: 12, fontWeight: '700', color: '#64748B', fontFamily: fontStyle }}>START ODO</Text>
+                          <Text style={{ fontSize: 12, fontWeight: '800', color: '#0F172A', fontFamily: fontStyle }}>
+                            {selectedTrip.startOdometer} km
+                          </Text>
+                        </View>
+                        {isDone && (
+                          <>
+                            <View style={{ height: 1, backgroundColor: '#E2E8F0', marginVertical: 10 }} />
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+                              <Text style={{ fontSize: 12, fontWeight: '700', color: '#64748B', fontFamily: fontStyle }}>END ODO</Text>
+                              <Text style={{ fontSize: 12, fontWeight: '800', color: '#0F172A', fontFamily: fontStyle }}>
+                                {selectedTrip.endOdometer} km
+                              </Text>
+                            </View>
+                            <View style={{ height: 1, backgroundColor: '#E2E8F0', marginVertical: 10 }} />
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+                              <Text style={{ fontSize: 12, fontWeight: '700', color: '#64748B', fontFamily: fontStyle }}>TOTAL WORKED</Text>
+                              <Text style={{ fontSize: 12, fontWeight: '800', color: '#1D4ED8', fontFamily: fontStyle }}>
+                                {parseInt(selectedTrip.endOdometer) - parseInt(selectedTrip.startOdometer)} km
+                              </Text>
+                            </View>
+                          </>
+                        )}
+                        <View style={{ height: 1, backgroundColor: '#E2E8F0', marginVertical: 10 }} />
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                          <Text style={{ fontSize: 12, fontWeight: '700', color: '#64748B', fontFamily: fontStyle }}>END HMR</Text>
+                          <Text style={{ fontSize: 12, fontWeight: '800', color: '#0284C7', fontFamily: fontStyle }}>
+                            {selectedTrip.endHmr ? `${selectedTrip.endHmr} hrs` : '—'}
+                          </Text>
+                        </View>
+                        {selectedTrip.notes ? (
+                          <>
+                            <View style={{ height: 1, backgroundColor: '#E2E8F0', marginVertical: 10 }} />
+                            <View style={{ flexDirection: 'column' }}>
+                              <Text style={{ fontSize: 10, fontWeight: '700', color: '#94A3B8', fontFamily: fontStyle, marginBottom: 4 }}>OPERATOR NOTES</Text>
+                              <Text style={{ fontSize: 12, color: '#334155', fontFamily: fontStyle, fontStyle: 'italic' }}>
+                                "{selectedTrip.notes}"
+                              </Text>
+                            </View>
+                          </>
+                        ) : null}
+                      </View>
+                    </View>
+
+                    {/* Right Column: Verification Photos */}
+                    <View style={{ flex: 1.2, minWidth: 360 }}>
+                      <Text style={{ fontSize: 13, fontWeight: '800', color: '#1E293B', marginBottom: 16, fontFamily: fontStyle }}>
+                        UPLOADED VERIFICATION PHOTOS
+                      </Text>
+
+                      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 16 }}>
+                        {/* 1. Start Odometer Image */}
+                        <View style={{ width: '47%', minWidth: 160, backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 12, padding: 12 }}>
+                          <Text style={{ fontSize: 10, fontWeight: '800', color: '#475569', marginBottom: 8, textAlign: 'center', fontFamily: fontStyle }}>
+                            START ODOMETER
+                          </Text>
+                          {selectedTrip.startOdometerPhotoUri ? (
+                            <TouchableOpacity onPress={() => setFullscreenImageUri(selectedTrip.startOdometerPhotoUri)}>
+                              <Image
+                                source={{ uri: selectedTrip.startOdometerPhotoUri }}
+                                style={{ width: '100%', height: 120, borderRadius: 8, resizeMode: 'cover' }}
+                              />
+                              <Text style={{ fontSize: 9, color: '#1D4ED8', fontWeight: '700', marginTop: 6, textAlign: 'center', fontFamily: fontStyle }}>
+                                Click to Inspect
+                              </Text>
+                            </TouchableOpacity>
+                          ) : (
+                            <View style={{ width: '100%', height: 120, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F1F5F9', borderRadius: 8 }}>
+                              <Ionicons name="image-outline" size={24} color="#CBD5E1" />
+                              <Text style={{ fontSize: 9, color: '#94A3B8', marginTop: 4, fontFamily: fontStyle }}>No Photo Uploaded</Text>
+                            </View>
+                          )}
+                        </View>
+
+                        {/* 2. Start Vehicle Front/Plate Image */}
+                        <View style={{ width: '47%', minWidth: 160, backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 12, padding: 12 }}>
+                          <Text style={{ fontSize: 10, fontWeight: '800', color: '#475569', marginBottom: 8, textAlign: 'center', fontFamily: fontStyle }}>
+                            VEHICLE PLATE
+                          </Text>
+                          {selectedTrip.startVehiclePlatePhotoUri ? (
+                            <TouchableOpacity onPress={() => setFullscreenImageUri(selectedTrip.startVehiclePlatePhotoUri)}>
+                              <Image
+                                source={{ uri: selectedTrip.startVehiclePlatePhotoUri }}
+                                style={{ width: '100%', height: 120, borderRadius: 8, resizeMode: 'cover' }}
+                              />
+                              <Text style={{ fontSize: 9, color: '#1D4ED8', fontWeight: '700', marginTop: 6, textAlign: 'center', fontFamily: fontStyle }}>
+                                Click to Inspect
+                              </Text>
+                            </TouchableOpacity>
+                          ) : (
+                            <View style={{ width: '100%', height: 120, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F1F5F9', borderRadius: 8 }}>
+                              <Ionicons name="image-outline" size={24} color="#CBD5E1" />
+                              <Text style={{ fontSize: 9, color: '#94A3B8', marginTop: 4, fontFamily: fontStyle }}>No Photo Uploaded</Text>
+                            </View>
+                          )}
+                        </View>
+
+                        {/* 3. End Odometer Image */}
+                        <View style={{ width: '47%', minWidth: 160, backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 12, padding: 12 }}>
+                          <Text style={{ fontSize: 10, fontWeight: '800', color: '#475569', marginBottom: 8, textAlign: 'center', fontFamily: fontStyle }}>
+                            END ODOMETER
+                          </Text>
+                          {selectedTrip.endOdometerPhotoUri ? (
+                            <TouchableOpacity onPress={() => setFullscreenImageUri(selectedTrip.endOdometerPhotoUri)}>
+                              <Image
+                                source={{ uri: selectedTrip.endOdometerPhotoUri }}
+                                style={{ width: '100%', height: 120, borderRadius: 8, resizeMode: 'cover' }}
+                              />
+                              <Text style={{ fontSize: 9, color: '#1D4ED8', fontWeight: '700', marginTop: 6, textAlign: 'center', fontFamily: fontStyle }}>
+                                Click to Inspect
+                              </Text>
+                            </TouchableOpacity>
+                          ) : (
+                            <View style={{ width: '100%', height: 120, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F1F5F9', borderRadius: 8 }}>
+                              <Ionicons name="image-outline" size={24} color="#CBD5E1" />
+                              <Text style={{ fontSize: 9, color: '#94A3B8', marginTop: 4, fontFamily: fontStyle }}>No Photo Uploaded</Text>
+                            </View>
+                          )}
+                        </View>
+
+                        {/* 4. Log Sheet Image */}
+                        <View style={{ width: '47%', minWidth: 160, backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 12, padding: 12 }}>
+                          <Text style={{ fontSize: 10, fontWeight: '800', color: '#475569', marginBottom: 8, textAlign: 'center', fontFamily: fontStyle }}>
+                            LOG SHEET
+                          </Text>
+                          {selectedTrip.sheetPhotoUri ? (
+                            <TouchableOpacity onPress={() => setFullscreenImageUri(selectedTrip.sheetPhotoUri)}>
+                              <Image
+                                source={{ uri: selectedTrip.sheetPhotoUri }}
+                                style={{ width: '100%', height: 120, borderRadius: 8, resizeMode: 'cover' }}
+                              />
+                              <Text style={{ fontSize: 9, color: '#1D4ED8', fontWeight: '700', marginTop: 6, textAlign: 'center', fontFamily: fontStyle }}>
+                                Click to Inspect
+                              </Text>
+                            </TouchableOpacity>
+                          ) : (
+                            <View style={{ width: '100%', height: 120, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F1F5F9', borderRadius: 8 }}>
+                              <Ionicons name="image-outline" size={24} color="#CBD5E1" />
+                              <Text style={{ fontSize: 9, color: '#94A3B8', marginTop: 4, fontFamily: fontStyle }}>No Photo Uploaded</Text>
+                            </View>
+                          )}
+                        </View>
+                      </View>
+                    </View>
+                  </ScrollView>
+                </View>
+              );
+            })()}
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* FULLSCREEN IMAGE INSPECTOR */}
+      <Modal
+        visible={fullscreenImageUri !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setFullscreenImageUri(null)}
+      >
+        <Pressable
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center', padding: 16 }}
+          onPress={() => setFullscreenImageUri(null)}
+        >
+          {fullscreenImageUri && (
+            <View style={{ width: '90%', height: '90%', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
+              <Image
+                source={{ uri: fullscreenImageUri }}
+                style={{ width: '100%', height: '100%', resizeMode: 'contain' }}
+              />
+              <TouchableOpacity
+                onPress={() => setFullscreenImageUri(null)}
+                style={{ position: 'absolute', top: 20, right: 20, padding: 10, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 30 }}
+              >
+                <Ionicons name="close" size={24} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+          )}
+        </Pressable>
+      </Modal>
     </View>
   );
 }
