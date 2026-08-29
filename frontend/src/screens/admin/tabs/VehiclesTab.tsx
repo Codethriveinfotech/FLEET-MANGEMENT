@@ -218,14 +218,18 @@ export default function VehiclesTab() {
               let typeColor = '#2563EB';
               let typeLabel = 'Truck';
               
-              if (vType.includes('bus')) {
-                typeIcon = 'bus';
-                typeColor = '#7C3AED';
-                typeLabel = 'Bus';
-              } else if (vType.includes('car')) {
+              if (vType.includes('sedan')) {
                 typeIcon = 'car-sport';
-                typeColor = '#EA580C';
-                typeLabel = 'Car';
+                typeColor = '#3B82F6';
+                typeLabel = 'Sedan';
+              } else if (vType.includes('hatchback') || vType.includes('hatch')) {
+                typeIcon = 'car-sport';
+                typeColor = '#10B981';
+                typeLabel = 'Hatchback';
+              } else if (vType.includes('suv')) {
+                typeIcon = 'car';
+                typeColor = '#8B5CF6';
+                typeLabel = 'SUV';
               } else if (vType.includes('van')) {
                 typeIcon = 'car';
                 typeColor = '#4F46E5';
@@ -375,7 +379,7 @@ export default function VehiclesTab() {
               
               <Text style={styles.inputLabel}>VEHICLE TYPE</Text>
               <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-                {['Truck', 'Bus', 'Car', 'Van'].map((t) => {
+                {['Sedan', 'Hatchback', 'SUV', 'Truck', 'Van'].map((t) => {
                   const isSel = vehicleForm.type === t;
                   return (
                     <TouchableOpacity
