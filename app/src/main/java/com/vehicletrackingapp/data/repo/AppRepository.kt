@@ -174,8 +174,26 @@ object AppRepository {
             if (response.isSuccessful) {
                 val remoteData = response.body()?.data
                 if (remoteData != null) {
+                    val localVehicles = dao.getAllVehicles().firstOrNull() ?: emptyList()
+                    val localMap = localVehicles.associateBy { it.id }
+                    val toUpsert = mutableListOf<Vehicle>()
+
+                    remoteData.forEach { remoteVehicle ->
+                        val localVehicle = localMap[remoteVehicle.id]
+                        if (localVehicle != null && localVehicle.status != remoteVehicle.status) {
+                            try {
+                                api.updateVehicle(localVehicle.id, localVehicle)
+                                toUpsert.add(localVehicle)
+                            } catch (e: Exception) {
+                                toUpsert.add(localVehicle) // Keep local modified status to try next sync
+                            }
+                        } else {
+                            toUpsert.add(remoteVehicle)
+                        }
+                    }
+
                     dao.deleteAllVehicles()
-                    remoteData.forEach { dao.upsertVehicle(it) }
+                    toUpsert.forEach { dao.upsertVehicle(it) }
                 }
             }
         } catch (e: Exception) {
@@ -210,46 +228,80 @@ object AppRepository {
         try {
             // Offline sync: Push locally submitted unsynced trips to server first
             val localTrips = dao.getSubmittedTrips().firstOrNull() ?: emptyList()
+            val failedToSyncIds = mutableSetOf<String>()
+
             localTrips.forEach { trip ->
+                var success = false
                 try {
                     val response = api.updateTrip(trip.id, trip)
-                    if (!response.isSuccessful) {
-                        api.createTrip(trip)
+                    if (response.isSuccessful) {
+                        success = true
+                    } else {
+                        val createResponse = api.createTrip(trip)
+                        if (createResponse.isSuccessful) {
+                            success = true
+                        }
                     }
                 } catch (e: Exception) {
                     Log.e("AppRepository", "Failed to sync local trip ${trip.id} during fetch", e)
+                }
+                if (!success) {
+                    failedToSyncIds.add(trip.id)
                 }
             }
 
             val response = api.getAllTrips()
             if (response.isSuccessful) {
-                dao.deleteSubmittedTrips()
+                // Delete only the synced submitted trips (those not in failedToSyncIds)
+                val allLocal = dao.getAllTripsOnce()
+                allLocal.filter { it.status == "submitted" && !failedToSyncIds.contains(it.id) }.forEach {
+                    dao.deleteTrip(it.id)
+                }
                 response.body()?.data?.forEach { dao.upsertTrip(it) }
             }
-        } catch (e: Exception) {}
+        } catch (e: Exception) {
+            Log.e("AppRepository", "fetchTrips error", e)
+        }
     }
     
     private suspend fun fetchMaintenance() {
         try {
             // Offline sync: Push locally submitted unsynced maintenance to server first
             val localMaintenance = dao.getSubmittedMaintenance().firstOrNull() ?: emptyList()
+            val failedToSyncIds = mutableSetOf<String>()
+
             localMaintenance.forEach { record ->
+                var success = false
                 try {
                     val response = api.updateMaintenance(record.id, record)
-                    if (!response.isSuccessful) {
-                        api.createMaintenance(record)
+                    if (response.isSuccessful) {
+                        success = true
+                    } else {
+                        val createResponse = api.createMaintenance(record)
+                        if (createResponse.isSuccessful) {
+                            success = true
+                        }
                     }
                 } catch (e: Exception) {
                     Log.e("AppRepository", "Failed to sync local maintenance ${record.id} during fetch", e)
+                }
+                if (!success) {
+                    failedToSyncIds.add(record.id)
                 }
             }
 
             val response = api.getAllMaintenance()
             if (response.isSuccessful) {
-                dao.deleteSubmittedMaintenance()
+                // Delete only synced maintenance records
+                val allLocal = dao.getSubmittedMaintenance().firstOrNull() ?: emptyList()
+                allLocal.filter { !failedToSyncIds.contains(it.id) }.forEach {
+                    dao.deleteMaintenance(it.id)
+                }
                 response.body()?.data?.forEach { dao.upsertMaintenance(it) }
             }
-        } catch (e: Exception) {}
+        } catch (e: Exception) {
+            Log.e("AppRepository", "fetchMaintenance error", e)
+        }
     }
 
     suspend fun updateVehicle(vehicle: Vehicle) { 

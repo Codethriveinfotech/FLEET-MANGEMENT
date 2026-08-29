@@ -54,6 +54,9 @@ interface AppDao {
     @Query("DELETE FROM maintenance WHERE status = 'submitted'")
     suspend fun deleteSubmittedMaintenance()
 
+    @Query("DELETE FROM maintenance WHERE id = :id")
+    suspend fun deleteMaintenance(id: String)
+
     // Vehicles
     @Query("SELECT * FROM vehicles")
     fun getAllVehicles(): Flow<List<Vehicle>>
