@@ -16,14 +16,13 @@ export default function OverviewTab() {
 
   // Dynamic calculations for vehicle stats
   const totalVehiclesCount = vehicles.length;
-  const activeVehiclesCount = vehicles.filter((v) => {
-    const s = (v.status || '').toLowerCase();
-    return s === 'active' || s === 'running';
-  }).length;
+  const runningVehiclesCount = vehicles.filter((v) => (v.status || '').toLowerCase() === 'running').length;
+  const idleVehiclesCount = vehicles.filter((v) => (v.status || '').toLowerCase() === 'active').length;
   const breakdownVehiclesCount = vehicles.filter((v) => (v.status || '').toLowerCase().includes('break') || (v.status || '').toLowerCase().includes('maint')).length;
-  const inactiveVehiclesCount = totalVehiclesCount - activeVehiclesCount - breakdownVehiclesCount;
+  const inactiveVehiclesCount = totalVehiclesCount - runningVehiclesCount - idleVehiclesCount - breakdownVehiclesCount;
 
-  const activePct = totalVehiclesCount > 0 ? ((activeVehiclesCount / totalVehiclesCount) * 100).toFixed(1) : '0';
+  const runningPct = totalVehiclesCount > 0 ? ((runningVehiclesCount / totalVehiclesCount) * 100).toFixed(1) : '0';
+  const idlePct = totalVehiclesCount > 0 ? ((idleVehiclesCount / totalVehiclesCount) * 100).toFixed(1) : '0';
   const breakdownPct = totalVehiclesCount > 0 ? ((breakdownVehiclesCount / totalVehiclesCount) * 100).toFixed(1) : '0';
   const inactivePct = totalVehiclesCount > 0 ? ((inactiveVehiclesCount / totalVehiclesCount) * 100).toFixed(1) : '0';
 
@@ -134,8 +133,22 @@ export default function OverviewTab() {
                   />
                 )}
 
-                {/* Active segment (Green) */}
-                {activeVehiclesCount > 0 && (
+                {/* Running segment (Blue) */}
+                {runningVehiclesCount > 0 && (
+                  <circle
+                    cx="55"
+                    cy="55"
+                    r="45"
+                    fill="transparent"
+                    stroke="#1D4ED8"
+                    strokeWidth="10"
+                    strokeDasharray={`${(runningVehiclesCount / (totalVehiclesCount || 1)) * 282.7} 282.7`}
+                    strokeDashoffset={-(((inactiveVehiclesCount + breakdownVehiclesCount) / (totalVehiclesCount || 1)) * 282.7)}
+                  />
+                )}
+
+                {/* Idle segment (Green) */}
+                {idleVehiclesCount > 0 && (
                   <circle
                     cx="55"
                     cy="55"
@@ -143,8 +156,8 @@ export default function OverviewTab() {
                     fill="transparent"
                     stroke="#24D164"
                     strokeWidth="10"
-                    strokeDasharray={`${(activeVehiclesCount / (totalVehiclesCount || 1)) * 282.7} 282.7`}
-                    strokeDashoffset={-(((inactiveVehiclesCount + breakdownVehiclesCount) / (totalVehiclesCount || 1)) * 282.7)}
+                    strokeDasharray={`${(idleVehiclesCount / (totalVehiclesCount || 1)) * 282.7} 282.7`}
+                    strokeDashoffset={-(((inactiveVehiclesCount + breakdownVehiclesCount + runningVehiclesCount) / (totalVehiclesCount || 1)) * 282.7)}
                   />
                 )}
               </svg>
@@ -157,8 +170,13 @@ export default function OverviewTab() {
             <View style={styles.donutLegend}>
               <View style={styles.legendRow}>
                 <View style={[styles.legendDot, { backgroundColor: '#24D164' }]} />
-                <Text style={[styles.legendLabel, { width: 90 }]}>Active</Text>
-                <Text style={styles.legendVal}>{activeVehiclesCount} ({activePct}%)</Text>
+                <Text style={[styles.legendLabel, { width: 90 }]}>Idle</Text>
+                <Text style={styles.legendVal}>{idleVehiclesCount} ({idlePct}%)</Text>
+              </View>
+              <View style={styles.legendRow}>
+                <View style={[styles.legendDot, { backgroundColor: '#1D4ED8' }]} />
+                <Text style={[styles.legendLabel, { width: 90 }]}>Running</Text>
+                <Text style={styles.legendVal}>{runningVehiclesCount} ({runningPct}%)</Text>
               </View>
               <View style={styles.legendRow}>
                 <View style={[styles.legendDot, { backgroundColor: '#EF4444' }]} />
