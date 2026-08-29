@@ -12,7 +12,6 @@ export default function OverviewTab() {
   const isCompact = width < 1024;
 
   const activeTripsCount = trips.filter((t) => t.status === 'started').length;
-  const breakdownCount = trips.filter((t) => t.isBreakdown).length;
 
   // Dynamic calculations for vehicle stats
   const totalVehiclesCount = vehicles.length;
@@ -73,9 +72,9 @@ export default function OverviewTab() {
           </View>
           <View style={{ marginLeft: 16, flex: 1 }}>
             <Text style={styles.statLabel}>Breakdowns</Text>
-            <Text style={styles.statValue}>{breakdownCount}</Text>
-            <Text style={[styles.statTrendText, { color: breakdownCount > 0 ? '#EF4444' : '#64748B', fontWeight: '700' }]}>
-              {breakdownCount} reported incidents
+            <Text style={styles.statValue}>{breakdownVehiclesCount}</Text>
+            <Text style={[styles.statTrendText, { color: breakdownVehiclesCount > 0 ? '#EF4444' : '#64748B', fontWeight: '700' }]}>
+              {breakdownVehiclesCount} reported incidents
             </Text>
           </View>
         </View>
@@ -453,6 +452,49 @@ export default function OverviewTab() {
           </View>
         </View>
       </View>
+
+      {/* Breakdown Vehicles Alert Card — only shown when vehicles are in breakdown */}
+      {breakdownVehiclesCount > 0 && (
+        <View style={{ marginTop: 12, backgroundColor: '#FEF2F2', borderRadius: 16, borderWidth: 1.5, borderColor: '#FECACA', padding: 20 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="alert-circle" size={18} color="#DC2626" />
+              <Text style={{ fontSize: 14, fontWeight: '800', color: '#DC2626', marginLeft: 8, letterSpacing: 0.5 }}>VEHICLES IN BREAKDOWN</Text>
+            </View>
+            <View style={{ backgroundColor: '#DC2626', paddingVertical: 3, paddingHorizontal: 10, borderRadius: 20 }}>
+              <Text style={{ fontSize: 11, fontWeight: '800', color: '#FFFFFF' }}>{breakdownVehiclesCount} UNIT{breakdownVehiclesCount > 1 ? 'S' : ''}</Text>
+            </View>
+          </View>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+            {vehicles
+              .filter((v) => (v.status || '').toLowerCase().includes('break') || (v.status || '').toLowerCase().includes('maint'))
+              .map((v, idx) => {
+                const driver = drivers.find((d) => d.id === v.assignedDriverId);
+                return (
+                  <View key={idx} style={{ backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#FECACA', padding: 16, minWidth: 200, flex: 1 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 16, fontWeight: '800', color: '#1E293B' }}>{v.number}</Text>
+                        <Text style={{ fontSize: 12, color: '#475569', fontWeight: '500', marginTop: 2 }}>{v.model} • {v.type}</Text>
+                        {driver && (
+                          <Text style={{ fontSize: 11, color: '#64748B', marginTop: 4 }}>Driver: {driver.name}</Text>
+                        )}
+                      </View>
+                      <View style={{ backgroundColor: '#FEE2E2', paddingVertical: 4, paddingHorizontal: 10, borderRadius: 20, borderWidth: 1, borderColor: '#FECACA' }}>
+                        <Text style={{ fontSize: 10, fontWeight: '800', color: '#DC2626' }}>BREAKDOWN</Text>
+                      </View>
+                    </View>
+                    <View style={{ marginTop: 12, height: 1, backgroundColor: '#FEE2E2' }} />
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+                      <Ionicons name="information-circle-outline" size={14} color="#94A3B8" />
+                      <Text style={{ fontSize: 11, color: '#94A3B8', marginLeft: 4 }}>Awaiting recovery — driver can mark active</Text>
+                    </View>
+                  </View>
+                );
+              })}
+          </View>
+        </View>
+      )}
 
       {/* Footer Copyright brand text */}
       <View style={{ marginVertical: 24, alignItems: 'center' }}>
