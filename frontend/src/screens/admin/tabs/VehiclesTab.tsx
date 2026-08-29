@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, Modal, Image } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, Modal } from 'react-native';
 import { useDashboardData } from '../../../context/DashboardDataContext';
 import { styles, fontStyle } from '../AdminStyles';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,6 +11,7 @@ export default function VehiclesTab() {
   const [vehicleSearch, setVehicleSearch] = useState('');
   const [vehicleModalVisible, setVehicleModalVisible] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+  
   const [vehicleForm, setVehicleForm] = useState({
     number: '',
     model: '',
@@ -110,22 +111,9 @@ export default function VehiclesTab() {
       {/* Vehicles Search & Action Card */}
       <View style={[styles.sectionCard, { flex: 1, padding: 24 }]}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <View style={{
-              width: 44,
-              height: 44,
-              borderRadius: 10,
-              backgroundColor: '#EFF6FF',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginRight: 14
-            }}>
-              <Ionicons name="car" size={24} color="#1D4ED8" />
-            </View>
-            <View>
-              <Text style={{ fontSize: 18, fontWeight: '800', color: '#0F172A', fontFamily: fontStyle, marginBottom: 2 }}>Vehicle List</Text>
-              <Text style={{ fontSize: 12, color: '#64748B', fontFamily: fontStyle }}>Manage and track your vehicles</Text>
-            </View>
+          <View>
+            <Text style={{ fontSize: 18, fontWeight: '800', color: '#0F172A', fontFamily: fontStyle, marginBottom: 2 }}>Vehicle List</Text>
+            <Text style={{ fontSize: 12, color: '#64748B', fontFamily: fontStyle }}>Manage and track your vehicles</Text>
           </View>
           <TouchableOpacity
             style={{
