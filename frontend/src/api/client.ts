@@ -2,7 +2,18 @@ import axios from 'axios';
 import * as SecureStore from '../utils/storage';
 import { useAuthStore } from '../store/auth';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://vehicletrackingapp-fdy2.onrender.com/api';
+import { Platform } from 'react-native';
+
+let API_URL = 'https://vehicletrackingapp-fdy2.onrender.com/api';
+
+if (Platform.OS === 'web') {
+  if (typeof window !== 'undefined' && 
+      (window.location.hostname === 'localhost' || 
+       window.location.hostname === '127.0.0.1' || 
+       window.location.hostname.startsWith('192.168.'))) {
+    API_URL = 'http://localhost:8080/api';
+  }
+}
 
 export const apiClient = axios.create({
   baseURL: API_URL,
