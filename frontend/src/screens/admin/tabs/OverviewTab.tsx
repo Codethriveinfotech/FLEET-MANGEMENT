@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, useWindowDimensions } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, useWindowDimensions, Modal, Pressable } from 'react-native';
 import { useDashboardData } from '../../../context/DashboardDataContext';
 import { styles } from '../AdminStyles';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,6 +10,7 @@ export default function OverviewTab() {
   const navigation = useNavigation<any>();
   const { width } = useWindowDimensions();
   const isCompact = width < 1024;
+  const [showBreakdownModal, setShowBreakdownModal] = useState(false);
 
   const activeTripsCount = trips.filter((t) => t.status === 'started').length;
 
@@ -65,8 +66,8 @@ export default function OverviewTab() {
           </View>
         </View>
 
-        {/* Card 4: Breakdown */}
-        <View style={styles.statCard}>
+        {/* Card 4: Breakdown — clickable, opens detail modal */}
+        <TouchableOpacity style={styles.statCard} onPress={() => setShowBreakdownModal(true)} activeOpacity={0.8}>
           <View style={[styles.statIconBg, { backgroundColor: '#EF4444' }]}>
             <Ionicons name="alert-circle" size={26} color="#FFFFFF" />
           </View>
@@ -77,7 +78,93 @@ export default function OverviewTab() {
               {breakdownVehiclesCount} reported incidents
             </Text>
           </View>
-        </View>
+          {breakdownVehiclesCount > 0 && (
+            <Ionicons name="chevron-forward" size={16} color="#EF4444" style={{ alignSelf: 'center' }} />
+          )}
+        </TouchableOpacity>
+
+        {/* Breakdown Detail Modal */}
+        <Modal
+          visible={showBreakdownModal}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowBreakdownModal(false)}
+        >
+          <Pressable
+            style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', alignItems: 'center', padding: 24 }}
+            onPress={() => setShowBreakdownModal(false)}
+          >
+            <Pressable
+              style={{ backgroundColor: '#FFFFFF', borderRadius: 20, padding: 24, width: '100%', maxWidth: 540, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 24 }}
+              onPress={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ backgroundColor: '#FEE2E2', borderRadius: 10, padding: 8, marginRight: 12 }}>
+                    <Ionicons name="alert-circle" size={22} color="#DC2626" />
+                  </View>
+                  <View>
+                    <Text style={{ fontSize: 16, fontWeight: '800', color: '#1E293B', letterSpacing: 0.4 }}>Vehicles in Breakdown</Text>
+                    <Text style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>{breakdownVehiclesCount} unit{breakdownVehiclesCount !== 1 ? 's' : ''} need attention</Text>
+                  </View>
+                </View>
+                <TouchableOpacity onPress={() => setShowBreakdownModal(false)} style={{ padding: 6 }}>
+                  <Ionicons name="close" size={22} color="#94A3B8" />
+                </TouchableOpacity>
+              </View>
+
+              {/* Divider */}
+              <View style={{ height: 1, backgroundColor: '#F1F5F9', marginBottom: 16 }} />
+
+              {/* Vehicle List */}
+              {breakdownVehiclesCount === 0 ? (
+                <View style={{ alignItems: 'center', paddingVertical: 32 }}>
+                  <Ionicons name="checkmark-circle" size={40} color="#10B981" />
+                  <Text style={{ color: '#10B981', fontWeight: '700', marginTop: 12, fontSize: 14 }}>All vehicles are operational</Text>
+                </View>
+              ) : (
+                <ScrollView style={{ maxHeight: 360 }} showsVerticalScrollIndicator={false}>
+                  {vehicles
+                    .filter((v) => (v.status || '').toLowerCase().includes('break') || (v.status || '').toLowerCase().includes('maint'))
+                    .map((v, idx) => {
+                      const driver = drivers.find((d) => d.id === v.assignedUserId);
+                      return (
+                        <View key={idx} style={{
+                          backgroundColor: '#FEF2F2',
+                          borderRadius: 14,
+                          padding: 16,
+                          marginBottom: 12,
+                          borderWidth: 1,
+                          borderColor: '#FECACA',
+                        }}>
+                          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <View style={{ flex: 1 }}>
+                              <Text style={{ fontSize: 17, fontWeight: '800', color: '#1E293B' }}>{v.number}</Text>
+                              <Text style={{ fontSize: 12, color: '#475569', marginTop: 3 }}>{v.model} • {(v.type || '').toUpperCase()}</Text>
+                              {driver && (
+                                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
+                                  <Ionicons name="person-circle-outline" size={14} color="#64748B" />
+                                  <Text style={{ fontSize: 11, color: '#64748B', marginLeft: 4 }}>Driver: <Text style={{ fontWeight: '700' }}>{driver.name}</Text></Text>
+                                </View>
+                              )}
+                            </View>
+                            <View style={{ backgroundColor: '#DC2626', paddingVertical: 4, paddingHorizontal: 12, borderRadius: 20 }}>
+                              <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFFFFF', letterSpacing: 0.5 }}>BREAKDOWN</Text>
+                            </View>
+                          </View>
+                          <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF7ED', borderRadius: 8, padding: 8 }}>
+                            <Ionicons name="information-circle-outline" size={14} color="#EA580C" />
+                            <Text style={{ fontSize: 11, color: '#EA580C', marginLeft: 6 }}>Awaiting recovery — driver can mark as active from app</Text>
+                          </View>
+                        </View>
+                      );
+                    })}
+                </ScrollView>
+              )}
+            </Pressable>
+          </Pressable>
+        </Modal>
 
         {/* Card 5: Total Trips */}
         <View style={styles.statCard}>
@@ -452,49 +539,6 @@ export default function OverviewTab() {
           </View>
         </View>
       </View>
-
-      {/* Breakdown Vehicles Alert Card — only shown when vehicles are in breakdown */}
-      {breakdownVehiclesCount > 0 && (
-        <View style={{ marginTop: 12, backgroundColor: '#FEF2F2', borderRadius: 16, borderWidth: 1.5, borderColor: '#FECACA', padding: 20 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ionicons name="alert-circle" size={18} color="#DC2626" />
-              <Text style={{ fontSize: 14, fontWeight: '800', color: '#DC2626', marginLeft: 8, letterSpacing: 0.5 }}>VEHICLES IN BREAKDOWN</Text>
-            </View>
-            <View style={{ backgroundColor: '#DC2626', paddingVertical: 3, paddingHorizontal: 10, borderRadius: 20 }}>
-              <Text style={{ fontSize: 11, fontWeight: '800', color: '#FFFFFF' }}>{breakdownVehiclesCount} UNIT{breakdownVehiclesCount > 1 ? 'S' : ''}</Text>
-            </View>
-          </View>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-            {vehicles
-              .filter((v) => (v.status || '').toLowerCase().includes('break') || (v.status || '').toLowerCase().includes('maint'))
-              .map((v, idx) => {
-                const driver = drivers.find((d) => d.id === v.assignedUserId);
-                return (
-                  <View key={idx} style={{ backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#FECACA', padding: 16, minWidth: 200, flex: 1 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <View style={{ flex: 1 }}>
-                        <Text style={{ fontSize: 16, fontWeight: '800', color: '#1E293B' }}>{v.number}</Text>
-                        <Text style={{ fontSize: 12, color: '#475569', fontWeight: '500', marginTop: 2 }}>{v.model} • {v.type}</Text>
-                        {driver && (
-                          <Text style={{ fontSize: 11, color: '#64748B', marginTop: 4 }}>Driver: {driver.name}</Text>
-                        )}
-                      </View>
-                      <View style={{ backgroundColor: '#FEE2E2', paddingVertical: 4, paddingHorizontal: 10, borderRadius: 20, borderWidth: 1, borderColor: '#FECACA' }}>
-                        <Text style={{ fontSize: 10, fontWeight: '800', color: '#DC2626' }}>BREAKDOWN</Text>
-                      </View>
-                    </View>
-                    <View style={{ marginTop: 12, height: 1, backgroundColor: '#FEE2E2' }} />
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
-                      <Ionicons name="information-circle-outline" size={14} color="#94A3B8" />
-                      <Text style={{ fontSize: 11, color: '#94A3B8', marginLeft: 4 }}>Awaiting recovery — driver can mark active</Text>
-                    </View>
-                  </View>
-                );
-              })}
-          </View>
-        </View>
-      )}
 
       {/* Footer Copyright brand text */}
       <View style={{ marginVertical: 24, alignItems: 'center' }}>
