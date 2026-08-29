@@ -280,14 +280,17 @@ fun TripDetailsTab(driverId: String) {
                         )
                         Box(modifier = Modifier.matchParentSize().background(Color.Transparent).clickable { vehicleMenuExpanded = true })
                         DropdownMenu(expanded = vehicleMenuExpanded, onDismissRequest = { vehicleMenuExpanded = false }) {
-                            val activeVehicles = allVehicles.filter { it.status.equals("Active", ignoreCase = true) }
-                            if (activeVehicles.isEmpty()) {
+                            val selectableVehicles = allVehicles.filter { 
+                                !it.status.equals("Breakdown", ignoreCase = true) && 
+                                !it.status.equals("Running", ignoreCase = true)
+                            }
+                            if (selectableVehicles.isEmpty()) {
                                 DropdownMenuItem(
-                                    text = { Text("No active vehicles available", color = BrandGrey, fontWeight = FontWeight.Bold) },
+                                    text = { Text("No vehicles available", color = BrandGrey, fontWeight = FontWeight.Bold) },
                                     onClick = { vehicleMenuExpanded = false }
                                 )
                             } else {
-                                activeVehicles.forEach { vehicle ->
+                                selectableVehicles.forEach { vehicle ->
                                     DropdownMenuItem(
                                         text = { Text("${vehicle.number} - ${vehicle.model}", fontWeight = FontWeight.Black) },
                                         onClick = {
@@ -665,6 +668,12 @@ fun TripDetailsTab(driverId: String) {
                                             AppRepository.upsertTrip(updated)
                                         }
                                     }
+                                    // Set vehicle status to Running
+                                    selectedVehicleId?.let { vId ->
+                                        allVehicles.find { it.id == vId }?.let { vehicle ->
+                                            AppRepository.updateVehicle(vehicle.copy(status = "Running"))
+                                        }
+                                    }
                                     
                                     tripStatus = "started"
                                     persistDraft()
@@ -761,6 +770,12 @@ fun TripDetailsTab(driverId: String) {
                                 )
                                 val success = AppRepository.upsertTrip(trip)
                                 if (success) {
+                                    // Set vehicle status back to Active
+                                    selectedVehicleId?.let { vId ->
+                                        allVehicles.find { it.id == vId }?.let { vehicle ->
+                                            AppRepository.updateVehicle(vehicle.copy(status = "Active"))
+                                        }
+                                    }
                                     submitted = true
                                     error = null
                                     tripStatus = "submitted"
