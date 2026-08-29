@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, Modal } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, Modal, Image } from 'react-native';
 import { useDashboardData } from '../../../context/DashboardDataContext';
 import { styles, fontStyle } from '../AdminStyles';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,7 +9,6 @@ import { Vehicle } from '@fleettrack/shared';
 export default function VehiclesTab() {
   const { vehicles, fetchData } = useDashboardData();
   const [vehicleSearch, setVehicleSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Running' | 'Breakdown'>('All');
   const [vehicleModalVisible, setVehicleModalVisible] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [vehicleForm, setVehicleForm] = useState({
@@ -23,23 +22,11 @@ export default function VehiclesTab() {
     insuranceStatus: 'Valid',
   });
 
-  // Calculate statistics dynamically
-  const totalCount = vehicles.length;
-  const activeCount = vehicles.filter(v => (v.status || '').toLowerCase() === 'active').length;
-  const runningCount = vehicles.filter(v => (v.status || '').toLowerCase() === 'running').length;
-  const breakdownCount = vehicles.filter(v => (v.status || '').toLowerCase().includes('break')).length;
-
-  const filteredVehicles = vehicles.filter((v) => {
-    const matchesSearch =
+  const filteredVehicles = vehicles.filter(
+    (v) =>
       v.number.toLowerCase().includes(vehicleSearch.toLowerCase()) ||
-      v.model.toLowerCase().includes(vehicleSearch.toLowerCase());
-    
-    if (statusFilter === 'All') return matchesSearch;
-    if (statusFilter === 'Active') return matchesSearch && (v.status || '').toLowerCase() === 'active';
-    if (statusFilter === 'Running') return matchesSearch && (v.status || '').toLowerCase() === 'running';
-    if (statusFilter === 'Breakdown') return matchesSearch && (v.status || '').toLowerCase().includes('break');
-    return matchesSearch;
-  });
+      v.model.toLowerCase().includes(vehicleSearch.toLowerCase())
+  );
 
   const openVehicleModal = (veh: Vehicle | null = null) => {
     setEditingVehicle(veh);
@@ -120,274 +107,218 @@ export default function VehiclesTab() {
 
   return (
     <View style={{ flex: 1 }}>
-      {/* Top Fleet Analytics Cards */}
-      <View style={{ flexDirection: 'row', gap: 16, marginBottom: 16 }}>
-        {/* Total Fleet Card */}
-        <View style={{
-          flex: 1,
-          backgroundColor: '#FFFFFF',
-          borderRadius: 16,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: '#E2E8F0',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 12,
-        }}>
-          <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#EFF6FF', justifyContent: 'center', alignItems: 'center' }}>
-            <Ionicons name="car-outline" size={22} color="#1D4ED8" />
-          </View>
-          <View>
-            <Text style={{ fontSize: 11, color: '#64748B', fontWeight: '700', fontFamily: fontStyle, letterSpacing: 0.5 }}>TOTAL FLEET</Text>
-            <Text style={{ fontSize: 20, color: '#0F172A', fontWeight: '900', fontFamily: fontStyle }}>{totalCount} Vehicles</Text>
-          </View>
-        </View>
-
-        {/* Active/Running Card */}
-        <View style={{
-          flex: 1,
-          backgroundColor: '#FFFFFF',
-          borderRadius: 16,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: '#E2E8F0',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 12,
-        }}>
-          <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#ECFDF5', justifyContent: 'center', alignItems: 'center' }}>
-            <Ionicons name="checkmark-circle-outline" size={22} color="#10B981" />
-          </View>
-          <View>
-            <Text style={{ fontSize: 11, color: '#64748B', fontWeight: '700', fontFamily: fontStyle, letterSpacing: 0.5 }}>OPERATIONAL</Text>
-            <Text style={{ fontSize: 20, color: '#0F172A', fontWeight: '900', fontFamily: fontStyle }}>{activeCount + runningCount} Online</Text>
-          </View>
-        </View>
-
-        {/* Breakdown Card */}
-        <View style={{
-          flex: 1,
-          backgroundColor: '#FFFFFF',
-          borderRadius: 16,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: '#E2E8F0',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 12,
-        }}>
-          <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#FEF2F2', justifyContent: 'center', alignItems: 'center' }}>
-            <Ionicons name="alert-circle-outline" size={22} color="#EF4444" />
-          </View>
-          <View>
-            <Text style={{ fontSize: 11, color: '#64748B', fontWeight: '700', fontFamily: fontStyle, letterSpacing: 0.5 }}>WORKSHOP / ISSUES</Text>
-            <Text style={{ fontSize: 20, color: '#0F172A', fontWeight: '900', fontFamily: fontStyle }}>{breakdownCount} Incidents</Text>
-          </View>
-        </View>
-      </View>
-
       {/* Vehicles Search & Action Card */}
-      <View style={[styles.sectionCard, { flex: 1, padding: 24, marginTop: 0 }]}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <View>
-            <Text style={[styles.sectionTitle, { fontSize: 18, fontWeight: '800', fontFamily: fontStyle, color: '#0F172A', marginBottom: 4 }]}>Fleet Registry</Text>
-            <Text style={{ fontSize: 12, color: '#64748B', fontFamily: fontStyle }}>Audit status, registration, fuel logs, and telemetry specs for the active fleet.</Text>
+      <View style={[styles.sectionCard, { flex: 1, padding: 24 }]}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{
+              width: 44,
+              height: 44,
+              borderRadius: 10,
+              backgroundColor: '#EFF6FF',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginRight: 14
+            }}>
+              <Ionicons name="car" size={24} color="#1D4ED8" />
+            </View>
+            <View>
+              <Text style={{ fontSize: 18, fontWeight: '800', color: '#0F172A', fontFamily: fontStyle, marginBottom: 2 }}>Vehicle List</Text>
+              <Text style={{ fontSize: 12, color: '#64748B', fontFamily: fontStyle }}>Manage and track your vehicles</Text>
+            </View>
           </View>
           <TouchableOpacity
-            style={[styles.addButton, { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 16, borderRadius: 10 }]}
+            style={{
+              backgroundColor: '#1D4ED8',
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingVertical: 10,
+              paddingHorizontal: 16,
+              borderRadius: 8,
+            }}
             onPress={() => openVehicleModal()}
           >
-            <Ionicons name="add-circle-outline" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
-            <Text style={[styles.addButtonText, { fontWeight: '700' }]}>ADD NEW VEHICLE</Text>
+            <Ionicons name="add" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#FFFFFF', fontFamily: fontStyle }}>Add Vehicle</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Filter Toolbar: Search Bar + Filter Pills */}
-        <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center', marginBottom: 24 }}>
-          {/* Custom Modern Search Input */}
-          <View style={{
-            flex: 1,
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#F8FAFC',
-            borderWidth: 1,
-            borderColor: '#E2E8F0',
-            borderRadius: 12,
-            paddingHorizontal: 16,
-            paddingVertical: 10,
-          }}>
-            <Ionicons name="search-outline" size={18} color="#94A3B8" style={{ marginRight: 10 }} />
-            <TextInput
-              style={{ flex: 1, fontSize: 13, color: '#0F172A', outlineStyle: 'none', fontFamily: fontStyle } as any}
-              placeholder="Search fleet by license plate, vehicle model or brand..."
-              placeholderTextColor="#94A3B8"
-              value={vehicleSearch}
-              onChangeText={setVehicleSearch}
-            />
-          </View>
+        {/* Custom Modern Search Input */}
+        <View style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: '#FFFFFF',
+          borderWidth: 1,
+          borderColor: '#E2E8F0',
+          borderRadius: 12,
+          paddingHorizontal: 16,
+          paddingVertical: 10,
+          marginBottom: 24,
+        }}>
+          <Ionicons name="search-outline" size={18} color="#94A3B8" style={{ marginRight: 10 }} />
+          <TextInput
+            style={{ flex: 1, fontSize: 13, color: '#0F172A', outlineStyle: 'none', fontFamily: fontStyle } as any}
+            placeholder="Search fleet by license plate, vehicle model or brand..."
+            placeholderTextColor="#94A3B8"
+            value={vehicleSearch}
+            onChangeText={setVehicleSearch}
+          />
+        </View>
 
-          {/* Status Filter Pills */}
-          <View style={{ flexDirection: 'row', backgroundColor: '#F1F5F9', borderRadius: 10, padding: 3 }}>
-            {(['All', 'Active', 'Running', 'Breakdown'] as const).map((filter) => {
-              const active = statusFilter === filter;
-              return (
-                <TouchableOpacity
-                  key={filter}
-                  onPress={() => setStatusFilter(filter)}
-                  style={{
-                    paddingVertical: 8,
-                    paddingHorizontal: 14,
-                    borderRadius: 8,
-                    backgroundColor: active ? '#FFFFFF' : 'transparent',
-                    shadowColor: '#0F172A',
-                    shadowOffset: { width: 0, height: 1 },
-                    shadowOpacity: active ? 0.05 : 0,
-                    shadowRadius: 2,
-                  }}
-                >
-                  <Text style={{ fontSize: 11, fontWeight: '800', color: active ? '#1D4ED8' : '#64748B', fontFamily: fontStyle }}>{filter.toUpperCase()}</Text>
-                </TouchableOpacity>
-              );
-            })}
+        {/* Custom Spaced Modern Table Headers (Fixed to Match Screenshot) */}
+        <View style={[styles.tableHeaderRow, {
+          backgroundColor: '#F1F5F9',
+          borderBottomWidth: 0,
+          paddingVertical: 12,
+          paddingHorizontal: 16,
+          borderRadius: 8,
+          marginBottom: 16,
+          alignItems: 'center'
+        }]}>
+          <View style={{ flex: 2, flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="card" size={14} color="#0052CC" style={{ marginRight: 6 }} />
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Plate Number</Text>
+          </View>
+          <View style={{ flex: 2, flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="car" size={14} color="#0052CC" style={{ marginRight: 6 }} />
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Model</Text>
+          </View>
+          <View style={{ flex: 1.2, flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="pricetag" size={14} color="#0052CC" style={{ marginRight: 6 }} />
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Type</Text>
+          </View>
+          <View style={{ flex: 2, flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="document-text" size={14} color="#0052CC" style={{ marginRight: 6 }} />
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Registration No</Text>
+          </View>
+          <View style={{ flex: 1.6, flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="speedometer" size={14} color="#0052CC" style={{ marginRight: 6 }} />
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Mileage</Text>
+          </View>
+          <View style={{ flex: 1.2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+            <Ionicons name="settings" size={14} color="#0052CC" style={{ marginRight: 6 }} />
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#475569', fontFamily: fontStyle }}>Actions</Text>
           </View>
         </View>
 
-        {/* Scrollable list of 1-by-1 beautiful vehicle cards */}
+        {/* Scrollable table rows */}
         <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-          <View style={{ gap: 12, paddingBottom: 20 }}>
-            {filteredVehicles.length > 0 ? (
-              filteredVehicles.map((veh) => {
-                const displayPlate = veh.number || 'UNKNOWN';
-                const isTruck = !veh.type || veh.type.toLowerCase().includes('truck');
-                const iconName = isTruck ? 'bus' : 'car-sport';
-                const iconBg = isTruck ? '#EFF6FF' : '#FFF7ED';
-                const iconColor = isTruck ? '#1D4ED8' : '#EA580C';
-                
-                const isRunning = (veh.status || '').toLowerCase() === 'running';
-                const isBreakdown = (veh.status || '').toLowerCase().includes('break');
-                const statusColor = isRunning ? '#2563EB' : isBreakdown ? '#EF4444' : '#10B981';
-                const statusText = isRunning ? 'Running' : isBreakdown ? 'Breakdown' : 'Active';
+          <View style={{ paddingHorizontal: 4 }}>
+            {filteredVehicles.map((veh) => {
+              const displayPlate = veh.number || 'UNKNOWN';
+              const isTruck = !veh.type || veh.type.toLowerCase().includes('truck');
+              const tagBg = isTruck ? '#EFF6FF' : '#FFF7ED';
+              const tagBorder = isTruck ? '#DBEAFE' : '#FFEDD5';
+              const tagText = isTruck ? '#1D4ED8' : '#EA580C';
 
-                return (
-                  <View
-                    key={veh.id}
-                    style={{
+              return (
+                <View key={veh.id} style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingVertical: 16,
+                  borderBottomWidth: 1,
+                  borderColor: '#F1F5F9',
+                }}>
+                  {/* Plate Badge design with IND flag */}
+                  <View style={{ flex: 2, flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{
                       flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
                       backgroundColor: '#FFFFFF',
                       borderWidth: 1,
-                      borderColor: '#F1F5F9',
-                      borderRadius: 16,
-                      padding: 16,
-                      shadowColor: '#0F172A',
-                      shadowOffset: { width: 0, height: 2 },
-                      shadowOpacity: 0.015,
-                      shadowRadius: 6,
-                    }}
-                  >
-                    {/* Left Section: Vehicle Icon & Primary Info */}
-                    <View style={{ flexDirection: 'row', alignItems: 'center', flex: 3.5, gap: 14 }}>
+                      borderColor: '#E2E8F0',
+                      borderRadius: 6,
+                      overflow: 'hidden',
+                      height: 38,
+                      alignItems: 'center',
+                      minWidth: 130
+                    }}>
                       <View style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: 12,
-                        backgroundColor: iconBg,
+                        width: 18,
+                        height: '100%',
+                        backgroundColor: '#0052CC',
                         justifyContent: 'center',
                         alignItems: 'center',
+                        paddingVertical: 2
                       }}>
-                        <Ionicons name={iconName} size={22} color={iconColor} />
+                        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: '#FFD700', marginBottom: 2 }} />
+                        <Text style={{ fontSize: 5, fontWeight: '900', color: '#FFFFFF' }}>IND</Text>
                       </View>
-                      <View style={{ gap: 4 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                          <View style={{
-                            backgroundColor: '#FFF',
-                            borderWidth: 1.5,
-                            borderColor: '#1E293B',
-                            borderRadius: 4,
-                            paddingVertical: 2,
-                            paddingHorizontal: 8,
-                          }}>
-                            <Text style={{ fontSize: 11, fontWeight: '800', color: '#1E293B', letterSpacing: 0.5, fontFamily: 'monospace' }}>{displayPlate}</Text>
-                          </View>
-                          <Text style={{ fontSize: 15, fontWeight: '800', color: '#0F172A', fontFamily: fontStyle }}>{veh.model}</Text>
-                        </View>
-                        <Text style={{ fontSize: 11, color: '#64748B', fontWeight: '600', letterSpacing: 0.5, fontFamily: fontStyle }}>
-                          {(veh.type || 'Truck').toUpperCase()} • REG: {veh.registrationNumber || 'N/A'}
-                        </Text>
-                      </View>
-                    </View>
-
-                    {/* Middle Section: Operating Telemetry Info */}
-                    <View style={{ flexDirection: 'row', alignItems: 'center', flex: 4.5, justifyContent: 'space-around' }}>
-                      {/* Mileage */}
-                      <View style={{ gap: 4 }}>
-                        <Text style={{ fontSize: 10, color: '#94A3B8', fontWeight: '700', fontFamily: fontStyle, letterSpacing: 0.5 }}>MILEAGE</Text>
-                        <Text style={{ fontSize: 13, color: '#334155', fontWeight: '800', fontFamily: fontStyle }}>{veh.mileage ? `${veh.mileage.toLocaleString()}` : '0'} km</Text>
-                      </View>
-
-                      {/* Fuel Type */}
-                      <View style={{ gap: 4 }}>
-                        <Text style={{ fontSize: 10, color: '#94A3B8', fontWeight: '700', fontFamily: fontStyle, letterSpacing: 0.5 }}>FUEL TYPE</Text>
-                        <Text style={{ fontSize: 13, color: '#475569', fontWeight: '700', fontFamily: fontStyle }}>{veh.fuelType || 'Diesel'}</Text>
-                      </View>
-
-                      {/* Insurance Status */}
-                      <View style={{ gap: 4 }}>
-                        <Text style={{ fontSize: 10, color: '#94A3B8', fontWeight: '700', fontFamily: fontStyle, letterSpacing: 0.5 }}>INSURANCE</Text>
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                          <Ionicons name="shield-checkmark" size={12} color={veh.insuranceStatus === 'Valid' ? '#10B981' : '#EA580C'} style={{ marginRight: 4 }} />
-                          <Text style={{ fontSize: 12, color: veh.insuranceStatus === 'Valid' ? '#10B981' : '#EA580C', fontWeight: '700', fontFamily: fontStyle }}>{veh.insuranceStatus || 'Valid'}</Text>
-                        </View>
-                      </View>
-                    </View>
-
-                    {/* Right Section: Status Badge & Actions */}
-                    <View style={{ flexDirection: 'row', alignItems: 'center', flex: 2, justifyContent: 'flex-end', gap: 14 }}>
-                      <View style={{ backgroundColor: statusColor + '12', paddingVertical: 5, paddingHorizontal: 10, borderRadius: 20, flexDirection: 'row', alignItems: 'center' }}>
-                        <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: statusColor, marginRight: 6 }} />
-                        <Text style={{ fontSize: 10, fontWeight: '800', color: statusColor }}>{statusText.toUpperCase()}</Text>
-                      </View>
-
-                      {/* Actions */}
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                        <TouchableOpacity
-                          style={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: 16,
-                            backgroundColor: '#EFF6FF',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}
-                          onPress={() => openVehicleModal(veh)}
-                        >
-                          <Ionicons name="pencil" size={14} color="#1D4ED8" />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: 16,
-                            backgroundColor: '#FEF2F2',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}
-                          onPress={() => handleDeleteVehicle(veh.id)}
-                        >
-                          <Ionicons name="trash" size={14} color="#EF4444" />
-                        </TouchableOpacity>
+                      <View style={{ flex: 1, paddingHorizontal: 8, justifyContent: 'center' }}>
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: '#1E293B', letterSpacing: 0.5, fontFamily: 'monospace' }}>{displayPlate}</Text>
                       </View>
                     </View>
                   </View>
-                );
-              })
-            ) : (
-              <View style={{ alignItems: 'center', paddingVertical: 50 }}>
-                <Ionicons name="car-outline" size={48} color="#CBD5E1" />
-                <Text style={{ fontSize: 14, color: '#94A3B8', fontWeight: '600', marginTop: 12, fontFamily: fontStyle }}>No vehicles match the filter criteria</Text>
-              </View>
-            )}
+
+                  {/* Model column with vehicle thumbnail image */}
+                  <View style={{ flex: 2, flexDirection: 'row', alignItems: 'center' }}>
+                    <Image
+                      source={{ uri: isTruck ? "https://cdn-icons-png.flaticon.com/128/744/744465.png" : "https://cdn-icons-png.flaticon.com/128/741/741407.png" }}
+                      style={{ width: 34, height: 34, marginRight: 12, resizeMode: 'contain' }}
+                    />
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#334155', fontFamily: fontStyle }}>{veh.model}</Text>
+                  </View>
+
+                  {/* Pill Badge */}
+                  <View style={{ flex: 1.2 }}>
+                    <View style={{
+                      alignSelf: 'flex-start',
+                      backgroundColor: tagBg,
+                      borderColor: tagBorder,
+                      borderWidth: 1,
+                      paddingVertical: 4,
+                      paddingHorizontal: 10,
+                      borderRadius: 6,
+                    }}>
+                      <Text style={{ fontSize: 9, fontWeight: '800', color: tagText, fontFamily: fontStyle }}>{(veh.type || 'Truck').toUpperCase()}</Text>
+                    </View>
+                  </View>
+
+                  {/* Registration No */}
+                  <View style={{ flex: 2 }}>
+                    <Text style={{ fontSize: 13, color: '#64748B', fontFamily: fontStyle }}>{veh.registrationNumber}</Text>
+                  </View>
+
+                  {/* Mileage with green speedometer icon */}
+                  <View style={{ flex: 1.6, flexDirection: 'row', alignItems: 'center' }}>
+                    <Ionicons name="speedometer-outline" size={14} color="#24D164" style={{ marginRight: 6 }} />
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#334155', fontFamily: fontStyle }}>
+                      {veh.mileage ? `${Number(veh.mileage).toLocaleString()}` : '0'} km
+                    </Text>
+                  </View>
+
+                  {/* Circular Icon Actions */}
+                  <View style={{ flex: 1.2, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                    <TouchableOpacity
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: 16,
+                        backgroundColor: '#EFF6FF',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginRight: 8,
+                      }}
+                      onPress={() => openVehicleModal(veh)}
+                    >
+                      <Ionicons name="pencil" size={14} color="#1D4ED8" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: 16,
+                        backgroundColor: '#FEF2F2',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}
+                      onPress={() => handleDeleteVehicle(veh.id)}
+                    >
+                      <Ionicons name="trash" size={14} color="#EF4444" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              );
+            })}
           </View>
         </ScrollView>
       </View>
@@ -427,3 +358,4 @@ export default function VehiclesTab() {
     </View>
   );
 }
+
