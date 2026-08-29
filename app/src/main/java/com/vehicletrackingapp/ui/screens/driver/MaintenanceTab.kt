@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,7 +43,11 @@ fun MaintenanceTab(driverId: String) {
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { visible = true }
 
+    var selectedTabIndex by remember { mutableStateOf(0) }
+
     var recordId by remember { mutableStateOf("") }
+    
+    // Form fields
     var selectedType by remember { mutableStateOf("") }
     var customType by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -52,13 +57,12 @@ fun MaintenanceTab(driverId: String) {
     var billUri by remember { mutableStateOf<Uri?>(null) }
     var saved by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    
     var typeMenuExpanded by remember { mutableStateOf(false) }
     var isInitialized by remember { mutableStateOf(false) }
 
     var selectedVehicleId by remember { mutableStateOf<String?>(null) }
     var vehicleMenuExpanded by remember { mutableStateOf(false) }
-
-    var isBreakdown by remember { mutableStateOf(false) }
 
     // Live update for system date/time
     LaunchedEffect(isLocked, saved, isInitialized) {
@@ -76,31 +80,68 @@ fun MaintenanceTab(driverId: String) {
 
     fun resetForm() {
         recordId = AppRepository.newId()
-        selectedType = ""
+        selectedType = if (selectedTabIndex == 0) "Breakdown" else if (selectedTabIndex == 1) "Diesel" else "Service"
         customType = ""
         description = ""
         cost = ""
         billUri = null
-        isBreakdown = false
         error = null
         saved = false
     }
-
-    val categories = listOf("Petrol", "Diesel", "Battery", "Wheel", "Service", "Breakdown")
 
     val linkedVehicleId = draftTrip?.vehicleId
     val effectiveVehicleId = selectedVehicleId ?: linkedVehicleId
     val vehicle = effectiveVehicleId?.let { id -> vehicles.find { it.id == id } }
 
+    fun persistDraft() {
+        if (isLocked) return
+        scope.launch {
+            if (vehicle == null) return@launch
+            val finalType = when (selectedTabIndex) {
+                0 -> "Breakdown"
+                1 -> selectedType
+                else -> if (selectedType == "Other") customType else selectedType
+            }
+            val record = MaintenanceRecord(
+                id = recordId, vehicleId = vehicle.id, driverId = driverId,
+                tripId = draftTrip?.id,
+                maintenanceType = finalType, description = description,
+                date = date, time = time, cost = if (selectedTabIndex == 0) "0" else cost,
+                billImageUri = billUri?.toString(), status = "draft",
+                isBreakdownReport = selectedTabIndex == 0
+            )
+            AppRepository.upsertMaintenance(record)
+        }
+    }
+
+    // Switch tab defaults
+    LaunchedEffect(selectedTabIndex) {
+        if (!isInitialized) return@LaunchedEffect
+        if (selectedTabIndex == 0) {
+            selectedType = "Breakdown"
+        } else if (selectedTabIndex == 1) {
+            selectedType = "Diesel"
+        } else {
+            selectedType = "Service"
+        }
+        persistDraft()
+    }
+
     LaunchedEffect(draftMainFlow.value) {
         val draft = draftMainFlow.value
         if (draft != null && !isInitialized) {
             recordId = draft.id
-            if (categories.contains(draft.maintenanceType)) {
-                selectedType = draft.maintenanceType
+            selectedType = draft.maintenanceType
+            if (draft.isBreakdownReport) {
+                selectedTabIndex = 0
+            } else if (draft.maintenanceType == "Petrol" || draft.maintenanceType == "Diesel" || draft.maintenanceType == "CNG") {
+                selectedTabIndex = 1
             } else {
-                selectedType = "Other"
-                customType = draft.maintenanceType
+                selectedTabIndex = 2
+                if (draft.maintenanceType != "Battery" && draft.maintenanceType != "Wheel" && draft.maintenanceType != "Service") {
+                    selectedType = "Other"
+                    customType = draft.maintenanceType
+                }
             }
             description = draft.description
             date = draft.date
@@ -108,35 +149,19 @@ fun MaintenanceTab(driverId: String) {
             cost = draft.cost
             billUri = draft.billImageUri?.let { Uri.parse(it) }
             selectedVehicleId = draft.vehicleId
-            isBreakdown = draft.isBreakdownReport
             isInitialized = true
         } else if (draft == null && !isInitialized) {
             recordId = AppRepository.newId()
+            selectedType = "Breakdown"
             isInitialized = true
         }
     }
 
-    fun persistDraft() {
-        if (isLocked) return
-        scope.launch {
-            if (vehicle == null) return@launch
-            val finalType = if (isBreakdown) "Breakdown" else (if (selectedType == "Other") customType else selectedType)
-            val record = MaintenanceRecord(
-                id = recordId, vehicleId = vehicle.id, driverId = driverId,
-                tripId = draftTrip?.id,
-                maintenanceType = finalType, description = description,
-                date = date, time = time, cost = cost,
-                billImageUri = billUri?.toString(), status = "draft",
-                isBreakdownReport = isBreakdown
-            )
-            AppRepository.upsertMaintenance(record)
-        }
-    }
 
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-        SectionTitle(stringResource(R.string.service_registry).uppercase())
+        SectionTitle("MAINTENANCE DEPLOYMENT")
         AttractiveHorizontalDivider()
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         
         if (isLocked) {
             Box(modifier = Modifier.fillMaxWidth().background(SuccessEmerald.copy(alpha = 0.1f), RoundedCornerShape(12.dp)).padding(16.dp)) {
@@ -165,7 +190,7 @@ fun MaintenanceTab(driverId: String) {
                         trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, tint = BrandYellow) },
                         shape = RoundedCornerShape(20.dp),
                         enabled = !isLocked,
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = BrandYellow, unfocusedBorderColor = Color.Black.copy(alpha = 0.08f), disabledTextColor = if (isLocked) BrandGrey else BrandDark, disabledBorderColor = Color.Black.copy(alpha = 0.08f), disabledLabelColor = TextHint)
+                        colors = OutlinedTextFieldDefaults.colors(disabledTextColor = if (isLocked) BrandGrey else BrandDark, disabledBorderColor = Color.Black.copy(alpha = 0.08f), disabledLabelColor = TextHint)
                     )
                     if (!isLocked) {
                         Box(modifier = Modifier.matchParentSize().background(Color.Transparent).clickable { vehicleMenuExpanded = true })
@@ -186,143 +211,212 @@ fun MaintenanceTab(driverId: String) {
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // Breakdown Toggle
-        StaggeredItem(visible, 1) {
-            UltraGlassCard(glowColor = if (isBreakdown) DangerCrimson else Color.Transparent) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    Icon(Icons.Default.ReportProblem, null, tint = if (isBreakdown) DangerCrimson else BrandGrey, modifier = Modifier.size(24.dp))
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("VEHICLE BREAKDOWN", fontWeight = FontWeight.Black, color = if (isBreakdown) DangerCrimson else BrandDark)
-                        Text("Immediate mission suspension", style = MaterialTheme.typography.labelSmall, color = TextHint)
-                    }
-                    Switch(
-                        checked = isBreakdown, 
-                        onCheckedChange = { isBreakdown = it; if(it) selectedType = "Breakdown"; persistDraft() },
-                        colors = SwitchDefaults.colors(checkedThumbColor = DangerCrimson, checkedTrackColor = DangerCrimson.copy(alpha = 0.4f)),
-                        enabled = !isLocked
-                    )
-                }
-            }
+        // Premium Navigation Segment Tabs Row
+        TabRow(
+            selectedTabIndex = selectedTabIndex,
+            containerColor = Color.Transparent,
+            contentColor = BrandYellow,
+            indicator = { tabPositions ->
+                TabRowDefaults.SecondaryIndicator(
+                    Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                    color = if (selectedTabIndex == 0) DangerCrimson else BrandYellow
+                )
+            },
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
+        ) {
+            Tab(
+                selected = selectedTabIndex == 0,
+                onClick = { if (!isLocked) selectedTabIndex = 0 },
+                text = { Text("BREAKDOWN", fontWeight = FontWeight.Black, fontSize = 11.sp) },
+                icon = { Icon(Icons.Default.ReportProblem, null, tint = if (selectedTabIndex == 0) DangerCrimson else BrandGrey) }
+            )
+            Tab(
+                selected = selectedTabIndex == 1,
+                onClick = { if (!isLocked) selectedTabIndex = 1 },
+                text = { Text("FUEL", fontWeight = FontWeight.Black, fontSize = 11.sp) },
+                icon = { Icon(Icons.Default.LocalGasStation, null, tint = if (selectedTabIndex == 1) BrandYellow else BrandGrey) }
+            )
+            Tab(
+                selected = selectedTabIndex == 2,
+                onClick = { if (!isLocked) selectedTabIndex = 2 },
+                text = { Text("SERVICE", fontWeight = FontWeight.Black, fontSize = 11.sp) },
+                icon = { Icon(Icons.Default.Build, null, tint = if (selectedTabIndex == 2) BrandYellow else BrandGrey) }
+            )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        if (!isBreakdown) {
-            StaggeredItem(visible, 2) {
-                UltraGlassCard {
-                    Text(stringResource(R.string.expense_details).uppercase(), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = TextHint, letterSpacing = 1.5.sp)
-                    Spacer(modifier = Modifier.height(20.dp))
-                    
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        OutlinedTextField(
-                            value = if (selectedType == "Other") "Other: $customType" else selectedType.ifBlank { "SELECT CATEGORY" },
-                            onValueChange = {},
-                            readOnly = true,
-                            modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Service Classification", fontWeight = FontWeight.Bold) },
-                            trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, tint = BrandYellow) },
-                            shape = RoundedCornerShape(20.dp),
-                            enabled = !isLocked,
-                            colors = OutlinedTextFieldDefaults.colors(disabledTextColor = if (isLocked) BrandGrey else BrandDark, disabledBorderColor = Color.Black.copy(alpha = 0.08f), disabledLabelColor = TextHint)
-                        )
-                        if (!isLocked) {
-                            Box(modifier = Modifier.matchParentSize().background(Color.Transparent).clickable { typeMenuExpanded = true })
-                            DropdownMenu(expanded = typeMenuExpanded, onDismissRequest = { typeMenuExpanded = false }) {
-                                categories.filter { it != "Breakdown" }.forEach { cat ->
-                                    DropdownMenuItem(
-                                        text = { Text(cat, fontWeight = FontWeight.Black) },
-                                        onClick = {
-                                            selectedType = cat
-                                            typeMenuExpanded = false
-                                            persistDraft()
-                                        }
-                                    )
+        when (selectedTabIndex) {
+            0 -> {
+                // Section 1: Breakdown Form
+                StaggeredItem(visible, 2) {
+                    UltraGlassCard(glowColor = DangerCrimson) {
+                        Text("BREAKDOWN REPORT DETAILS", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = DangerCrimson, letterSpacing = 1.5.sp)
+                        Spacer(modifier = Modifier.height(20.dp))
+                        
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            OutlinedTextField(
+                                value = if (date.isBlank()) "PENDING..." else date, 
+                                onValueChange = {}, readOnly = true, enabled = false,
+                                label = { Text("Event Date", color = TextHint) },
+                                colors = OutlinedTextFieldDefaults.colors(disabledTextColor = BrandDark, disabledBorderColor = Color.Black.copy(alpha = 0.08f), disabledLabelColor = TextHint),
+                                modifier = Modifier.fillMaxWidth().weight(1f), shape = RoundedCornerShape(16.dp),
+                                leadingIcon = { Icon(Icons.Default.CalendarToday, null, tint = DangerCrimson) }
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            OutlinedTextField(
+                                value = if (time.isBlank()) "PENDING..." else time, 
+                                onValueChange = {}, readOnly = true, enabled = false,
+                                label = { Text("Event Time", color = TextHint) },
+                                colors = OutlinedTextFieldDefaults.colors(disabledTextColor = BrandDark, disabledBorderColor = Color.Black.copy(alpha = 0.08f), disabledLabelColor = TextHint),
+                                modifier = Modifier.fillMaxWidth().weight(1f), shape = RoundedCornerShape(16.dp),
+                                leadingIcon = { Icon(Icons.Default.Schedule, null, tint = DangerCrimson) }
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        EliteTextField(value = description, onValueChange = { description = it; persistDraft() }, label = "Breakdown Reason / Situation", leadingIcon = Icons.Default.Warning, enabled = !isLocked)
+                    }
+                }
+            }
+            1 -> {
+                // Section 2: Fuel Form
+                StaggeredItem(visible, 2) {
+                    UltraGlassCard {
+                        Text("FUEL PURCHASE DETAILS", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = TextHint, letterSpacing = 1.5.sp)
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            OutlinedTextField(
+                                value = selectedType.ifBlank { "SELECT FUEL TYPE" },
+                                onValueChange = {},
+                                readOnly = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                label = { Text("Fuel Classification", fontWeight = FontWeight.Bold) },
+                                trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, tint = BrandYellow) },
+                                shape = RoundedCornerShape(20.dp),
+                                enabled = !isLocked,
+                                colors = OutlinedTextFieldDefaults.colors(disabledTextColor = if (isLocked) BrandGrey else BrandDark, disabledBorderColor = Color.Black.copy(alpha = 0.08f), disabledLabelColor = TextHint)
+                            )
+                            if (!isLocked) {
+                                Box(modifier = Modifier.matchParentSize().background(Color.Transparent).clickable { typeMenuExpanded = true })
+                                DropdownMenu(expanded = typeMenuExpanded, onDismissRequest = { typeMenuExpanded = false }) {
+                                    listOf("Diesel", "Petrol", "CNG").forEach { fuelType ->
+                                        DropdownMenuItem(
+                                            text = { Text(fuelType, fontWeight = FontWeight.Black) },
+                                            onClick = {
+                                                selectedType = fuelType
+                                                typeMenuExpanded = false
+                                                persistDraft()
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    if (selectedType == "Other") {
                         Spacer(modifier = Modifier.height(16.dp))
-                        EliteTextField(value = customType, onValueChange = { customType = it; persistDraft() }, label = "Specify Service Type", leadingIcon = Icons.Default.Edit, enabled = !isLocked)
+                        EliteTextField(value = description, onValueChange = { description = it; persistDraft() }, label = "Litre Quantity / Notes", leadingIcon = Icons.Default.LocalGasStation, enabled = !isLocked)
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            OutlinedTextField(
+                                value = if (date.isBlank()) "PENDING..." else date, 
+                                onValueChange = {}, readOnly = true, enabled = false,
+                                label = { Text("System Date", color = TextHint) },
+                                colors = OutlinedTextFieldDefaults.colors(disabledTextColor = BrandDark, disabledBorderColor = Color.Black.copy(alpha = 0.08f), disabledLabelColor = TextHint),
+                                modifier = Modifier.fillMaxWidth().weight(1f), shape = RoundedCornerShape(16.dp),
+                                leadingIcon = { Icon(Icons.Default.CalendarToday, null, tint = BrandYellow) }
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            OutlinedTextField(
+                                value = if (time.isBlank()) "PENDING..." else time, 
+                                onValueChange = {}, readOnly = true, enabled = false,
+                                label = { Text("System Time", color = TextHint) },
+                                colors = OutlinedTextFieldDefaults.colors(disabledTextColor = BrandDark, disabledBorderColor = Color.Black.copy(alpha = 0.08f), disabledLabelColor = TextHint),
+                                modifier = Modifier.fillMaxWidth().weight(1f), shape = RoundedCornerShape(16.dp),
+                                leadingIcon = { Icon(Icons.Default.Schedule, null, tint = BrandYellow) }
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        EliteTextField(value = cost, onValueChange = { cost = it; persistDraft() }, label = "Fuel Cost (INR)", keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, leadingIcon = Icons.Default.CurrencyRupee, enabled = !isLocked)
+                        
+                        Spacer(modifier = Modifier.height(20.dp))
+                        CameraOnlyPicker(label = "FUEL RECEIPT EVIDENCE", imageUri = billUri, onImageSelected = { if (!isLocked) { billUri = it; persistDraft() } }, enabled = !isLocked)
                     }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                    EliteTextField(value = description, onValueChange = { description = it; persistDraft() }, label = stringResource(R.string.maintenance_description), leadingIcon = Icons.Default.Description, enabled = !isLocked)
                 }
             }
+            2 -> {
+                // Section 3: Other Maintenance
+                StaggeredItem(visible, 2) {
+                    UltraGlassCard {
+                        Text(stringResource(R.string.expense_details).uppercase(), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = TextHint, letterSpacing = 1.5.sp)
+                        Spacer(modifier = Modifier.height(20.dp))
+                        
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            OutlinedTextField(
+                                value = if (selectedType == "Other") "Other: $customType" else selectedType.ifBlank { "SELECT CATEGORY" },
+                                onValueChange = {},
+                                readOnly = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                label = { Text("Service Classification", fontWeight = FontWeight.Bold) },
+                                trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, tint = BrandYellow) },
+                                shape = RoundedCornerShape(20.dp),
+                                enabled = !isLocked,
+                                colors = OutlinedTextFieldDefaults.colors(disabledTextColor = if (isLocked) BrandGrey else BrandDark, disabledBorderColor = Color.Black.copy(alpha = 0.08f), disabledLabelColor = TextHint)
+                            )
+                            if (!isLocked) {
+                                Box(modifier = Modifier.matchParentSize().background(Color.Transparent).clickable { typeMenuExpanded = true })
+                                DropdownMenu(expanded = typeMenuExpanded, onDismissRequest = { typeMenuExpanded = false }) {
+                                    listOf("Service", "Battery", "Wheel", "Other").forEach { cat ->
+                                        DropdownMenuItem(
+                                            text = { Text(cat, fontWeight = FontWeight.Black) },
+                                            onClick = {
+                                                selectedType = cat
+                                                typeMenuExpanded = false
+                                                persistDraft()
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
 
-            Spacer(modifier = Modifier.height(24.dp))
+                        if (selectedType == "Other") {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            EliteTextField(value = customType, onValueChange = { customType = it; persistDraft() }, label = "Specify Service Type", leadingIcon = Icons.Default.Edit, enabled = !isLocked)
+                        }
 
-            StaggeredItem(visible, 3) {
-                UltraGlassCard {
-                    Text(stringResource(R.string.valuation).uppercase(), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = TextHint, letterSpacing = 1.5.sp)
-                    Spacer(modifier = Modifier.height(20.dp))
-                    
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        OutlinedTextField(
-                            value = if (date.isBlank()) "PENDING..." else date, 
-                            onValueChange = {}, readOnly = true, enabled = false,
-                            label = { Text("System Date", color = TextHint) },
-                            colors = OutlinedTextFieldDefaults.colors(disabledTextColor = BrandDark, disabledBorderColor = Color.Black.copy(alpha = 0.08f), disabledLabelColor = TextHint),
-                            modifier = Modifier.fillMaxWidth().weight(1f), shape = RoundedCornerShape(16.dp),
-                            leadingIcon = { Icon(Icons.Default.CalendarToday, null, tint = BrandYellow) }
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        OutlinedTextField(
-                            value = if (time.isBlank()) "PENDING..." else time, 
-                            onValueChange = {}, readOnly = true, enabled = false,
-                            label = { Text("System Time", color = TextHint) },
-                            colors = OutlinedTextFieldDefaults.colors(disabledTextColor = BrandDark, disabledBorderColor = Color.Black.copy(alpha = 0.08f), disabledLabelColor = TextHint),
-                            modifier = Modifier.fillMaxWidth().weight(1f), shape = RoundedCornerShape(16.dp),
-                            leadingIcon = { Icon(Icons.Default.Schedule, null, tint = BrandYellow) }
-                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        EliteTextField(value = description, onValueChange = { description = it; persistDraft() }, label = stringResource(R.string.maintenance_description), leadingIcon = Icons.Default.Description, enabled = !isLocked)
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            OutlinedTextField(
+                                value = if (date.isBlank()) "PENDING..." else date, 
+                                onValueChange = {}, readOnly = true, enabled = false,
+                                label = { Text("System Date", color = TextHint) },
+                                colors = OutlinedTextFieldDefaults.colors(disabledTextColor = BrandDark, disabledBorderColor = Color.Black.copy(alpha = 0.08f), disabledLabelColor = TextHint),
+                                modifier = Modifier.fillMaxWidth().weight(1f), shape = RoundedCornerShape(16.dp),
+                                leadingIcon = { Icon(Icons.Default.CalendarToday, null, tint = BrandYellow) }
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            OutlinedTextField(
+                                value = if (time.isBlank()) "PENDING..." else time, 
+                                onValueChange = {}, readOnly = true, enabled = false,
+                                label = { Text("System Time", color = TextHint) },
+                                colors = OutlinedTextFieldDefaults.colors(disabledTextColor = BrandDark, disabledBorderColor = Color.Black.copy(alpha = 0.08f), disabledLabelColor = TextHint),
+                                modifier = Modifier.fillMaxWidth().weight(1f), shape = RoundedCornerShape(16.dp),
+                                leadingIcon = { Icon(Icons.Default.Schedule, null, tint = BrandYellow) }
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        EliteTextField(value = cost, onValueChange = { cost = it; persistDraft() }, label = stringResource(R.string.maintenance_cost), keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, leadingIcon = Icons.Default.CurrencyRupee, enabled = !isLocked)
+                        
+                        Spacer(modifier = Modifier.height(20.dp))
+                        CameraOnlyPicker(label = "SERVICE BILL EVIDENCE", imageUri = billUri, onImageSelected = { if (!isLocked) { billUri = it; persistDraft() } }, enabled = !isLocked)
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    EliteTextField(value = cost, onValueChange = { cost = it; persistDraft() }, label = stringResource(R.string.maintenance_cost), keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, leadingIcon = Icons.Default.CurrencyRupee, enabled = !isLocked)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            StaggeredItem(visible, 4) {
-                UltraGlassCard {
-                    Text(stringResource(R.string.documentation).uppercase(), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = TextHint, letterSpacing = 1.5.sp)
-                    Spacer(modifier = Modifier.height(20.dp))
-                    CameraOnlyPicker(label = "BILL INVOICE EVIDENCE", imageUri = billUri, onImageSelected = { if (!isLocked) { billUri = it; persistDraft() } }, enabled = !isLocked)
-                }
-            }
-        } else {
-            // Breakdown Form
-            StaggeredItem(visible, 2) {
-                UltraGlassCard(glowColor = DangerCrimson) {
-                    Text("BREAKDOWN REPORT DETAILS", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = DangerCrimson, letterSpacing = 1.5.sp)
-                    Spacer(modifier = Modifier.height(20.dp))
-                    
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        OutlinedTextField(
-                            value = if (date.isBlank()) "PENDING..." else date, 
-                            onValueChange = {}, readOnly = true, enabled = false,
-                            label = { Text("Event Date", color = TextHint) },
-                            colors = OutlinedTextFieldDefaults.colors(disabledTextColor = BrandDark, disabledBorderColor = Color.Black.copy(alpha = 0.08f), disabledLabelColor = TextHint),
-                            modifier = Modifier.fillMaxWidth().weight(1f), shape = RoundedCornerShape(16.dp),
-                            leadingIcon = { Icon(Icons.Default.CalendarToday, null, tint = DangerCrimson) }
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        OutlinedTextField(
-                            value = if (time.isBlank()) "PENDING..." else time, 
-                            onValueChange = {}, readOnly = true, enabled = false,
-                            label = { Text("Event Time", color = TextHint) },
-                            colors = OutlinedTextFieldDefaults.colors(disabledTextColor = BrandDark, disabledBorderColor = Color.Black.copy(alpha = 0.08f), disabledLabelColor = TextHint),
-                            modifier = Modifier.fillMaxWidth().weight(1f), shape = RoundedCornerShape(16.dp),
-                            leadingIcon = { Icon(Icons.Default.Schedule, null, tint = DangerCrimson) }
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    EliteTextField(value = description, onValueChange = { description = it; persistDraft() }, label = "Breakdown Reason / Situation", leadingIcon = Icons.Default.Warning, enabled = !isLocked)
                 }
             }
         }
@@ -337,13 +431,13 @@ fun MaintenanceTab(driverId: String) {
         if (!isLocked) {
             StaggeredItem(visible, 5) {
                 GradientButton(
-                    text = if (isBreakdown) "REPORT BREAKDOWN" else stringResource(R.string.submit_bill),
+                    text = if (selectedTabIndex == 0) "REPORT BREAKDOWN" else if (selectedTabIndex == 1) "SUBMIT FUEL BILL" else stringResource(R.string.submit_bill),
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
                         if (vehicle == null) {
                             error = "ERROR: Asset not identified."
                         } else {
-                            if (isBreakdown) {
+                            if (selectedTabIndex == 0) {
                                 if (description.isBlank()) {
                                     error = "ERROR: Breakdown details required."
                                 } else {
@@ -361,7 +455,7 @@ fun MaintenanceTab(driverId: String) {
                                             saved = true
                                             error = null
                                             isInitialized = false
-                                            // Also update the active trip to breakdown status if exists
+                                            // Update the active trip to breakdown status if exists
                                             draftTrip?.let { 
                                                 AppRepository.upsertTrip(it.copy(isBreakdown = true))
                                             }
@@ -372,19 +466,19 @@ fun MaintenanceTab(driverId: String) {
                                         }
                                     }
                                 }
-                            } else {
-                                if (selectedType.isBlank() || (selectedType == "Other" && customType.isBlank()) || description.isBlank() || cost.isBlank() || billUri == null) {
-                                    error = "ERROR: Complete all verification fields (Category, Description, Cost, Photo)."
+                            } else if (selectedTabIndex == 1) {
+                                if (selectedType.isBlank() || description.isBlank() || cost.isBlank() || billUri == null) {
+                                    error = "ERROR: Complete all fuel fields (Type, Litres/Notes, Cost, Receipt Photo)."
                                 } else {
                                     scope.launch {
-                                        val finalType = if (selectedType == "Other") customType else selectedType
                                         val success = AppRepository.upsertMaintenance(
                                             MaintenanceRecord(
                                                 id = recordId, vehicleId = vehicle.id, driverId = driverId,
                                                 tripId = draftTrip?.id,
-                                                maintenanceType = finalType, description = description,
+                                                maintenanceType = selectedType, description = description,
                                                 date = date, time = time, cost = cost,
-                                                billImageUri = billUri?.toString(), status = "submitted"
+                                                billImageUri = billUri?.toString(), status = "submitted",
+                                                isBreakdownReport = false
                                             )
                                         )
                                         if (success) {
@@ -394,7 +488,34 @@ fun MaintenanceTab(driverId: String) {
                                             delay(1500)
                                             resetForm()
                                         } else {
-                                            error = "DATABASE ERROR: Failed to save maintenance locally."
+                                            error = "DATABASE ERROR: Failed to save fuel record locally."
+                                        }
+                                    }
+                                }
+                            } else {
+                                if (selectedType.isBlank() || (selectedType == "Other" && customType.isBlank()) || description.isBlank() || cost.isBlank() || billUri == null) {
+                                    error = "ERROR: Complete all service fields (Category, Description, Cost, Bill Photo)."
+                                } else {
+                                    scope.launch {
+                                        val finalType = if (selectedType == "Other") customType else selectedType
+                                        val success = AppRepository.upsertMaintenance(
+                                            MaintenanceRecord(
+                                                id = recordId, vehicleId = vehicle.id, driverId = driverId,
+                                                tripId = draftTrip?.id,
+                                                maintenanceType = finalType, description = description,
+                                                date = date, time = time, cost = cost,
+                                                billImageUri = billUri?.toString(), status = "submitted",
+                                                isBreakdownReport = false
+                                            )
+                                        )
+                                        if (success) {
+                                            saved = true
+                                            error = null
+                                            isInitialized = false
+                                            delay(1500)
+                                            resetForm()
+                                        } else {
+                                            error = "DATABASE ERROR: Failed to save maintenance record locally."
                                         }
                                     }
                                 }

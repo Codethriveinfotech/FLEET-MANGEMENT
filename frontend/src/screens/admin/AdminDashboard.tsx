@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, ActivityIndicator, useWindowDimensions, Platform } from 'react-native';
 import { useAuthStore } from '../../store/auth';
 import { useNavigation, useNavigationState } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -25,6 +25,13 @@ function DashboardLayoutContent() {
   const { user, clearAuth } = useAuthStore();
   const { loading } = useDashboardData();
   const navigation = useNavigation<any>();
+  const { width } = useWindowDimensions();
+
+  const isDesktop = width >= 1024;
+  const isTablet = width >= 768 && width < 1024;
+  const isMobile = width < 768;
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   // Determine active tab route using React Navigation state
   const navState = useNavigationState((s) => s);
@@ -45,10 +52,9 @@ function DashboardLayoutContent() {
   const avatarChar = user?.name ? user.name[0].toUpperCase() : 'A';
   const roleLabel = user?.role === 'SUPER_ADMIN' ? 'System Owner' : 'Fleet Admin';
 
-  return (
-    <View style={styles.container}>
-      {/* Sidebar Navigation - Navy Blue Theme */}
-      <View style={styles.sidebar}>
+  const renderSidebarContent = () => (
+    <>
+      <View>
         <View style={styles.sidebarHeader}>
           <View style={styles.miniLogo}>
             <Text style={styles.miniLogoText}>FP</Text>
@@ -73,6 +79,7 @@ function DashboardLayoutContent() {
                 ]}
                 onPress={() => {
                   navigation.navigate(item.id);
+                  setDrawerOpen(false);
                 }}
               >
                 <View style={{ marginRight: 12 }}>
@@ -90,30 +97,65 @@ function DashboardLayoutContent() {
             );
           })}
         </View>
-
-        {/* Admin footer profile info card */}
-        <View style={styles.adminFooterCard}>
-          <View style={styles.adminAvatar}>
-            <Text style={styles.avatarText}>{avatarChar}</Text>
-          </View>
-          <View style={styles.adminInfo}>
-            <Text style={styles.adminName} numberOfLines={1}>{user?.name || 'Admin User'}</Text>
-            <Text style={styles.adminEmail} numberOfLines={1}>{user?.email || user?.phone || 'admin@system.com'}</Text>
-          </View>
-          <TouchableOpacity style={styles.logoutMiniBtn} onPress={clearAuth}>
-            <Ionicons name="log-out-outline" size={16} color="#94A3B8" />
-          </TouchableOpacity>
-        </View>
       </View>
 
+      {/* Admin footer profile info card */}
+      <View style={styles.adminFooterCard}>
+        <View style={styles.adminAvatar}>
+          <Text style={styles.avatarText}>{avatarChar}</Text>
+        </View>
+        <View style={styles.adminInfo}>
+          <Text style={styles.adminName} numberOfLines={1}>{user?.name || 'Admin User'}</Text>
+          <Text style={styles.adminEmail} numberOfLines={1}>{user?.email || user?.phone || 'admin@system.com'}</Text>
+        </View>
+        <TouchableOpacity style={styles.logoutMiniBtn} onPress={clearAuth}>
+          <Ionicons name="log-out-outline" size={16} color="#94A3B8" />
+        </TouchableOpacity>
+      </View>
+    </>
+  );
+
+  return (
+    <View style={styles.container}>
+      {/* Desktop Sidebar Navigation */}
+      {isDesktop && (
+        <View style={styles.sidebar}>
+          {renderSidebarContent()}
+        </View>
+      )}
+
+      {/* Mobile & Tablet Slide-out Drawer Overlay */}
+      {!isDesktop && drawerOpen && (
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, flexDirection: 'row' }}>
+          {/* Backdrop */}
+          <TouchableOpacity 
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.6)' }} 
+            activeOpacity={1}
+            onPress={() => setDrawerOpen(false)} 
+          />
+          {/* Drawer Menu */}
+          <View style={[styles.sidebar, { width: 260, height: '100%', shadowColor: '#000', shadowOffset: { width: 4, height: 0 }, shadowOpacity: 0.15, shadowRadius: 10, elevation: 16 }]}>
+            {renderSidebarContent()}
+          </View>
+        </View>
+      )}
+
       {/* Main Content Area */}
-      <View style={styles.mainContent}>
+      <View style={[styles.mainContent, !isDesktop && { paddingHorizontal: 16, paddingVertical: 16 }]}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>
-            {activeTab === 'overview' ? 'Dashboard' : activeTab.toUpperCase()}
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {!isDesktop && (
+              <TouchableOpacity onPress={() => setDrawerOpen(true)} style={{ marginRight: 16, padding: 4 }}>
+                <Ionicons name="menu-outline" size={28} color="#0F172A" />
+              </TouchableOpacity>
+            )}
+            <Text style={[styles.headerTitle, isMobile && { fontSize: 18 }]}>
+              {activeTab === 'overview' ? 'Dashboard' : activeTab.toUpperCase()}
+            </Text>
+          </View>
+
           <View style={styles.headerRight}>
-            {activeTab === 'overview' && (
+            {(activeTab === 'overview' && !isMobile) && (
               <View style={styles.headerDateContainer}>
                 <Ionicons name="calendar-outline" size={14} color="#64748B" style={{ marginRight: 8 }} />
                 <Text style={styles.headerDateText}>May 25 - May 31, 2025</Text>
@@ -130,15 +172,17 @@ function DashboardLayoutContent() {
               <View style={[styles.adminAvatar, { width: 28, height: 28, borderRadius: 14, backgroundColor: '#64748B' }]}>
                 <Text style={[styles.avatarText, { fontSize: 11 }]}>{avatarChar}</Text>
               </View>
-              <View style={{ marginLeft: 8, marginRight: 8 }}>
-                <Text style={{ fontSize: 11, fontWeight: '800', color: '#0F172A', fontFamily: fontStyle }}>{user?.name || 'Admin User'}</Text>
-                <Text style={{ fontSize: 9, color: '#64748B', fontWeight: '500', fontFamily: fontStyle }}>{roleLabel}</Text>
-              </View>
-              <Ionicons name="chevron-down-outline" size={10} color="#64748B" />
+              {!isMobile && (
+                <View style={{ marginLeft: 8, marginRight: 8 }}>
+                  <Text style={{ fontSize: 11, fontWeight: '800', color: '#0F172A', fontFamily: fontStyle }}>{user?.name || 'Admin User'}</Text>
+                  <Text style={{ fontSize: 9, color: '#64748B', fontWeight: '500', fontFamily: fontStyle }}>{roleLabel}</Text>
+                </View>
+              )}
+              {!isMobile && <Ionicons name="chevron-down-outline" size={10} color="#64748B" />}
             </View>
           </View>
         </View>
- 
+  
         {loading ? (
           <View style={styles.loadingWrapper}>
             <ActivityIndicator color="#1D4ED8" size="large" />
