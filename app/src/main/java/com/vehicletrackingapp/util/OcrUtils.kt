@@ -36,6 +36,21 @@ object OcrUtils {
         }
     }
 
+    /**
+     * Crops out the bottom 18% of the image.
+     * Since the system location/time watermark is drawn in a translucent black box
+     * at the very bottom, cropping it out completely prevents ML Kit from reading
+     * watermark numbers (like latitude/longitude, date, or time) as odometer candidates.
+     */
+    private fun cropWatermark(bitmap: Bitmap): Bitmap {
+        return try {
+            val newHeight = (bitmap.height * 0.82).toInt().coerceAtLeast(1)
+            Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, newHeight)
+        } catch (e: Exception) {
+            bitmap
+        }
+    }
+
     /** 
      * Cleans common ML Kit digit misrecognitions (e.g. 'O' -> '0', 'l' -> '1') 
      * but only on alphanumeric tokens that contain at least one digit and look-alike characters.
@@ -76,10 +91,16 @@ object OcrUtils {
         val mainHandler = Handler(Looper.getMainLooper())
 
         try {
-            val bitmap = loadBitmap(context, uri)
-            if (bitmap == null) {
+            val rawBitmap = loadBitmap(context, uri)
+            if (rawBitmap == null) {
                 mainHandler.post { onResult("") }
                 return
+            }
+
+            // Crop watermark area to prevent reading GPS/date/time text overlays
+            val bitmap = cropWatermark(rawBitmap)
+            if (bitmap != rawBitmap) {
+                rawBitmap.recycle()
             }
 
             val image = InputImage.fromBitmap(bitmap, 0)
@@ -105,22 +126,33 @@ object OcrUtils {
                     val lines = normalizedText.split("\n")
                     var candidate = ""
 
-                    // 1st pass: find number on a line containing odometer keywords
+                    // 1st pass: find number on lines containing odometer keywords (and prioritize 5-6 digits)
+                    val keywordCandidates = mutableListOf<String>()
                     for (line in lines) {
                         val lowerLine = line.lowercase()
                         if (lowerLine.contains("km") || lowerLine.contains("odo") ||
                             lowerLine.contains("read") || lowerLine.contains("speed") ||
                             lowerLine.contains("mileage") || lowerLine.contains("total") ||
                             lowerLine.contains("trip")) {
-                            val numberInLine = Regex("\\d{4,7}").find(line)?.value
-                            if (numberInLine != null) {
-                                candidate = numberInLine
-                                break
+                            
+                            Regex("\\d{4,7}").findAll(line).forEach { match ->
+                                val num = match.value
+                                val n = num.toIntOrNull() ?: 0
+                                if (n !in 2000..2030 && n >= 100) {
+                                    keywordCandidates.add(num)
+                                }
                             }
                         }
                     }
 
-                    // 2nd pass: pick largest plausible odometer number (5-6 digits preferred)
+                    if (keywordCandidates.isNotEmpty()) {
+                        candidate = keywordCandidates.firstOrNull { it.length in 5..6 }
+                            ?: keywordCandidates.firstOrNull { it.length == 7 }
+                            ?: keywordCandidates.firstOrNull { it.length == 4 }
+                            ?: keywordCandidates.first()
+                    }
+
+                    // 2nd pass: pick largest plausible odometer number (5-6 digits preferred) from any line
                     if (candidate.isEmpty()) {
                         val allNumbers = Regex("\\d{4,7}").findAll(normalizedText)
                             .map { it.value }
