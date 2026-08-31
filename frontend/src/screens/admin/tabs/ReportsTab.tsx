@@ -528,12 +528,12 @@ export default function ReportsTab() {
                   <Text style={{ flex: 1.2, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>DATE</Text>
                   <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>OPERATOR</Text>
                   <Text style={{ flex: 1.2, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>VEHICLE</Text>
-                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>START ODO</Text>
-                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>END ODO</Text>
-                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>DIST (KM)</Text>
-                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>START HMR</Text>
-                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>END HMR</Text>
-                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>HMR WORKED</Text>
+                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569', paddingRight: 10 }}>START ODO</Text>
+                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569', paddingRight: 10 }}>END ODO</Text>
+                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569', paddingRight: 10 }}>DIST (KM)</Text>
+                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569', paddingRight: 10 }}>START HMR</Text>
+                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569', paddingRight: 10 }}>END HMR</Text>
+                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569', paddingRight: 10 }}>HMR WORKED</Text>
                 </View>
                 {filteredTrips.map((t, idx) => {
                   const d = drivers.find(drv => drv.id === t.driverId)?.name || 'Unknown';
@@ -552,12 +552,12 @@ export default function ReportsTab() {
                       <Text style={{ flex: 1.2, fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.startDate}</Text>
                       <Text style={{ flex: 1.5, fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#1E293B' }} numberOfLines={1}>{d}</Text>
                       <Text style={{ flex: 1.2, fontFamily: fontStyle, fontSize: 13, color: '#334155' }} numberOfLines={1}>{v}</Text>
-                      <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.startOdometer || '0'}</Text>
-                      <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.endOdometer || 'Active'}</Text>
-                      <Text style={{ flex: 1.0, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#1E293B' }}>{t.endOdometer ? `${distVal} km` : 'Active'}</Text>
-                      <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.startHmr || '0'}</Text>
-                      <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.endHmr || 'Active'}</Text>
-                      <Text style={{ flex: 1.0, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#0284C7' }}>{t.endHmr ? `${hmrWorkedVal.toFixed(1)} hrs` : 'Active'}</Text>
+                      <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155', paddingRight: 10 }}>{t.startOdometer || '0'}</Text>
+                      <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155', paddingRight: 10 }}>{t.endOdometer || 'Active'}</Text>
+                      <Text style={{ flex: 1.0, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#1E293B', paddingRight: 10 }}>{t.endOdometer ? `${distVal} km` : 'Active'}</Text>
+                      <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155', paddingRight: 10 }}>{t.startHmr || '0'}</Text>
+                      <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155', paddingRight: 10 }}>{t.endHmr || 'Active'}</Text>
+                      <Text style={{ flex: 1.0, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#0284C7', paddingRight: 10 }}>{t.endHmr ? `${hmrWorkedVal.toFixed(1)} hrs` : 'Active'}</Text>
                     </View>
                   );
                 })}
