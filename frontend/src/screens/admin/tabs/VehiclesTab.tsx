@@ -19,7 +19,7 @@ const DEFAULT_VEHICLE_TYPES = [
 ];
 
 export default function VehiclesTab() {
-  const { vehicles, fetchData } = useDashboardData();
+  const { vehicles, trips, fetchData } = useDashboardData();
   const [vehicleSearch, setVehicleSearch] = useState('');
   const [vehicleModalVisible, setVehicleModalVisible] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
@@ -281,13 +281,19 @@ export default function VehiclesTab() {
               }
               
               // Resolve Status Badge styling
+              const hasActiveTrip = (trips || []).some((t) => t.vehicleId === veh.id && t.status === 'started');
               const vStatus = (veh.status || 'Active').toLowerCase();
               let statusBg = '#E8F5E9';
               let statusTextColor = '#2E7D32';
               let statusText = 'Active';
               let statusDotColor = '#10B981';
               
-              if (vStatus.includes('main')) {
+              if (vStatus === 'running' || hasActiveTrip) {
+                statusBg = '#EFF6FF';
+                statusTextColor = '#1D4ED8';
+                statusText = 'Running';
+                statusDotColor = '#2563EB';
+              } else if (vStatus.includes('main') || vStatus.includes('break')) {
                 statusBg = '#FFF3E0';
                 statusTextColor = '#E65100';
                 statusText = 'In Maintenance';

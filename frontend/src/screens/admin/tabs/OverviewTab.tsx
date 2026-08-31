@@ -16,7 +16,11 @@ export default function OverviewTab() {
 
   // Dynamic calculations for vehicle stats
   const totalVehiclesCount = vehicles.length;
-  const runningVehiclesCount = vehicles.filter((v) => (v.status || '').toLowerCase() === 'running').length;
+  const runningVehiclesCount = vehicles.filter((v) => {
+    const isDbRunning = (v.status || '').toLowerCase() === 'running';
+    const hasActiveTrip = trips.some((t) => t.vehicleId === v.id && t.status === 'started');
+    return isDbRunning || hasActiveTrip;
+  }).length;
   const breakdownVehiclesCount = vehicles.filter((v) => (v.status || '').toLowerCase().includes('break') || (v.status || '').toLowerCase().includes('maint')).length;
   const idleVehiclesCount = totalVehiclesCount - runningVehiclesCount - breakdownVehiclesCount;
   
