@@ -101,6 +101,24 @@ export default function ReportsTab() {
           t.isBreakdown ? 'YES' : 'NO'
         ];
       });
+
+      // Calculate and Add Totals
+      const totalDistance = filteredTrips.reduce((acc, t) => {
+        const start = parseFloat(t.startOdometer) || 0;
+        const end = parseFloat(t.endOdometer) || 0;
+        return acc + (end >= start ? (end - start) : 0);
+      }, 0);
+      const totalHmrWorked = filteredTrips.reduce((acc, t) => {
+        const start = parseFloat(t.startHmr) || 0;
+        const end = parseFloat(t.endHmr) || 0;
+        return acc + (end >= start ? (end - start) : 0);
+      }, 0);
+      rows.push([
+        'TOTAL', '', '', '', '', '', '', 
+        '', '', totalDistance.toString(), 
+        '', '', totalHmrWorked.toFixed(1), '', ''
+      ]);
+
     } else if (selectedReportType === 'Fuel Report') {
       headers = ['S.No', 'Date', 'Time', 'Vehicle No', 'Driver Name', 'Liters Refilled', 'Total Cost (₹)', 'Odometer Reading'];
       rows = filteredFuel.map((f, idx) => {
@@ -117,6 +135,14 @@ export default function ReportsTab() {
           f.odometerReading || '0'
         ];
       });
+
+      // Calculate and Add Totals
+      const totalLiters = filteredFuel.reduce((acc, f) => acc + (parseFloat(f.liters) || 0), 0);
+      const totalCost = filteredFuel.reduce((acc, f) => acc + (parseFloat(f.cost) || 0), 0);
+      rows.push([
+        'TOTAL', '', '', '', '', totalLiters.toFixed(1), totalCost.toFixed(2), ''
+      ]);
+
     } else if (selectedReportType === 'Driver Performance Report') {
       if (selectedDriverId) {
         const driverName = drivers.find(d => d.id === selectedDriverId)?.name || 'Driver';
@@ -144,6 +170,22 @@ export default function ReportsTab() {
             t.isBreakdown ? 'YES' : 'NO'
           ];
         });
+
+        // Calculate and Add Totals
+        const totalDistance = dTrips.reduce((acc, t) => {
+          const start = parseFloat(t.startOdometer) || 0;
+          const end = parseFloat(t.endOdometer) || 0;
+          return acc + (end >= start ? (end - start) : 0);
+        }, 0);
+        const totalHmrWorked = dTrips.reduce((acc, t) => {
+          const start = parseFloat(t.startHmr) || 0;
+          const end = parseFloat(t.endHmr) || 0;
+          return acc + (end >= start ? (end - start) : 0);
+        }, 0);
+        rows.push([
+          'TOTAL', '', '', '', '', totalDistance.toString(), '', totalHmrWorked.toFixed(1), ''
+        ]);
+
       } else {
         headers = ['S.No', 'Driver Name', 'Total Trips', 'Day Shifts', 'Night Shifts', 'Breakdowns Count', 'Billing Days'];
         rows = drivers.map((driver, idx) => {
@@ -162,6 +204,24 @@ export default function ReportsTab() {
             billingDays.toString()
           ];
         });
+
+        // Calculate and Add Totals
+        let sumTrips = 0, sumDay = 0, sumNight = 0, sumBreak = 0, sumBill = 0;
+        drivers.forEach(driver => {
+          const dTrips = filteredTrips.filter(t => t.driverId === driver.id);
+          const dayShifts = dTrips.filter(t => (t.shift || '').toLowerCase().includes('day')).length;
+          const nightShifts = dTrips.filter(t => (t.shift || '').toLowerCase().includes('night')).length;
+          const breakdowns = dTrips.filter(t => t.isBreakdown).length;
+          const billingDays = Math.max(0, dTrips.length - breakdowns);
+          sumTrips += dTrips.length;
+          sumDay += dayShifts;
+          sumNight += nightShifts;
+          sumBreak += breakdowns;
+          sumBill += billingDays;
+        });
+        rows.push([
+          'TOTAL', '', sumTrips.toString(), sumDay.toString(), sumNight.toString(), sumBreak.toString(), sumBill.toString()
+        ]);
       }
     } else if (selectedReportType === 'Vehicle Utilization Report') {
       if (selectedVehicleId) {
@@ -195,6 +255,27 @@ export default function ReportsTab() {
             totalMaintCost.toString()
           ];
         });
+
+        // Calculate and Add Totals
+        const totalDistance = vTrips.reduce((acc, t) => {
+          const start = parseFloat(t.startOdometer) || 0;
+          const end = parseFloat(t.endOdometer) || 0;
+          return acc + (end >= start ? (end - start) : 0);
+        }, 0);
+        
+        let totalFuel = 0, totalFuelCost = 0, totalMaintCost = 0;
+        vTrips.forEach(t => {
+          const dateRefills = filteredFuel.filter(f => f.vehicleId === selectedVehicleId && f.date === t.startDate);
+          totalFuel += dateRefills.reduce((acc, f) => acc + (parseFloat(f.liters) || 0), 0);
+          totalFuelCost += dateRefills.reduce((acc, f) => acc + (parseFloat(f.cost) || 0), 0);
+          
+          const dateMaint = filteredMaint.filter(m => m.vehicleId === selectedVehicleId && m.date === t.startDate);
+          totalMaintCost += dateMaint.reduce((acc, m) => acc + (parseFloat(m.cost) || 0), 0);
+        });
+        rows.push([
+          'TOTAL', '', '', '', '', totalDistance.toString(), totalFuel.toString(), totalFuelCost.toFixed(2), totalMaintCost.toFixed(2)
+        ]);
+
       } else {
         headers = ['S.No', 'Vehicle No', 'Model', 'Total Trips Run', 'Total Distance Run (km)'];
         rows = vehicles.map((veh, idx) => {
@@ -212,6 +293,22 @@ export default function ReportsTab() {
             totalDist.toString()
           ];
         });
+
+        // Calculate and Add Totals
+        let sumTrips = 0, sumDist = 0;
+        vehicles.forEach(veh => {
+          const vTrips = filteredTrips.filter(t => t.vehicleId === veh.id);
+          const totalDist = vTrips.reduce((acc, t) => {
+            const start = parseFloat(t.startOdometer) || 0;
+            const end = parseFloat(t.endOdometer) || 0;
+            return acc + (end >= start ? end - start : 0);
+          }, 0);
+          sumTrips += vTrips.length;
+          sumDist += totalDist;
+        });
+        rows.push([
+          'TOTAL', '', '', sumTrips.toString(), sumDist.toString()
+        ]);
       }
     } else if (selectedReportType === 'Maintenance Report') {
       headers = ['S.No', 'Date', 'Vehicle No', 'Driver Name', 'Type', 'Description', 'Notes', 'Cost (₹)'];
@@ -229,6 +326,12 @@ export default function ReportsTab() {
           m.cost || '0'
         ];
       });
+
+      // Calculate and Add Totals
+      const totalCost = filteredMaint.reduce((acc, m) => acc + (parseFloat(m.cost) || 0), 0);
+      rows.push([
+        'TOTAL', '', '', '', '', '', '', totalCost.toFixed(2)
+      ]);
     }
 
     // Convert array to CSV format with UTF-8 BOM for perfect Excel compatibility
