@@ -27,7 +27,8 @@ data class Vehicle(
     var fuelType: String = "Diesel",
     var status: String = "Active",
     var mileage: String = "0",
-    var insuranceStatus: String = "Valid"
+    var insuranceStatus: String = "Valid",
+    var place: String = ""
 )
 
 @Entity(tableName = "trips")

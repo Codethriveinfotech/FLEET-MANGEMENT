@@ -9,7 +9,7 @@ import com.vehicletrackingapp.data.model.MaintenanceRecord
 import com.vehicletrackingapp.data.model.TripEntry
 import com.vehicletrackingapp.data.model.Vehicle
 
-@Database(entities = [TripEntry::class, MaintenanceRecord::class, Vehicle::class, Driver::class], version = 5, exportSchema = false)
+@Database(entities = [TripEntry::class, MaintenanceRecord::class, Vehicle::class, Driver::class], version = 6, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun dao(): AppDao
 

@@ -21,12 +21,14 @@ export default function VehiclesTab() {
     status: 'Active',
     mileage: '0',
     insuranceStatus: 'Valid',
+    place: '',
   });
 
   const filteredVehicles = vehicles.filter(
     (v) =>
       v.number.toLowerCase().includes(vehicleSearch.toLowerCase()) ||
-      v.model.toLowerCase().includes(vehicleSearch.toLowerCase())
+      v.model.toLowerCase().includes(vehicleSearch.toLowerCase()) ||
+      (v.place || '').toLowerCase().includes(vehicleSearch.toLowerCase())
   );
 
   const openVehicleModal = (veh: Vehicle | null = null) => {
@@ -41,6 +43,7 @@ export default function VehiclesTab() {
         status: veh.status || 'Active',
         mileage: String(veh.mileage || '0'),
         insuranceStatus: veh.insuranceStatus || 'Valid',
+        place: veh.place || '',
       });
     } else {
       setVehicleForm({
@@ -52,6 +55,7 @@ export default function VehiclesTab() {
         status: 'Active',
         mileage: '0',
         insuranceStatus: 'Valid',
+        place: '',
       });
     }
     setVehicleModalVisible(true);
@@ -75,6 +79,7 @@ export default function VehiclesTab() {
           status: vehicleForm.status,
           mileage: parseInt(vehicleForm.mileage) || 0,
           insuranceStatus: vehicleForm.insuranceStatus,
+          place: vehicleForm.place,
         });
       } else {
         await apiClient.post('/vehicles', {
@@ -87,6 +92,7 @@ export default function VehiclesTab() {
           status: vehicleForm.status,
           mileage: parseInt(vehicleForm.mileage) || 0,
           insuranceStatus: vehicleForm.insuranceStatus,
+          place: vehicleForm.place,
         });
       }
       setVehicleModalVisible(false);
@@ -193,14 +199,15 @@ export default function VehiclesTab() {
           marginBottom: 16,
           alignItems: 'center'
         }]}>
-          <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Plate Number</Text></View>
-          <View style={{ flex: 2.2 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Type</Text></View>
-          <View style={{ flex: 1.8 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Model</Text></View>
+          <View style={{ flex: 1.3 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Plate Number</Text></View>
+          <View style={{ flex: 1.8 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Type</Text></View>
+          <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Model</Text></View>
+          <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Place</Text></View>
           <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Fuel Type</Text></View>
-          <View style={{ flex: 1.8 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Registration No.</Text></View>
-          <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Mileage</Text></View>
-          <View style={{ flex: 1.3 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Status</Text></View>
-          <View style={{ flex: 1.2, alignItems: 'center' }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Actions</Text></View>
+          <View style={{ flex: 1.6 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Registration No.</Text></View>
+          <View style={{ flex: 1.3 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Mileage</Text></View>
+          <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Status</Text></View>
+          <View style={{ flex: 1.0, alignItems: 'center' }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Actions</Text></View>
         </View>
 
         {/* Scrollable table rows */}
@@ -267,8 +274,8 @@ export default function VehiclesTab() {
                   borderBottomWidth: 1,
                   borderColor: '#F8FAFC',
                 }}>
-                  {/* Plate Number (White pill badge with rounded border & custom letter spacing) */}
-                  <View style={{ flex: 1.5, flexDirection: 'row', alignItems: 'center' }}>
+                  {/* Plate Number */}
+                  <View style={{ flex: 1.3, flexDirection: 'row', alignItems: 'center' }}>
                     <View style={{
                       backgroundColor: '#FFFFFF',
                       borderWidth: 1,
@@ -286,15 +293,20 @@ export default function VehiclesTab() {
                     </View>
                   </View>
 
-                  {/* Type (Colored icon next to type text) */}
-                  <View style={{ flex: 2.2, flexDirection: 'row', alignItems: 'center' }}>
+                  {/* Type */}
+                  <View style={{ flex: 1.8, flexDirection: 'row', alignItems: 'center' }}>
                     <Ionicons name={typeIcon} size={15} color={typeColor} style={{ marginRight: 6 }} />
                     <Text style={{ fontSize: 14, color: typeColor, fontWeight: '700', fontFamily: fontStyle }}>{typeLabel}</Text>
                   </View>
 
                   {/* Model */}
-                  <View style={{ flex: 1.8 }}>
+                  <View style={{ flex: 1.5 }}>
                     <Text style={{ fontSize: 14, color: '#475569', fontFamily: fontStyle, fontWeight: '600' }}>{modelName}</Text>
+                  </View>
+
+                  {/* Place */}
+                  <View style={{ flex: 1.5 }}>
+                    <Text style={{ fontSize: 14, color: '#0F172A', fontFamily: fontStyle, fontWeight: '700' }}>{veh.place || '—'}</Text>
                   </View>
 
                   {/* Fuel Type */}
@@ -303,18 +315,18 @@ export default function VehiclesTab() {
                   </View>
 
                   {/* Registration No */}
-                  <View style={{ flex: 1.8 }}>
+                  <View style={{ flex: 1.6 }}>
                     <Text style={{ fontSize: 14, color: '#64748B', fontFamily: 'monospace' }}>{regNo}</Text>
                   </View>
 
-                  {/* Mileage with green speedometer icon */}
-                  <View style={{ flex: 1.5, flexDirection: 'row', alignItems: 'center' }}>
+                  {/* Mileage */}
+                  <View style={{ flex: 1.3, flexDirection: 'row', alignItems: 'center' }}>
                     <Ionicons name="speedometer-outline" size={14} color="#24D164" style={{ marginRight: 6 }} />
                     <Text style={{ fontSize: 14, fontWeight: '700', color: '#334155', fontFamily: fontStyle }}>{mileageVal}</Text>
                   </View>
 
-                  {/* Status Pill Badge with colored indicator dot */}
-                  <View style={{ flex: 1.3, flexDirection: 'row', alignItems: 'center' }}>
+                  {/* Status */}
+                  <View style={{ flex: 1.2, flexDirection: 'row', alignItems: 'center' }}>
                     <View style={{
                       backgroundColor: statusBg,
                       paddingVertical: 5,
@@ -329,7 +341,7 @@ export default function VehiclesTab() {
                   </View>
 
                   {/* Actions */}
-                  <View style={{ flex: 1.2, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                  <View style={{ flex: 1.0, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                     <TouchableOpacity
                       style={{
                         width: 32,
@@ -446,6 +458,9 @@ export default function VehiclesTab() {
               
               <Text style={styles.inputLabel}>INSURANCE STATUS</Text>
               <TextInput style={styles.modalInput} value={vehicleForm.insuranceStatus} onChangeText={(val) => setVehicleForm({ ...vehicleForm, insuranceStatus: val })} />
+
+              <Text style={styles.inputLabel}>ASSIGNED PLACE / DEPOT</Text>
+              <TextInput style={styles.modalInput} value={vehicleForm.place} onChangeText={(val) => setVehicleForm({ ...vehicleForm, place: val })} placeholder="e.g. Chennai, Bangalore Hub, Depot 1" placeholderTextColor="#94A3B8" />
             </ScrollView>
             <View style={styles.modalActionRow}>
               <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#F1F5F9' }]} onPress={() => setVehicleModalVisible(false)}>

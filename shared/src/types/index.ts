@@ -25,6 +25,7 @@ export interface Vehicle {
   status: string;
   mileage: string;
   insuranceStatus: string;
+  place?: string;
   createdAt?: string;
   updatedAt?: string;
 }

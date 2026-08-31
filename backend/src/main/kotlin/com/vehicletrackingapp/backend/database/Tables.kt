@@ -41,6 +41,7 @@ object Vehicles : Table("vehicles") {
     val status = text("status").default("Active")
     val mileage = text("mileage").default("0")
     val insuranceStatus = text("insurance_status").default("Valid")
+    val place = text("place").default("")
     override val primaryKey = PrimaryKey(id)
 }
 

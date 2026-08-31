@@ -27,7 +27,8 @@ class VehicleRepositoryImpl : VehicleRepository {
         fuelType = row[Vehicles.fuelType],
         status = row[Vehicles.status],
         mileage = row[Vehicles.mileage],
-        insuranceStatus = row[Vehicles.insuranceStatus]
+        insuranceStatus = row[Vehicles.insuranceStatus],
+        place = row[Vehicles.place]
     )
 
     override suspend fun createVehicle(vehicle: Vehicle): Vehicle? = dbQuery {
@@ -43,6 +44,7 @@ class VehicleRepositoryImpl : VehicleRepository {
             it[status] = vehicle.status
             it[mileage] = vehicle.mileage
             it[insuranceStatus] = vehicle.insuranceStatus
+            it[place] = vehicle.place
         }
         insertStatement.resultedValues?.singleOrNull()?.let(::resultRowToVehicle)
     }
@@ -74,6 +76,7 @@ class VehicleRepositoryImpl : VehicleRepository {
             it[status] = vehicle.status
             it[mileage] = vehicle.mileage
             it[insuranceStatus] = vehicle.insuranceStatus
+            it[place] = vehicle.place
         } > 0
     }
 

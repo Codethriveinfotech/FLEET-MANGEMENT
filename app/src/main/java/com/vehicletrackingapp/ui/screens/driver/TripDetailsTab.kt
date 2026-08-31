@@ -75,6 +75,8 @@ fun TripDetailsTab(driverId: String) {
     var error by remember { mutableStateOf<String?>(null) }
     var submitted by remember { mutableStateOf(false) }
     var vehicleMenuExpanded by remember { mutableStateOf(false) }
+    var selectedPlace by remember { mutableStateOf<String?>(null) }
+    var placeMenuExpanded by remember { mutableStateOf(false) }
     var dayMenuExpanded by remember { mutableStateOf(false) }
     var shiftMenuExpanded by remember { mutableStateOf(false) }
     var isOcrReadingStart by remember { mutableStateOf(false) }
@@ -265,6 +267,44 @@ fun TripDetailsTab(driverId: String) {
                         enabled = true
                     )
                     Spacer(modifier = Modifier.height(32.dp))
+                    
+                    // Place/Depot Filter Selector UI
+                    val availablePlaces = allVehicles.map { it.place }.filter { it.isNotBlank() }.distinct().sorted()
+                    if (availablePlaces.isNotEmpty()) {
+                        Box(modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp)) {
+                            OutlinedTextField(
+                                value = selectedPlace ?: "All Places / Depots",
+                                onValueChange = {},
+                                readOnly = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                label = { Text("FILTER BY PLACE / DEPOT", fontWeight = FontWeight.Bold) },
+                                trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, tint = BrandYellow) },
+                                shape = RoundedCornerShape(20.dp),
+                                enabled = true,
+                                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = BrandYellow, unfocusedBorderColor = Color.Black.copy(alpha = 0.08f), disabledTextColor = BrandDark)
+                            )
+                            Box(modifier = Modifier.matchParentSize().background(Color.Transparent).clickable { placeMenuExpanded = true })
+                            DropdownMenu(expanded = placeMenuExpanded, onDismissRequest = { placeMenuExpanded = false }) {
+                                DropdownMenuItem(
+                                    text = { Text("All Places / Depots", fontWeight = FontWeight.Black) },
+                                    onClick = {
+                                        selectedPlace = null
+                                        placeMenuExpanded = false
+                                    }
+                                )
+                                availablePlaces.forEach { place ->
+                                    DropdownMenuItem(
+                                        text = { Text(place, fontWeight = FontWeight.Black) },
+                                        onClick = {
+                                            selectedPlace = place
+                                            placeMenuExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
                     Box(modifier = Modifier.fillMaxWidth()) {
                         val selectedVehicle = allVehicles.find { it.id == selectedVehicleId }
                         OutlinedTextField(
@@ -282,7 +322,8 @@ fun TripDetailsTab(driverId: String) {
                         DropdownMenu(expanded = vehicleMenuExpanded, onDismissRequest = { vehicleMenuExpanded = false }) {
                             val selectableVehicles = allVehicles.filter { 
                                 !it.status.equals("Breakdown", ignoreCase = true) && 
-                                !it.status.equals("Running", ignoreCase = true)
+                                !it.status.equals("Running", ignoreCase = true) &&
+                                (selectedPlace == null || it.place.equals(selectedPlace, ignoreCase = true))
                             }
                             if (selectableVehicles.isEmpty()) {
                                 DropdownMenuItem(

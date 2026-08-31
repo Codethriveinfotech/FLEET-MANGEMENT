@@ -14,5 +14,6 @@ data class Vehicle(
     val fuelType: String = "Diesel",
     val status: String = "Active",
     val mileage: String = "0",
-    val insuranceStatus: String = "Valid"
+    val insuranceStatus: String = "Valid",
+    val place: String = ""
 )
