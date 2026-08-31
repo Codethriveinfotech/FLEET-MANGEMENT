@@ -12,5 +12,8 @@
     "backend:build": "npm run build --workspace=backend",
     "frontend:start": "npm run start --workspace=frontend",
     "shared:build": "npm run build --workspace=shared"
+  },
+  "dependencies": {
+    "pg": "^8.23.0"
   }
 }

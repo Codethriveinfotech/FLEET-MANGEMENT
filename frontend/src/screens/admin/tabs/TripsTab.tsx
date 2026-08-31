@@ -309,7 +309,6 @@ export default function TripsTab() {
           <Text style={[styles.tableHeaderCell, { flex: 1.4, fontFamily: fontStyle }]}>END TIME</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1.6, fontFamily: fontStyle }]}>OPERATOR DRIVER</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1.2, fontFamily: fontStyle }]}>VEHICLE NO</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1.3, fontFamily: fontStyle }]}>PLACE</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>SOURCE LOCATION</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>DESTINATION</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1.5, textAlign: 'right', fontFamily: fontStyle }]}>ODOMETER PROGRESS</Text>
@@ -327,7 +326,6 @@ export default function TripsTab() {
 
               const vehicleObj = vehicles.find((v) => v.id === trip.vehicleId);
               const plateNo = vehicleObj?.number || 'Unknown';
-              const vehiclePlace = vehicleObj?.place || '—';
 
               // Status badges
               const isDone = trip.status === 'submitted' || trip.status === 'completed';
@@ -401,24 +399,33 @@ export default function TripsTab() {
                     </View>
                   </View>
 
-                  {/* Place cell */}
-                  <Text style={[styles.tableCell, { flex: 1.3, color: '#0F172A', fontWeight: 'bold', fontFamily: fontStyle }]} numberOfLines={1}>
-                    {vehiclePlace}
-                  </Text>
-
                   {/* Source/Destination cells */}
                   <Text style={[styles.tableCell, { flex: 1.5, color: '#334155', fontWeight: '500', fontFamily: fontStyle }]} numberOfLines={1}>{trip.sourceLocation}</Text>
                   <Text style={[styles.tableCell, { flex: 1.5, color: '#334155', fontWeight: '500', fontFamily: fontStyle }]} numberOfLines={1}>{trip.destinationLocation}</Text>
 
                   {/* Odometer progress */}
-                  <Text style={[styles.tableCell, { flex: 1.5, textAlign: 'right', fontWeight: '700', color: '#1E293B', fontFamily: fontStyle }]}>
-                    {trip.startOdometer} km <Text style={{ color: '#94A3B8', fontWeight: '500' }}>→</Text> {trip.endOdometer ? `${trip.endOdometer} km` : 'Active'}
-                  </Text>
+                  <View style={{ flex: 1.5, alignItems: 'flex-end', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#1E293B', fontFamily: fontStyle, textAlign: 'right' }}>
+                      {trip.startOdometer} km <Text style={{ color: '#94A3B8', fontWeight: '500' }}>→</Text> {trip.endOdometer ? `${trip.endOdometer} km` : 'Active'}
+                    </Text>
+                    {trip.endOdometer ? (
+                      <Text style={{ fontSize: 11, fontWeight: '600', color: '#10B981', marginTop: 2, fontFamily: fontStyle, textAlign: 'right' }}>
+                        ({(parseInt(trip.endOdometer) - parseInt(trip.startOdometer))} km)
+                      </Text>
+                    ) : null}
+                  </View>
 
                   {/* HMR Progress */}
-                  <Text style={[styles.tableCell, { flex: 1.5, textAlign: 'right', fontWeight: '700', color: '#0284C7', fontFamily: fontStyle }]}>
-                    {trip.startHmr || '0'} <Text style={{ color: '#94A3B8', fontWeight: '500' }}>→</Text> {trip.endHmr ? `${trip.endHmr} hrs` : 'Active'}
-                  </Text>
+                  <View style={{ flex: 1.5, alignItems: 'flex-end', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#0284C7', fontFamily: fontStyle, textAlign: 'right' }}>
+                      {trip.startHmr || '0'} <Text style={{ color: '#94A3B8', fontWeight: '500' }}>→</Text> {trip.endHmr ? `${trip.endHmr} hrs` : 'Active'}
+                    </Text>
+                    {trip.endHmr ? (
+                      <Text style={{ fontSize: 11, fontWeight: '600', color: '#0284C7', marginTop: 2, fontFamily: fontStyle, textAlign: 'right' }}>
+                        ({(parseFloat(trip.endHmr) - parseFloat(trip.startHmr || '0')).toFixed(1)} hrs)
+                      </Text>
+                    ) : null}
+                  </View>
 
                   {/* Status pill badge */}
                   <View style={{ flex: 1.0, alignItems: 'center' }}>
