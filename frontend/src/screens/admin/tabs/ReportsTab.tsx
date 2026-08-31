@@ -4,84 +4,6 @@ import { useDashboardData } from '../../../context/DashboardDataContext';
 import { styles, fontStyle } from '../AdminStyles';
 import { Ionicons } from '@expo/vector-icons';
 
-const convertToExcelXml = (headers: string[], rows: string[][], sheetName = "Report") => {
-  const cleanSheetName = (sheetName || "Report")
-    .replace(/[\\/?*:\\[\\]]/g, "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;")
-    .substring(0, 30);
-    
-  let xml = `<?xml version="1.0"?>\n`;
-  xml += `<?mso-application progid="Excel.Sheet"?>\n`;
-  xml += `<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"\n`;
-  xml += ` xmlns:o="urn:schemas-microsoft-com:office:office"\n`;
-  xml += ` xmlns:x="urn:schemas-microsoft-com:office:excel"\n`;
-  xml += ` xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"\n`;
-  xml += ` xmlns:html="http://www.w3.org/TR/REC-html40">\n`;
-  
-  xml += ` <Styles>\n`;
-  xml += `  <Style ss:Id="Default" ss:Name="Normal">\n`;
-  xml += `   <Alignment ss:Vertical="Bottom"/>\n`;
-  xml += `   <Borders/>\n`;
-  xml += `   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#000000"/>\n`;
-  xml += `   <Interior/>\n`;
-  xml += `   <NumberFormat/>\n`;
-  xml += `   <Protection/>\n`;
-  xml += `  </Style>\n`;
-  xml += `  <Style ss:Id="Header">\n`;
-  xml += `   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#FFFFFF" ss:Bold="1"/>\n`;
-  xml += `   <Interior ss:Color="#0F243E" ss:Pattern="Solid"/>\n`;
-  xml += `  </Style>\n`;
-  xml += ` </Styles>\n`;
-  
-  xml += ` <Worksheet ss:Name="${cleanSheetName || "Report"}">\n`;
-  xml += `  <Table>\n`;
-  
-  xml += `   <Row ss:Height="22">\n`;
-  headers.forEach(h => {
-    const cleanHeader = String(h || "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&apos;");
-    xml += `    <Cell ss:StyleID="Header"><Data ss:Type="String">${cleanHeader}</Data></Cell>\n`;
-  });
-  xml += `   </Row>\n`;
-  
-  rows.forEach(row => {
-    xml += `   <Row>\n`;
-    row.forEach(val => {
-      const strVal = val !== null && val !== undefined ? String(val) : "";
-      const cleanVal = strVal
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&apos;");
-      
-      const numVal = Number(strVal);
-      const isNum = !isNaN(numVal) && strVal.trim() !== '' && !strVal.includes('/') && !strVal.includes(':') && !strVal.includes('-');
-      
-      if (isNum) {
-        xml += `    <Cell><Data ss:Type="Number">${numVal}</Data></Cell>\n`;
-      } else {
-        xml += `    <Cell><Data ss:Type="String">${cleanVal}</Data></Cell>\n`;
-      }
-    });
-    xml += `   </Row>\n`;
-  });
-  
-  xml += `  </Table>\n`;
-  xml += ` </Worksheet>\n`;
-  xml += `</Workbook>\n`;
-  
-  return xml;
-};
-
 export default function ReportsTab() {
   const { trips, drivers, vehicles, maintenance, fuelLogs } = useDashboardData();
   const [selectedReportType, setSelectedReportType] = useState('Trip Summary Report');
@@ -140,11 +62,11 @@ export default function ReportsTab() {
 
   const { filteredTrips, filteredMaint, filteredFuel } = getFilteredData();
 
-  // Excel Export Utility
+  // Excel (CSV) Export Utility
   const handleDownloadExcel = () => {
     let headers: string[] = [];
     let rows: string[][] = [];
-    let filename = `${selectedReportType.replace(/\s+/g, '_')}_${duration}m_Report.xls`;
+    let filename = `${selectedReportType.replace(/\s+/g, '_')}_${duration}m_Report.csv`;
 
     if (selectedReportType === 'Trip Summary Report') {
       headers = [
@@ -163,7 +85,7 @@ export default function ReportsTab() {
         const hmr = endH >= startH ? (endH - startH) : 0;
         return [
           (idx + 1).toString(),
-          t.startDate || '',
+          t.startDate ? `="\t${t.startDate}"` : '',
           t.startTime || '',
           d,
           v,
@@ -186,7 +108,7 @@ export default function ReportsTab() {
         const d = drivers.find(drv => drv.id === f.driverId)?.name || 'Unknown';
         return [
           (idx + 1).toString(),
-          f.date || '',
+          f.date ? `="\t${f.date}"` : '',
           f.time || '',
           v,
           d,
@@ -198,7 +120,7 @@ export default function ReportsTab() {
     } else if (selectedReportType === 'Driver Performance Report') {
       if (selectedDriverId) {
         const driverName = drivers.find(d => d.id === selectedDriverId)?.name || 'Driver';
-        filename = `Detailed_Report_Driver_${driverName.replace(/\s+/g, '_')}_${duration}m.xls`;
+        filename = `Detailed_Report_Driver_${driverName.replace(/\s+/g, '_')}_${duration}m.csv`;
         headers = ['S.No', 'Date', 'Vehicle No', 'Source', 'Destination', 'Distance (km)', 'Shift', 'HMR Worked', 'Breakdown'];
         
         const dTrips = filteredTrips.filter(t => t.driverId === selectedDriverId);
@@ -212,7 +134,7 @@ export default function ReportsTab() {
           const hmr = endH >= startH ? (endH - startH) : 0;
           return [
             (idx + 1).toString(),
-            t.startDate || '',
+            t.startDate ? `="\t${t.startDate}"` : '',
             v,
             t.sourceLocation || '',
             t.destinationLocation || '',
@@ -244,7 +166,7 @@ export default function ReportsTab() {
     } else if (selectedReportType === 'Vehicle Utilization Report') {
       if (selectedVehicleId) {
         const vehNo = vehicles.find(v => v.id === selectedVehicleId)?.number || 'Vehicle';
-        filename = `Detailed_Report_Vehicle_${vehNo.replace(/\s+/g, '_')}_${duration}m.xls`;
+        filename = `Detailed_Report_Vehicle_${vehNo.replace(/\s+/g, '_')}_${duration}m.csv`;
         headers = ['S.No', 'Date', 'Driver Name', 'Source', 'Destination', 'Distance (km)', 'Fuel Used (L)', 'Refill Cost (₹)', 'Maintenance Cost (₹)'];
         
         const vTrips = filteredTrips.filter(t => t.vehicleId === selectedVehicleId);
@@ -263,7 +185,7 @@ export default function ReportsTab() {
 
           return [
             (idx + 1).toString(),
-            t.startDate || '',
+            t.startDate ? `="\t${t.startDate}"` : '',
             dName,
             t.sourceLocation || '',
             t.destinationLocation || '',
@@ -298,7 +220,7 @@ export default function ReportsTab() {
         const d = drivers.find(drv => drv.id === m.driverId)?.name || 'Unknown';
         return [
           (idx + 1).toString(),
-          m.date || '',
+          m.date ? `="\t${m.date}"` : '',
           v,
           d,
           m.maintenanceType || '',
@@ -309,11 +231,14 @@ export default function ReportsTab() {
       });
     }
 
-    // Convert array to Excel XML format
-    const excelXmlContent = convertToExcelXml(headers, rows, selectedReportType);
+    // Convert array to CSV format with UTF-8 BOM for perfect Excel compatibility
+    const csvContent = "\uFEFF" + [
+      headers.join(','),
+      ...rows.map(e => e.map(val => `"${String(val || '').replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
 
     // Trigger download in browser environment
-    const blob = new Blob([excelXmlContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);
