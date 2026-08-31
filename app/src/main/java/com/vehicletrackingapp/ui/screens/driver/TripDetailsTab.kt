@@ -444,22 +444,6 @@ fun TripDetailsTab(driverId: String) {
                             modifier = Modifier.weight(1f)
                         )
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    EliteTextField(
-                        value = sourceLocation,
-                        onValueChange = { sourceLocation = it; persistDraft() },
-                        label = "Source Location",
-                        leadingIcon = Icons.Default.LocationOn,
-                        enabled = !isLocked
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    EliteTextField(
-                        value = destinationLocation,
-                        onValueChange = { destinationLocation = it; persistDraft() },
-                        label = "Destination Location",
-                        leadingIcon = Icons.Default.Place,
-                        enabled = !isLocked
-                    )
                     Spacer(modifier = Modifier.height(20.dp))
                     CameraOnlyPicker(
                         label = "INITIAL ODOMETER EVIDENCE", 
@@ -706,8 +690,8 @@ fun TripDetailsTab(driverId: String) {
                 StaggeredItem(visible, 4) {
                     Column {
                         GradientButton(text = "START TRIP") {
-                            if (selectedVehicleId == null || startOdo.isBlank() || startOdoUri == null || startPlateUri == null || sourceLocation.isBlank() || destinationLocation.isBlank()) {
-                                error = "ERROR: Complete Start Mission Data Required (Asset, Odometer KM, Source, Destination, Odometer Photo, Plate Photo)."
+                            if (selectedVehicleId == null || startOdo.isBlank() || startOdoUri == null || startPlateUri == null) {
+                                error = "ERROR: Complete Start Mission Data Required (Asset, Odometer KM, Odometer Photo, Plate Photo)."
                             } else {
                                 scope.launch {
                                     // Retrospective update for previous auto-ended trip
