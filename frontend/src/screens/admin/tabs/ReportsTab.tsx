@@ -522,46 +522,52 @@ export default function ReportsTab() {
           
           <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
             {selectedReportType === 'Trip Summary Report' && (
-              <View>
-                <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10 }]}>
-                  <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>S.NO</Text>
-                  <Text style={{ flex: 1.2, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>DATE</Text>
-                  <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>OPERATOR</Text>
-                  <Text style={{ flex: 1.2, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>VEHICLE</Text>
-                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569', paddingRight: 10 }}>START ODO</Text>
-                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569', paddingRight: 10 }}>END ODO</Text>
-                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569', paddingRight: 10 }}>DIST (KM)</Text>
-                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569', paddingRight: 10 }}>START HMR</Text>
-                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569', paddingRight: 10 }}>END HMR</Text>
-                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569', paddingRight: 10 }}>HMR WORKED</Text>
-                </View>
-                {filteredTrips.map((t, idx) => {
-                  const d = drivers.find(drv => drv.id === t.driverId)?.name || 'Unknown';
-                  const v = vehicles.find(veh => veh.id === t.vehicleId)?.number || 'Unknown';
-                  const startOdoVal = parseFloat(t.startOdometer) || 0;
-                  const endOdoVal = parseFloat(t.endOdometer) || 0;
-                  const distVal = endOdoVal >= startOdoVal ? (endOdoVal - startOdoVal) : 0;
-                  
-                  const startHmrVal = parseFloat(t.startHmr) || 0;
-                  const endHmrVal = parseFloat(t.endHmr) || 0;
-                  const hmrWorkedVal = endHmrVal >= startHmrVal ? (endHmrVal - startHmrVal) : 0;
+              <ScrollView horizontal={true} showsHorizontalScrollIndicator={true}>
+                <View style={{ width: 1300 }}>
+                  <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10 }]}>
+                    <Text style={{ width: 50, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>S.NO</Text>
+                    <Text style={{ width: 100, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>DATE</Text>
+                    <Text style={{ width: 140, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>OPERATOR</Text>
+                    <Text style={{ width: 100, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>VEHICLE</Text>
+                    <Text style={{ width: 150, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>START PLACE</Text>
+                    <Text style={{ width: 150, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>END PLACE</Text>
+                    <Text style={{ width: 100, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569', paddingRight: 10 }}>START ODO</Text>
+                    <Text style={{ width: 100, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569', paddingRight: 10 }}>END ODO</Text>
+                    <Text style={{ width: 100, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569', paddingRight: 10 }}>DIST (KM)</Text>
+                    <Text style={{ width: 100, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569', paddingRight: 10 }}>START HMR</Text>
+                    <Text style={{ width: 100, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569', paddingRight: 10 }}>END HMR</Text>
+                    <Text style={{ width: 110, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569', paddingRight: 10 }}>HMR WORKED</Text>
+                  </View>
+                  {filteredTrips.map((t, idx) => {
+                    const d = drivers.find(drv => drv.id === t.driverId)?.name || 'Unknown';
+                    const v = vehicles.find(veh => veh.id === t.vehicleId)?.number || 'Unknown';
+                    const startOdoVal = parseFloat(t.startOdometer) || 0;
+                    const endOdoVal = parseFloat(t.endOdometer) || 0;
+                    const distVal = endOdoVal >= startOdoVal ? (endOdoVal - startOdoVal) : 0;
+                    
+                    const startHmrVal = parseFloat(t.startHmr) || 0;
+                    const endHmrVal = parseFloat(t.endHmr) || 0;
+                    const hmrWorkedVal = endHmrVal >= startHmrVal ? (endHmrVal - startHmrVal) : 0;
 
-                  return (
-                    <View key={t.id} style={[styles.tableRow, { paddingVertical: 12, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
-                      <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{idx + 1}</Text>
-                      <Text style={{ flex: 1.2, fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.startDate}</Text>
-                      <Text style={{ flex: 1.5, fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#1E293B' }} numberOfLines={1}>{d}</Text>
-                      <Text style={{ flex: 1.2, fontFamily: fontStyle, fontSize: 13, color: '#334155' }} numberOfLines={1}>{v}</Text>
-                      <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155', paddingRight: 10 }}>{t.startOdometer || '0'}</Text>
-                      <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155', paddingRight: 10 }}>{t.endOdometer || 'Active'}</Text>
-                      <Text style={{ flex: 1.0, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#1E293B', paddingRight: 10 }}>{t.endOdometer ? `${distVal} km` : 'Active'}</Text>
-                      <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155', paddingRight: 10 }}>{t.startHmr || '0'}</Text>
-                      <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155', paddingRight: 10 }}>{t.endHmr || 'Active'}</Text>
-                      <Text style={{ flex: 1.0, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#0284C7', paddingRight: 10 }}>{t.endHmr ? `${hmrWorkedVal.toFixed(1)} hrs` : 'Active'}</Text>
-                    </View>
-                  );
-                })}
-              </View>
+                    return (
+                      <View key={t.id} style={[styles.tableRow, { paddingVertical: 12, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
+                        <Text style={{ width: 50, fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{idx + 1}</Text>
+                        <Text style={{ width: 100, fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.startDate}</Text>
+                        <Text style={{ width: 140, fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#1E293B' }} numberOfLines={1}>{d}</Text>
+                        <Text style={{ width: 100, fontFamily: fontStyle, fontSize: 13, color: '#334155' }} numberOfLines={1}>{v}</Text>
+                        <Text style={{ width: 150, fontFamily: fontStyle, fontSize: 13, color: '#334155' }} numberOfLines={1}>{t.sourceLocation || '—'}</Text>
+                        <Text style={{ width: 150, fontFamily: fontStyle, fontSize: 13, color: '#334155' }} numberOfLines={1}>{t.destinationLocation || '—'}</Text>
+                        <Text style={{ width: 100, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155', paddingRight: 10 }}>{t.startOdometer || '0'}</Text>
+                        <Text style={{ width: 100, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155', paddingRight: 10 }}>{t.endOdometer || 'Active'}</Text>
+                        <Text style={{ width: 100, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#1E293B', paddingRight: 10 }}>{t.endOdometer ? `${distVal} km` : 'Active'}</Text>
+                        <Text style={{ width: 100, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155', paddingRight: 10 }}>{t.startHmr || '0'}</Text>
+                        <Text style={{ width: 100, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155', paddingRight: 10 }}>{t.endHmr || 'Active'}</Text>
+                        <Text style={{ width: 110, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#0284C7', paddingRight: 10 }}>{t.endHmr ? `${hmrWorkedVal.toFixed(1)} hrs` : 'Active'}</Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              </ScrollView>
             )}
 
             {selectedReportType === 'Fuel Report' && (
