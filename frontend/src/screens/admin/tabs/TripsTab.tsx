@@ -305,14 +305,15 @@ export default function TripsTab() {
         {/* Custom Spaced Table Header Row (Fixed) */}
         <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10, marginBottom: 0 }]}>
           <Text style={[styles.tableHeaderCell, { flex: 0.6, fontFamily: fontStyle }]}>S.NO</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1.6, fontFamily: fontStyle }]}>START TIME</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1.6, fontFamily: fontStyle }]}>END TIME</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1.8, fontFamily: fontStyle }]}>OPERATOR DRIVER</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1.3, fontFamily: fontStyle }]}>VEHICLE NO</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1.8, fontFamily: fontStyle }]}>SOURCE LOCATION</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1.8, fontFamily: fontStyle }]}>DESTINATION</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1.6, textAlign: 'right', fontFamily: fontStyle }]}>ODOMETER PROGRESS</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1.2, textAlign: 'right', fontFamily: fontStyle }]}>END HMR</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1.4, fontFamily: fontStyle }]}>START TIME</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1.4, fontFamily: fontStyle }]}>END TIME</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1.6, fontFamily: fontStyle }]}>OPERATOR DRIVER</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1.2, fontFamily: fontStyle }]}>VEHICLE NO</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1.3, fontFamily: fontStyle }]}>PLACE</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>SOURCE LOCATION</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>DESTINATION</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1.5, textAlign: 'right', fontFamily: fontStyle }]}>ODOMETER PROGRESS</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1.5, textAlign: 'right', fontFamily: fontStyle }]}>HMR PROGRESS</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1.0, textAlign: 'center', fontFamily: fontStyle }]}>STATUS</Text>
         </View>
 
@@ -326,6 +327,7 @@ export default function TripsTab() {
 
               const vehicleObj = vehicles.find((v) => v.id === trip.vehicleId);
               const plateNo = vehicleObj?.number || 'Unknown';
+              const vehiclePlace = vehicleObj?.place || '—';
 
               // Status badges
               const isDone = trip.status === 'submitted' || trip.status === 'completed';
@@ -344,7 +346,7 @@ export default function TripsTab() {
                   <Text style={[styles.tableCell, { flex: 0.6, color: '#64748B', fontWeight: 'bold', fontFamily: fontStyle }]}>{idx + 1}</Text>
 
                   {/* Start Time Cell */}
-                  <View style={{ flex: 1.6, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
+                  <View style={{ flex: 1.4, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
                     <Text style={{ fontSize: 13, color: '#334155', fontWeight: '600', fontFamily: fontStyle }}>{trip.startDate}</Text>
                     {trip.startTime ? (
                       <Text style={{ fontSize: 11, color: '#64748B', marginTop: 2, fontFamily: fontStyle }}>{trip.startTime}</Text>
@@ -352,7 +354,7 @@ export default function TripsTab() {
                   </View>
 
                   {/* End Time Cell */}
-                  <View style={{ flex: 1.6, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
+                  <View style={{ flex: 1.4, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
                     {trip.endDate ? (
                       <>
                         <Text style={{ fontSize: 13, color: '#334155', fontWeight: '600', fontFamily: fontStyle }}>{trip.endDate}</Text>
@@ -368,7 +370,7 @@ export default function TripsTab() {
                   </View>
 
                   {/* Driver avatar cell */}
-                  <View style={{ flex: 1.8, flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ flex: 1.6, flexDirection: 'row', alignItems: 'center' }}>
                     <View style={{
                       width: 30,
                       height: 30,
@@ -386,7 +388,7 @@ export default function TripsTab() {
                   </View>
 
                   {/* Vehicle plate cell */}
-                  <View style={{ flex: 1.3, flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ flex: 1.2, flexDirection: 'row', alignItems: 'center' }}>
                     <View style={{
                       backgroundColor: '#FFF',
                       borderWidth: 1.5,
@@ -399,18 +401,23 @@ export default function TripsTab() {
                     </View>
                   </View>
 
+                  {/* Place cell */}
+                  <Text style={[styles.tableCell, { flex: 1.3, color: '#0F172A', fontWeight: 'bold', fontFamily: fontStyle }]} numberOfLines={1}>
+                    {vehiclePlace}
+                  </Text>
+
                   {/* Source/Destination cells */}
-                  <Text style={[styles.tableCell, { flex: 1.8, color: '#334155', fontWeight: '500', fontFamily: fontStyle }]} numberOfLines={1}>{trip.sourceLocation}</Text>
-                  <Text style={[styles.tableCell, { flex: 1.8, color: '#334155', fontWeight: '500', fontFamily: fontStyle }]} numberOfLines={1}>{trip.destinationLocation}</Text>
+                  <Text style={[styles.tableCell, { flex: 1.5, color: '#334155', fontWeight: '500', fontFamily: fontStyle }]} numberOfLines={1}>{trip.sourceLocation}</Text>
+                  <Text style={[styles.tableCell, { flex: 1.5, color: '#334155', fontWeight: '500', fontFamily: fontStyle }]} numberOfLines={1}>{trip.destinationLocation}</Text>
 
                   {/* Odometer progress */}
-                  <Text style={[styles.tableCell, { flex: 1.6, textAlign: 'right', fontWeight: '700', color: '#1E293B', fontFamily: fontStyle }]}>
+                  <Text style={[styles.tableCell, { flex: 1.5, textAlign: 'right', fontWeight: '700', color: '#1E293B', fontFamily: fontStyle }]}>
                     {trip.startOdometer} km <Text style={{ color: '#94A3B8', fontWeight: '500' }}>→</Text> {trip.endOdometer ? `${trip.endOdometer} km` : 'Active'}
                   </Text>
 
-                  {/* HMR End Only */}
-                  <Text style={[styles.tableCell, { flex: 1.2, textAlign: 'right', fontWeight: '700', color: '#0284C7', fontFamily: fontStyle }]}>
-                    {trip.endHmr ? `${trip.endHmr} hrs` : '—'}
+                  {/* HMR Progress */}
+                  <Text style={[styles.tableCell, { flex: 1.5, textAlign: 'right', fontWeight: '700', color: '#0284C7', fontFamily: fontStyle }]}>
+                    {trip.startHmr || '0'} <Text style={{ color: '#94A3B8', fontWeight: '500' }}>→</Text> {trip.endHmr ? `${trip.endHmr} hrs` : 'Active'}
                   </Text>
 
                   {/* Status pill badge */}
@@ -510,6 +517,13 @@ export default function TripsTab() {
                         </View>
                         <View style={{ height: 1, backgroundColor: '#E2E8F0', marginVertical: 10 }} />
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+                          <Text style={{ fontSize: 12, fontWeight: '700', color: '#64748B', fontFamily: fontStyle }}>PLACE / DEPOT</Text>
+                          <Text style={{ fontSize: 12, fontWeight: '700', color: '#0F172A', fontFamily: fontStyle }}>
+                            {vehicleObj?.place || '—'}
+                          </Text>
+                        </View>
+                        <View style={{ height: 1, backgroundColor: '#E2E8F0', marginVertical: 10 }} />
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
                           <Text style={{ fontSize: 12, fontWeight: '700', color: '#64748B', fontFamily: fontStyle }}>START TIME</Text>
                           <Text style={{ fontSize: 12, fontWeight: '600', color: '#0F172A', fontFamily: fontStyle }}>
                             {selectedTrip.startDate} • {selectedTrip.startTime || '—'}
@@ -544,7 +558,7 @@ export default function TripsTab() {
                             </View>
                             <View style={{ height: 1, backgroundColor: '#E2E8F0', marginVertical: 10 }} />
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
-                              <Text style={{ fontSize: 12, fontWeight: '700', color: '#64748B', fontFamily: fontStyle }}>TOTAL WORKED</Text>
+                              <Text style={{ fontSize: 12, fontWeight: '700', color: '#64748B', fontFamily: fontStyle }}>TOTAL ODO WORKED</Text>
                               <Text style={{ fontSize: 12, fontWeight: '800', color: '#1D4ED8', fontFamily: fontStyle }}>
                                 {parseInt(selectedTrip.endOdometer) - parseInt(selectedTrip.startOdometer)} km
                               </Text>
@@ -552,12 +566,30 @@ export default function TripsTab() {
                           </>
                         )}
                         <View style={{ height: 1, backgroundColor: '#E2E8F0', marginVertical: 10 }} />
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-                          <Text style={{ fontSize: 12, fontWeight: '700', color: '#64748B', fontFamily: fontStyle }}>END HMR</Text>
-                          <Text style={{ fontSize: 12, fontWeight: '800', color: '#0284C7', fontFamily: fontStyle }}>
-                            {selectedTrip.endHmr ? `${selectedTrip.endHmr} hrs` : '—'}
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+                          <Text style={{ fontSize: 12, fontWeight: '700', color: '#64748B', fontFamily: fontStyle }}>START HMR</Text>
+                          <Text style={{ fontSize: 12, fontWeight: '800', color: '#0F172A', fontFamily: fontStyle }}>
+                            {selectedTrip.startHmr || '0'} hrs
                           </Text>
                         </View>
+                        <View style={{ height: 1, backgroundColor: '#E2E8F0', marginVertical: 10 }} />
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+                          <Text style={{ fontSize: 12, fontWeight: '700', color: '#64748B', fontFamily: fontStyle }}>END HMR</Text>
+                          <Text style={{ fontSize: 12, fontWeight: '800', color: '#0284C7', fontFamily: fontStyle }}>
+                            {selectedTrip.endHmr ? `${selectedTrip.endHmr} hrs` : 'Active'}
+                          </Text>
+                        </View>
+                        {isDone && selectedTrip.startHmr && selectedTrip.endHmr && (
+                          <>
+                            <View style={{ height: 1, backgroundColor: '#E2E8F0', marginVertical: 10 }} />
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                              <Text style={{ fontSize: 12, fontWeight: '700', color: '#64748B', fontFamily: fontStyle }}>TOTAL HMR WORKED</Text>
+                              <Text style={{ fontSize: 12, fontWeight: '800', color: '#0284C7', fontFamily: fontStyle }}>
+                                {(parseFloat(selectedTrip.endHmr) - parseFloat(selectedTrip.startHmr)).toFixed(1)} hrs
+                              </Text>
+                            </View>
+                          </>
+                        )}
                         {selectedTrip.notes ? (
                           <>
                             <View style={{ height: 1, backgroundColor: '#E2E8F0', marginVertical: 10 }} />
