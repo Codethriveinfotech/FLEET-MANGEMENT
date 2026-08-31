@@ -5,6 +5,15 @@ import { styles, fontStyle } from '../AdminStyles';
 import { Ionicons } from '@expo/vector-icons';
 
 const convertToExcelXml = (headers: string[], rows: string[][], sheetName = "Report") => {
+  const cleanSheetName = (sheetName || "Report")
+    .replace(/[\\/?*:\\[\\]]/g, "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;")
+    .substring(0, 30);
+    
   let xml = `<?xml version="1.0"?>\n`;
   xml += `<?mso-application progid="Excel.Sheet"?>\n`;
   xml += `<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"\n`;
@@ -28,27 +37,39 @@ const convertToExcelXml = (headers: string[], rows: string[][], sheetName = "Rep
   xml += `  </Style>\n`;
   xml += ` </Styles>\n`;
   
-  const cleanSheetName = sheetName.replace(/[\\/?*:\\[\\]]/g, "").substring(0, 30);
-  xml += ` <Worksheet ss:Name="${cleanSheetName}">\n`;
+  xml += ` <Worksheet ss:Name="${cleanSheetName || "Report"}">\n`;
   xml += `  <Table>\n`;
   
   xml += `   <Row ss:Height="22">\n`;
   headers.forEach(h => {
-    xml += `    <Cell ss:StyleID="Header"><Data ss:Type="String">${h}</Data></Cell>\n`;
+    const cleanHeader = String(h || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&apos;");
+    xml += `    <Cell ss:StyleID="Header"><Data ss:Type="String">${cleanHeader}</Data></Cell>\n`;
   });
   xml += `   </Row>\n`;
   
   rows.forEach(row => {
     xml += `   <Row>\n`;
     row.forEach(val => {
-      let cleanedVal = val.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      const numVal = Number(cleanedVal);
-      const isNum = !isNaN(numVal) && cleanedVal.trim() !== '' && !cleanedVal.includes('/') && !cleanedVal.includes(':') && !cleanedVal.includes('-');
+      const strVal = val !== null && val !== undefined ? String(val) : "";
+      const cleanVal = strVal
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&apos;");
+      
+      const numVal = Number(strVal);
+      const isNum = !isNaN(numVal) && strVal.trim() !== '' && !strVal.includes('/') && !strVal.includes(':') && !strVal.includes('-');
       
       if (isNum) {
         xml += `    <Cell><Data ss:Type="Number">${numVal}</Data></Cell>\n`;
       } else {
-        xml += `    <Cell><Data ss:Type="String">${cleanedVal}</Data></Cell>\n`;
+        xml += `    <Cell><Data ss:Type="String">${cleanVal}</Data></Cell>\n`;
       }
     });
     xml += `   </Row>\n`;
@@ -475,18 +496,16 @@ export default function ReportsTab() {
             {selectedReportType === 'Trip Summary Report' && (
               <View>
                 <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10 }]}>
-                  <Text style={{ flex: 0.4, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>S.NO</Text>
-                  <Text style={{ flex: 0.9, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>DATE</Text>
-                  <Text style={{ flex: 1.1, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>OPERATOR</Text>
-                  <Text style={{ flex: 0.9, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>VEHICLE</Text>
-                  <Text style={{ flex: 1.1, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>SOURCE</Text>
-                  <Text style={{ flex: 1.1, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>DESTINATION</Text>
-                  <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>START ODO</Text>
-                  <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>END ODO</Text>
-                  <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>DIST (KM)</Text>
-                  <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>START HMR</Text>
-                  <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>END HMR</Text>
-                  <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>HMR WORKED</Text>
+                  <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>S.NO</Text>
+                  <Text style={{ flex: 1.2, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>DATE</Text>
+                  <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>OPERATOR</Text>
+                  <Text style={{ flex: 1.2, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>VEHICLE</Text>
+                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>START ODO</Text>
+                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>END ODO</Text>
+                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>DIST (KM)</Text>
+                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>START HMR</Text>
+                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>END HMR</Text>
+                  <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>HMR WORKED</Text>
                 </View>
                 {filteredTrips.map((t, idx) => {
                   const d = drivers.find(drv => drv.id === t.driverId)?.name || 'Unknown';
@@ -501,18 +520,16 @@ export default function ReportsTab() {
 
                   return (
                     <View key={t.id} style={[styles.tableRow, { paddingVertical: 12, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
-                      <Text style={{ flex: 0.4, fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{idx + 1}</Text>
-                      <Text style={{ flex: 0.9, fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.startDate}</Text>
-                      <Text style={{ flex: 1.1, fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#1E293B' }} numberOfLines={1}>{d}</Text>
-                      <Text style={{ flex: 0.9, fontFamily: fontStyle, fontSize: 13, color: '#334155' }} numberOfLines={1}>{v}</Text>
-                      <Text style={{ flex: 1.1, fontFamily: fontStyle, fontSize: 13, color: '#334155' }} numberOfLines={1}>{t.sourceLocation}</Text>
-                      <Text style={{ flex: 1.1, fontFamily: fontStyle, fontSize: 13, color: '#334155' }} numberOfLines={1}>{t.destinationLocation}</Text>
-                      <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.startOdometer || '0'}</Text>
-                      <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.endOdometer || 'Active'}</Text>
-                      <Text style={{ flex: 0.9, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#1E293B' }}>{t.endOdometer ? `${distVal} km` : 'Active'}</Text>
-                      <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.startHmr || '0'}</Text>
-                      <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.endHmr || 'Active'}</Text>
-                      <Text style={{ flex: 0.9, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#0284C7' }}>{t.endHmr ? `${hmrWorkedVal.toFixed(1)} hrs` : 'Active'}</Text>
+                      <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{idx + 1}</Text>
+                      <Text style={{ flex: 1.2, fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.startDate}</Text>
+                      <Text style={{ flex: 1.5, fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#1E293B' }} numberOfLines={1}>{d}</Text>
+                      <Text style={{ flex: 1.2, fontFamily: fontStyle, fontSize: 13, color: '#334155' }} numberOfLines={1}>{v}</Text>
+                      <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.startOdometer || '0'}</Text>
+                      <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.endOdometer || 'Active'}</Text>
+                      <Text style={{ flex: 1.0, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#1E293B' }}>{t.endOdometer ? `${distVal} km` : 'Active'}</Text>
+                      <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.startHmr || '0'}</Text>
+                      <Text style={{ flex: 1.0, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.endHmr || 'Active'}</Text>
+                      <Text style={{ flex: 1.0, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#0284C7' }}>{t.endHmr ? `${hmrWorkedVal.toFixed(1)} hrs` : 'Active'}</Text>
                     </View>
                   );
                 })}
