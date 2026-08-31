@@ -458,7 +458,7 @@ export default function ReportsTab() {
               onPress={handleDownloadExcel}
             >
               <Ionicons name="download-outline" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
-              <Text style={[styles.panelAddBtnText, { fontFamily: fontStyle, fontSize: 12 }]}>Download Excel (CSV)</Text>
+              <Text style={[styles.panelAddBtnText, { fontFamily: fontStyle, fontSize: 12 }]}>Download Excel Report</Text>
             </TouchableOpacity>
           </View>
         </View>
