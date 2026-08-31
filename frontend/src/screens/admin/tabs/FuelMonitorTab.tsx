@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Modal, Pressable, Image } fro
 import { useDashboardData } from '../../../context/DashboardDataContext';
 import { styles, fontStyle } from '../AdminStyles';
 import { Ionicons } from '@expo/vector-icons';
+import { apiClient } from '../../../api/client';
 
 export default function FuelMonitorTab() {
   const { vehicles, trips, fuelLogs, maintenance, drivers } = useDashboardData();
@@ -368,7 +369,18 @@ export default function FuelMonitorTab() {
               return (
                 <TouchableOpacity
                   key={m.id}
-                  onPress={() => setSelectedBill(m)}
+                  onPress={async () => {
+                    try {
+                      const res = await apiClient.get(`/maintenance/${m.id}`);
+                      if (res.data && res.data.success) {
+                        setSelectedBill(res.data.data);
+                      } else {
+                        setSelectedBill(m);
+                      }
+                    } catch (e) {
+                      setSelectedBill(m);
+                    }
+                  }}
                   activeOpacity={0.7}
                   style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 14 }]}
                 >

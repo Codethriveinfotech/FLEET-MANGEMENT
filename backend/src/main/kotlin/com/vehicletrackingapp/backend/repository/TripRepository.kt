@@ -48,6 +48,36 @@ class TripRepositoryImpl : TripRepository {
         isBreakdown = row[Trips.isBreakdown]
     )
 
+    private fun resultRowToTripSummary(row: ResultRow) = Trip(
+        id = row[Trips.id],
+        driverId = row[Trips.driverId],
+        vehicleId = row[Trips.vehicleId],
+        startDate = row[Trips.startDate],
+        startTime = row[Trips.startTime],
+        startOdometer = row[Trips.startOdometer],
+        startOdometerPhotoUri = if (row[Trips.startOdometerPhotoUri].isNullOrBlank()) null else "has_image",
+        startVehiclePhotoUri = if (row[Trips.startVehiclePhotoUri].isNullOrBlank()) null else "has_image",
+        startVehiclePlatePhotoUri = if (row[Trips.startVehiclePlatePhotoUri].isNullOrBlank()) null else "has_image",
+        day = row[Trips.day],
+        shift = row[Trips.shift],
+        startHmr = row[Trips.startHmr],
+        endDate = row[Trips.endDate],
+        endTime = row[Trips.endTime],
+        endOdometer = row[Trips.endOdometer],
+        endOdometerPhotoUri = if (row[Trips.endOdometerPhotoUri].isNullOrBlank()) null else "has_image",
+        endVehiclePhotoUri = if (row[Trips.endVehiclePhotoUri].isNullOrBlank()) null else "has_image",
+        endVehiclePlatePhotoUri = if (row[Trips.endVehiclePlatePhotoUri].isNullOrBlank()) null else "has_image",
+        sheetPhotoUri = if (row[Trips.sheetPhotoUri].isNullOrBlank()) null else "has_image",
+        endHmr = row[Trips.endHmr],
+        sourceLocation = row[Trips.sourceLocation],
+        destinationLocation = row[Trips.destinationLocation],
+        fuelLevel = row[Trips.fuelLevel],
+        tripPurpose = row[Trips.tripPurpose],
+        notes = row[Trips.notes],
+        status = row[Trips.status],
+        isBreakdown = row[Trips.isBreakdown]
+    )
+
     override suspend fun createTrip(trip: Trip): Trip? = dbQuery {
         val insertStatement = Trips.insert {
             it[id] = trip.id
@@ -109,12 +139,12 @@ class TripRepositoryImpl : TripRepository {
 
     override suspend fun getTripsByDriver(driverId: String): List<Trip> = dbQuery {
         Trips.select { Trips.driverId eq driverId }
-            .map(::resultRowToTrip)
+            .map(::resultRowToTripSummary)
     }
 
     override suspend fun getTripsByVehicle(vehicleId: String): List<Trip> = dbQuery {
         Trips.select { Trips.vehicleId eq vehicleId }
-            .map(::resultRowToTrip)
+            .map(::resultRowToTripSummary)
     }
 
     override suspend fun updateTrip(trip: Trip): Boolean = dbQuery {
@@ -173,6 +203,6 @@ class TripRepositoryImpl : TripRepository {
     }
 
     override suspend fun getAllTrips(): List<Trip> = dbQuery {
-        Trips.selectAll().map(::resultRowToTrip)
+        Trips.selectAll().map(::resultRowToTripSummary)
     }
 }

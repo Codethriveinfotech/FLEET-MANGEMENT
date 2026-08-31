@@ -36,6 +36,25 @@ class MaintenanceRepositoryImpl : MaintenanceRepository {
         isBreakdownReport = row[Maintenance.isBreakdownReport]
     )
 
+    private fun resultRowToMaintenanceSummary(row: ResultRow) = MaintenanceModel(
+        id = row[Maintenance.id],
+        vehicleId = row[Maintenance.vehicleId],
+        driverId = row[Maintenance.driverId],
+        tripId = row[Maintenance.tripId],
+        maintenanceType = row[Maintenance.maintenanceType],
+        description = row[Maintenance.description],
+        date = row[Maintenance.date],
+        time = row[Maintenance.time],
+        cost = row[Maintenance.cost],
+        serviceNotes = row[Maintenance.serviceNotes],
+        billImageUri = if (row[Maintenance.billImageUri].isNullOrBlank()) null else "has_image",
+        status = row[Maintenance.status],
+        oilChangeDone = row[Maintenance.oilChangeDone],
+        tyreStatusOk = row[Maintenance.tyreStatusOk],
+        batteryStatusOk = row[Maintenance.batteryStatusOk],
+        isBreakdownReport = row[Maintenance.isBreakdownReport]
+    )
+
     override suspend fun createRecord(record: MaintenanceModel): MaintenanceModel? = dbQuery {
         val insertStatement = Maintenance.insert {
             it[id] = record.id
@@ -66,12 +85,12 @@ class MaintenanceRepositoryImpl : MaintenanceRepository {
 
     override suspend fun getRecordsByVehicle(vehicleId: String): List<MaintenanceModel> = dbQuery {
         Maintenance.select { Maintenance.vehicleId eq vehicleId }
-            .map(::resultRowToMaintenance)
+            .map(::resultRowToMaintenanceSummary)
     }
 
     override suspend fun getRecordsByDriver(driverId: String): List<MaintenanceModel> = dbQuery {
         Maintenance.select { Maintenance.driverId eq driverId }
-            .map(::resultRowToMaintenance)
+            .map(::resultRowToMaintenanceSummary)
     }
 
     override suspend fun updateRecord(record: MaintenanceModel): Boolean = dbQuery {
@@ -98,6 +117,6 @@ class MaintenanceRepositoryImpl : MaintenanceRepository {
     }
 
     override suspend fun getAllRecords(): List<MaintenanceModel> = dbQuery {
-        Maintenance.selectAll().map(::resultRowToMaintenance)
+        Maintenance.selectAll().map(::resultRowToMaintenanceSummary)
     }
 }

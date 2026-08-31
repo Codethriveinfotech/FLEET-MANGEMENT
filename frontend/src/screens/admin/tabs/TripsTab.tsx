@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Modal, Pressable, Image } fro
 import { useDashboardData } from '../../../context/DashboardDataContext';
 import { styles, fontStyle } from '../AdminStyles';
 import { Ionicons } from '@expo/vector-icons';
+import { apiClient } from '../../../api/client';
 
 export default function TripsTab() {
   const { trips, drivers, vehicles } = useDashboardData();
@@ -336,7 +337,18 @@ export default function TripsTab() {
               return (
                 <TouchableOpacity
                   key={trip.id}
-                  onPress={() => setSelectedTrip(trip)}
+                  onPress={async () => {
+                    try {
+                      const res = await apiClient.get(`/trips/${trip.id}`);
+                      if (res.data && res.data.success) {
+                        setSelectedTrip(res.data.data);
+                      } else {
+                        setSelectedTrip(trip);
+                      }
+                    } catch (e) {
+                      setSelectedTrip(trip);
+                    }
+                  }}
                   activeOpacity={0.7}
                   style={[styles.tableRow, { borderBottomWidth: 1, borderColor: '#F8FAFC', paddingVertical: 14 }]}
                 >
