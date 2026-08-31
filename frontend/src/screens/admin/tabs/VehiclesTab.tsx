@@ -6,12 +6,36 @@ import { Ionicons } from '@expo/vector-icons';
 import { apiClient } from '../../../api/client';
 import { Vehicle } from '@fleettrack/shared';
 
+const DEFAULT_VEHICLE_TYPES = [
+  'Truck',
+  'Sedan',
+  'Hatchback',
+  'SUV',
+  'Van',
+  'Tempo Traveller 9-Seater',
+  'Tempo Traveller 12-Seater',
+  'Tempo Traveller 17-Seater',
+  'Tempo Traveller 20-Seater'
+];
+
 export default function VehiclesTab() {
   const { vehicles, fetchData } = useDashboardData();
   const [vehicleSearch, setVehicleSearch] = useState('');
   const [vehicleModalVisible, setVehicleModalVisible] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   
+  const [customTypes, setCustomTypes] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('custom_vehicle_types');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  const [showCustomTypeInput, setShowCustomTypeInput] = useState(false);
+  const [newCustomType, setNewCustomType] = useState('');
+
   const [vehicleForm, setVehicleForm] = useState({
     number: '',
     model: '',
@@ -33,7 +57,16 @@ export default function VehiclesTab() {
 
   const openVehicleModal = (veh: Vehicle | null = null) => {
     setEditingVehicle(veh);
+    setShowCustomTypeInput(false);
+    setNewCustomType('');
     if (veh) {
+      if (veh.type && !DEFAULT_VEHICLE_TYPES.includes(veh.type) && !customTypes.includes(veh.type)) {
+        const updated = [...customTypes, veh.type];
+        setCustomTypes(updated);
+        try {
+          localStorage.setItem('custom_vehicle_types', JSON.stringify(updated));
+        } catch (e) {}
+      }
       setVehicleForm({
         number: veh.number,
         model: veh.model,
@@ -396,7 +429,13 @@ export default function VehiclesTab() {
               <Text style={styles.inputLabel}>VEHICLE TYPE</Text>
               <select
                 value={vehicleForm.type}
-                onChange={(e) => setVehicleForm({ ...vehicleForm, type: e.target.value })}
+                onChange={(e) => {
+                  if (e.target.value === '__ADD_CUSTOM__') {
+                    setShowCustomTypeInput(true);
+                  } else {
+                    setVehicleForm({ ...vehicleForm, type: e.target.value });
+                  }
+                }}
                 style={{
                   width: '100%',
                   height: 45,
@@ -412,19 +451,75 @@ export default function VehiclesTab() {
                   fontFamily: fontStyle,
                 } as any}
               >
-                {[
-                  'Sedan',
-                  'Hatchback',
-                  'SUV',
-                  'Van',
-                  'Tempo Traveller 9-Seater',
-                  'Tempo Traveller 12-Seater',
-                  'Tempo Traveller 17-Seater',
-                  'Tempo Traveller 20-Seater'
-                ].map((t) => (
+                {[...DEFAULT_VEHICLE_TYPES, ...customTypes].map((t) => (
                   <option key={t} value={t}>{t}</option>
                 ))}
+                <option value="__ADD_CUSTOM__">+ Add Custom Type...</option>
               </select>
+
+              {showCustomTypeInput && (
+                <View style={{ marginBottom: 16, backgroundColor: '#F8FAFC', padding: 12, borderRadius: 10, borderWidth: 1, borderColor: '#E2E8F0' }}>
+                  <Text style={[styles.inputLabel, { marginTop: 0, fontSize: 11 }]}>ENTER CUSTOM VEHICLE TYPE</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <TextInput
+                      style={[styles.modalInput, { flex: 1, marginBottom: 0, height: 38 }]}
+                      value={newCustomType}
+                      onChangeText={setNewCustomType}
+                      placeholder="e.g. Excavator, Tipper, Tractor"
+                      placeholderTextColor="#94A3B8"
+                    />
+                    <TouchableOpacity
+                      style={{
+                        backgroundColor: '#10B981',
+                        paddingVertical: 10,
+                        paddingHorizontal: 14,
+                        borderRadius: 8,
+                        marginLeft: 10,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}
+                      onPress={() => {
+                        const cleanType = newCustomType.trim();
+                        if (cleanType) {
+                          const allAvailable = [...DEFAULT_VEHICLE_TYPES, ...customTypes];
+                          if (!allAvailable.map(t => t.toLowerCase()).includes(cleanType.toLowerCase())) {
+                            const updated = [...customTypes, cleanType];
+                            setCustomTypes(updated);
+                            try {
+                              localStorage.setItem('custom_vehicle_types', JSON.stringify(updated));
+                            } catch (e) {}
+                          }
+                          setVehicleForm({ ...vehicleForm, type: cleanType });
+                          setShowCustomTypeInput(false);
+                          setNewCustomType('');
+                        } else {
+                          alert('Please enter a valid type name');
+                        }
+                      }}
+                    >
+                      <Text style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 12 }}>ADD</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{
+                        backgroundColor: '#64748B',
+                        paddingVertical: 10,
+                        paddingHorizontal: 14,
+                        borderRadius: 8,
+                        marginLeft: 8,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}
+                      onPress={() => {
+                        setShowCustomTypeInput(false);
+                        setNewCustomType('');
+                        setVehicleForm({ ...vehicleForm, type: DEFAULT_VEHICLE_TYPES[0] });
+                      }}
+                    >
+                      <Text style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 12 }}>CANCEL</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
 
               <Text style={styles.inputLabel}>REGISTRATION NUMBER</Text>
               <TextInput style={styles.modalInput} value={vehicleForm.registrationNumber} onChangeText={(val) => setVehicleForm({ ...vehicleForm, registrationNumber: val })} />
