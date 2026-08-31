@@ -601,8 +601,6 @@ export default function ReportsTab() {
                     <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>S.NO</Text>
                     <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DATE</Text>
                     <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>VEHICLE NO</Text>
-                    <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>SOURCE</Text>
-                    <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DESTINATION</Text>
                     <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DIST (KM)</Text>
                     <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>HMR WORKED</Text>
                     <Text style={{ flex: 1.2, textAlign: 'center', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>BREAKDOWN</Text>
@@ -620,8 +618,6 @@ export default function ReportsTab() {
                         <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{idx + 1}</Text>
                         <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{t.startDate}</Text>
                         <Text style={{ flex: 1.5, fontWeight: '700', fontFamily: fontStyle, fontSize: 14, color: '#1E293B' }}>{v}</Text>
-                        <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 14, color: '#334155' }} numberOfLines={1}>{t.sourceLocation}</Text>
-                        <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 14, color: '#334155' }} numberOfLines={1}>{t.destinationLocation}</Text>
                         <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{dist} km</Text>
                         <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{hmr.toFixed(1)} hrs</Text>
                         <Text style={{ flex: 1.2, textAlign: 'center', fontWeight: '800', color: t.isBreakdown ? '#EF4444' : '#10B981', fontFamily: fontStyle, fontSize: 14 }}>{t.isBreakdown ? 'YES' : 'NO'}</Text>
@@ -671,8 +667,6 @@ export default function ReportsTab() {
                     <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>S.NO</Text>
                     <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DATE</Text>
                     <Text style={{ flex: 1.8, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>OPERATOR DRIVER</Text>
-                    <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>SOURCE</Text>
-                    <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DESTINATION</Text>
                     <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DIST (KM)</Text>
                     <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>FUEL CONSUMED</Text>
                     <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>MAINT COST</Text>
@@ -688,14 +682,12 @@ export default function ReportsTab() {
                     
                     const dateMaint = filteredMaint.filter(m => m.vehicleId === selectedVehicleId && m.date === t.startDate);
                     const totalMaint = dateMaint.reduce((acc, m) => acc + (parseFloat(m.cost) || 0), 0);
-
+ 
                     return (
                       <View key={t.id} style={[styles.tableRow, { paddingVertical: 12, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
                         <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{idx + 1}</Text>
                         <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{t.startDate}</Text>
                         <Text style={{ flex: 1.8, fontWeight: '700', fontFamily: fontStyle, fontSize: 14, color: '#1E293B' }}>{dName}</Text>
-                        <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 14, color: '#334155' }} numberOfLines={1}>{t.sourceLocation}</Text>
-                        <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 14, color: '#334155' }} numberOfLines={1}>{t.destinationLocation}</Text>
                         <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{dist} km</Text>
                         <Text style={{ flex: 1.2, textAlign: 'right', color: '#0284C7', fontFamily: fontStyle, fontSize: 14 }}>{totalFuel > 0 ? `${totalFuel} L` : '—'}</Text>
                         <Text style={{ flex: 1.2, textAlign: 'right', color: '#EF4444', fontFamily: fontStyle, fontSize: 14 }}>{totalMaint > 0 ? `₹${totalMaint}` : '—'}</Text>

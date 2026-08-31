@@ -310,8 +310,6 @@ export default function TripsTab() {
           <Text style={[styles.tableHeaderCell, { flex: 1.4, fontFamily: fontStyle }]}>END TIME</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1.6, fontFamily: fontStyle }]}>OPERATOR DRIVER</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1.2, fontFamily: fontStyle }]}>VEHICLE NO</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>SOURCE LOCATION</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1.5, fontFamily: fontStyle }]}>DESTINATION</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1.5, textAlign: 'right', fontFamily: fontStyle }]}>ODOMETER PROGRESS</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1.5, textAlign: 'right', fontFamily: fontStyle }]}>HMR PROGRESS</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1.0, textAlign: 'center', fontFamily: fontStyle }]}>STATUS</Text>
@@ -410,10 +408,6 @@ export default function TripsTab() {
                       <Text style={{ fontSize: 10, fontWeight: '800', color: '#1E293B', letterSpacing: 0.5, fontFamily: 'monospace' }}>{plateNo}</Text>
                     </View>
                   </View>
-
-                  {/* Source/Destination cells */}
-                  <Text style={[styles.tableCell, { flex: 1.5, color: '#334155', fontWeight: '500', fontFamily: fontStyle }]} numberOfLines={1}>{trip.sourceLocation}</Text>
-                  <Text style={[styles.tableCell, { flex: 1.5, color: '#334155', fontWeight: '500', fontFamily: fontStyle }]} numberOfLines={1}>{trip.destinationLocation}</Text>
 
                   {/* Odometer progress */}
                   <View style={{ flex: 1.5, alignItems: 'flex-end', justifyContent: 'center' }}>
