@@ -98,7 +98,7 @@ export default function FuelMonitorTab() {
           </View>
           <View style={{ marginLeft: 16, flex: 1 }}>
             <Text style={styles.statLabel}>Total Fuel Cost</Text>
-            <Text style={styles.statValue}>${totalFleetCost.toFixed(2)}</Text>
+            <Text style={styles.statValue}>₹{totalFleetCost.toFixed(2)}</Text>
             <Text style={styles.statTrendText}>Total money spent on fuel</Text>
           </View>
         </View>
@@ -276,7 +276,7 @@ export default function FuelMonitorTab() {
 
                 {/* Expenses */}
                 <Text style={[styles.tableCell, { flex: 1.5, textAlign: 'right', fontWeight: '700', color: '#10B981', fontFamily: fontStyle }]}>
-                  {veh.cost > 0 ? `$${veh.cost.toFixed(2)}` : '$0.00'}
+                  {veh.cost > 0 ? `₹${veh.cost.toFixed(2)}` : '₹0.00'}
                 </Text>
 
                 {/* Avg Economy */}

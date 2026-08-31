@@ -382,14 +382,27 @@ fun TripDetailsTab(driverId: String) {
                     }
                     
                     Spacer(modifier = Modifier.height(16.dp))
-                    EliteTextField(
-                        value = if (isOcrReadingStart) "Reading from image..." else startOdo, 
-                        onValueChange = { if (!isOcrReadingStart) { startOdo = it; persistDraft() } }, 
-                        label = stringResource(R.string.odometer_reading), 
-                        leadingIcon = if (isOcrReadingStart) Icons.Default.HourglassTop else Icons.Default.Speed, 
-                        keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, 
-                        enabled = !isLocked && !isOcrReadingStart
-                    )
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        EliteTextField(
+                            value = if (isOcrReadingStart) "Reading from image..." else startOdo, 
+                            onValueChange = { if (!isOcrReadingStart) { startOdo = it; persistDraft() } }, 
+                            label = stringResource(R.string.odometer_reading), 
+                            leadingIcon = if (isOcrReadingStart) Icons.Default.HourglassTop else Icons.Default.Speed, 
+                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, 
+                            enabled = !isLocked && !isOcrReadingStart,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        EliteTextField(
+                            value = startHmr,
+                            onValueChange = { startHmr = it; persistDraft() },
+                            label = "Start HMR",
+                            leadingIcon = Icons.Default.Timer,
+                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
+                            enabled = !isLocked,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
                     EliteTextField(
                         value = sourceLocation,

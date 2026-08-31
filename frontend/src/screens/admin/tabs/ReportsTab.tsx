@@ -4,6 +4,63 @@ import { useDashboardData } from '../../../context/DashboardDataContext';
 import { styles, fontStyle } from '../AdminStyles';
 import { Ionicons } from '@expo/vector-icons';
 
+const convertToExcelXml = (headers: string[], rows: string[][], sheetName = "Report") => {
+  let xml = `<?xml version="1.0"?>\n`;
+  xml += `<?mso-application progid="Excel.Sheet"?>\n`;
+  xml += `<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"\n`;
+  xml += ` xmlns:o="urn:schemas-microsoft-com:office:office"\n`;
+  xml += ` xmlns:x="urn:schemas-microsoft-com:office:excel"\n`;
+  xml += ` xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"\n`;
+  xml += ` xmlns:html="http://www.w3.org/TR/REC-html40">\n`;
+  
+  xml += ` <Styles>\n`;
+  xml += `  <Style ss:Id="Default" ss:Name="Normal">\n`;
+  xml += `   <Alignment ss:Vertical="Bottom"/>\n`;
+  xml += `   <Borders/>\n`;
+  xml += `   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#000000"/>\n`;
+  xml += `   <Interior/>\n`;
+  xml += `   <NumberFormat/>\n`;
+  xml += `   <Protection/>\n`;
+  xml += `  </Style>\n`;
+  xml += `  <Style ss:Id="Header">\n`;
+  xml += `   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#FFFFFF" ss:Bold="1"/>\n`;
+  xml += `   <Interior ss:Color="#0F243E" ss:Pattern="Solid"/>\n`;
+  xml += `  </Style>\n`;
+  xml += ` </Styles>\n`;
+  
+  const cleanSheetName = sheetName.replace(/[\\/?*:\\[\\]]/g, "").substring(0, 30);
+  xml += ` <Worksheet ss:Name="${cleanSheetName}">\n`;
+  xml += `  <Table>\n`;
+  
+  xml += `   <Row ss:Height="22">\n`;
+  headers.forEach(h => {
+    xml += `    <Cell ss:StyleID="Header"><Data ss:Type="String">${h}</Data></Cell>\n`;
+  });
+  xml += `   </Row>\n`;
+  
+  rows.forEach(row => {
+    xml += `   <Row>\n`;
+    row.forEach(val => {
+      let cleanedVal = val.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const numVal = Number(cleanedVal);
+      const isNum = !isNaN(numVal) && cleanedVal.trim() !== '' && !cleanedVal.includes('/') && !cleanedVal.includes(':') && !cleanedVal.includes('-');
+      
+      if (isNum) {
+        xml += `    <Cell><Data ss:Type="Number">${numVal}</Data></Cell>\n`;
+      } else {
+        xml += `    <Cell><Data ss:Type="String">${cleanedVal}</Data></Cell>\n`;
+      }
+    });
+    xml += `   </Row>\n`;
+  });
+  
+  xml += `  </Table>\n`;
+  xml += ` </Worksheet>\n`;
+  xml += `</Workbook>\n`;
+  
+  return xml;
+};
+
 export default function ReportsTab() {
   const { trips, drivers, vehicles, maintenance, fuelLogs } = useDashboardData();
   const [selectedReportType, setSelectedReportType] = useState('Trip Summary Report');
@@ -62,40 +119,53 @@ export default function ReportsTab() {
 
   const { filteredTrips, filteredMaint, filteredFuel } = getFilteredData();
 
-  // Excel / CSV Export Utility
+  // Excel Export Utility
   const handleDownloadExcel = () => {
     let headers: string[] = [];
     let rows: string[][] = [];
-    let filename = `${selectedReportType.replace(/\s+/g, '_')}_${duration}m_Report.csv`;
+    let filename = `${selectedReportType.replace(/\s+/g, '_')}_${duration}m_Report.xls`;
 
     if (selectedReportType === 'Trip Summary Report') {
-      headers = ['S.No', 'Date', 'Time', 'Operator Driver', 'Vehicle No', 'Source', 'Destination', 'Start Odometer', 'End Odometer', 'End HMR', 'Status', 'Breakdown'];
+      headers = [
+        'S.No', 'Date', 'Time', 'Operator Driver', 'Vehicle No', 'Source', 'Destination', 
+        'Start Odometer (KM)', 'End Odometer (KM)', 'Distance Run (KM)', 
+        'Start HMR (HRS)', 'End HMR (HRS)', 'HMR Worked (HRS)', 'Status', 'Breakdown'
+      ];
       rows = filteredTrips.map((t, idx) => {
         const d = drivers.find(drv => drv.id === t.driverId)?.name || 'Unknown';
         const v = vehicles.find(veh => veh.id === t.vehicleId)?.number || 'Unknown';
+        const start = parseFloat(t.startOdometer) || 0;
+        const end = parseFloat(t.endOdometer) || 0;
+        const dist = end >= start ? (end - start) : 0;
+        const startH = parseFloat(t.startHmr) || 0;
+        const endH = parseFloat(t.endHmr) || 0;
+        const hmr = endH >= startH ? (endH - startH) : 0;
         return [
           (idx + 1).toString(),
-          t.startDate ? `="\t${t.startDate}"` : '',
+          t.startDate || '',
           t.startTime || '',
           d,
           v,
           t.sourceLocation || '',
           t.destinationLocation || '',
-          t.startOdometer || '',
-          t.endOdometer || 'Active',
-          t.endHmr || '',
+          t.startOdometer || '0',
+          t.endOdometer || (t.status === 'started' ? 'Active' : '0'),
+          t.endOdometer ? dist.toString() : 'Active',
+          t.startHmr || '0',
+          t.endHmr || (t.status === 'started' ? 'Active' : '0'),
+          t.endHmr ? hmr.toFixed(1) : 'Active',
           t.status || '',
           t.isBreakdown ? 'YES' : 'NO'
         ];
       });
     } else if (selectedReportType === 'Fuel Report') {
-      headers = ['S.No', 'Date', 'Time', 'Vehicle No', 'Driver Name', 'Liters Refilled', 'Total Cost ($)', 'Odometer Reading'];
+      headers = ['S.No', 'Date', 'Time', 'Vehicle No', 'Driver Name', 'Liters Refilled', 'Total Cost (₹)', 'Odometer Reading'];
       rows = filteredFuel.map((f, idx) => {
         const v = vehicles.find(veh => veh.id === f.vehicleId)?.number || 'Unknown';
         const d = drivers.find(drv => drv.id === f.driverId)?.name || 'Unknown';
         return [
           (idx + 1).toString(),
-          f.date ? `="\t${f.date}"` : '',
+          f.date || '',
           f.time || '',
           v,
           d,
@@ -106,9 +176,8 @@ export default function ReportsTab() {
       });
     } else if (selectedReportType === 'Driver Performance Report') {
       if (selectedDriverId) {
-        // Detailed single driver report CSV
         const driverName = drivers.find(d => d.id === selectedDriverId)?.name || 'Driver';
-        filename = `Detailed_Report_Driver_${driverName.replace(/\s+/g, '_')}_${duration}m.csv`;
+        filename = `Detailed_Report_Driver_${driverName.replace(/\s+/g, '_')}_${duration}m.xls`;
         headers = ['S.No', 'Date', 'Vehicle No', 'Source', 'Destination', 'Distance (km)', 'Shift', 'HMR Worked', 'Breakdown'];
         
         const dTrips = filteredTrips.filter(t => t.driverId === selectedDriverId);
@@ -119,10 +188,10 @@ export default function ReportsTab() {
           const dist = end >= start ? (end - start) : 0;
           const endH = parseFloat(t.endHmr) || 0;
           const startH = parseFloat(t.startHmr) || 0;
-          const hmr = endH >= startH ? (endH - startH) : endH;
+          const hmr = endH >= startH ? (endH - startH) : 0;
           return [
             (idx + 1).toString(),
-            t.startDate ? `="\t${t.startDate}"` : '',
+            t.startDate || '',
             v,
             t.sourceLocation || '',
             t.destinationLocation || '',
@@ -133,7 +202,6 @@ export default function ReportsTab() {
           ];
         });
       } else {
-        // Summary list CSV
         headers = ['S.No', 'Driver Name', 'Total Trips', 'Day Shifts', 'Night Shifts', 'Breakdowns Count', 'Billing Days'];
         rows = drivers.map((driver, idx) => {
           const dTrips = filteredTrips.filter(t => t.driverId === driver.id);
@@ -154,10 +222,9 @@ export default function ReportsTab() {
       }
     } else if (selectedReportType === 'Vehicle Utilization Report') {
       if (selectedVehicleId) {
-        // Detailed single vehicle report CSV
         const vehNo = vehicles.find(v => v.id === selectedVehicleId)?.number || 'Vehicle';
-        filename = `Detailed_Report_Vehicle_${vehNo.replace(/\s+/g, '_')}_${duration}m.csv`;
-        headers = ['S.No', 'Date', 'Driver Name', 'Source', 'Destination', 'Distance (km)', 'Fuel Used (L)', 'Refill Cost ($)', 'Maintenance Cost ($)'];
+        filename = `Detailed_Report_Vehicle_${vehNo.replace(/\s+/g, '_')}_${duration}m.xls`;
+        headers = ['S.No', 'Date', 'Driver Name', 'Source', 'Destination', 'Distance (km)', 'Fuel Used (L)', 'Refill Cost (₹)', 'Maintenance Cost (₹)'];
         
         const vTrips = filteredTrips.filter(t => t.vehicleId === selectedVehicleId);
         rows = vTrips.map((t, idx) => {
@@ -166,7 +233,6 @@ export default function ReportsTab() {
           const end = parseFloat(t.endOdometer) || 0;
           const dist = end >= start ? (end - start) : 0;
           
-          // Estimate proportional fuel refilled & maintenance cost for this trip date
           const dateRefills = filteredFuel.filter(f => f.vehicleId === selectedVehicleId && f.date === t.startDate);
           const totalFuel = dateRefills.reduce((acc, f) => acc + (parseFloat(f.liters) || 0), 0);
           const totalFuelCost = dateRefills.reduce((acc, f) => acc + (parseFloat(f.cost) || 0), 0);
@@ -176,7 +242,7 @@ export default function ReportsTab() {
 
           return [
             (idx + 1).toString(),
-            t.startDate ? `="\t${t.startDate}"` : '',
+            t.startDate || '',
             dName,
             t.sourceLocation || '',
             t.destinationLocation || '',
@@ -187,7 +253,6 @@ export default function ReportsTab() {
           ];
         });
       } else {
-        // Summary list CSV
         headers = ['S.No', 'Vehicle No', 'Model', 'Total Trips Run', 'Total Distance Run (km)'];
         rows = vehicles.map((veh, idx) => {
           const vTrips = filteredTrips.filter(t => t.vehicleId === veh.id);
@@ -206,13 +271,13 @@ export default function ReportsTab() {
         });
       }
     } else if (selectedReportType === 'Maintenance Report') {
-      headers = ['S.No', 'Date', 'Vehicle No', 'Driver Name', 'Type', 'Description', 'Notes', 'Cost ($)'];
+      headers = ['S.No', 'Date', 'Vehicle No', 'Driver Name', 'Type', 'Description', 'Notes', 'Cost (₹)'];
       rows = filteredMaint.map((m, idx) => {
         const v = vehicles.find(veh => veh.id === m.vehicleId)?.number || 'Unknown';
         const d = drivers.find(drv => drv.id === m.driverId)?.name || 'Unknown';
         return [
           (idx + 1).toString(),
-          m.date ? `="\t${m.date}"` : '',
+          m.date || '',
           v,
           d,
           m.maintenanceType || '',
@@ -223,14 +288,11 @@ export default function ReportsTab() {
       });
     }
 
-    // Convert array to CSV format
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(e => e.map(val => `"${val.replace(/"/g, '""')}"`).join(','))
-    ].join('\n');
+    // Convert array to Excel XML format
+    const excelXmlContent = convertToExcelXml(headers, rows, selectedReportType);
 
     // Trigger download in browser environment
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([excelXmlContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
     const link = document.createElement('a');
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);
@@ -413,29 +475,44 @@ export default function ReportsTab() {
             {selectedReportType === 'Trip Summary Report' && (
               <View>
                 <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10 }]}>
-                  <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>S.NO</Text>
-                  <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DATE</Text>
-                  <Text style={{ flex: 1.8, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>OPERATOR</Text>
-                  <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>VEHICLE</Text>
-                  <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>SOURCE</Text>
-                  <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DESTINATION</Text>
-                  <Text style={{ flex: 1, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DIST (KM)</Text>
+                  <Text style={{ flex: 0.4, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>S.NO</Text>
+                  <Text style={{ flex: 0.9, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>DATE</Text>
+                  <Text style={{ flex: 1.1, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>OPERATOR</Text>
+                  <Text style={{ flex: 0.9, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>VEHICLE</Text>
+                  <Text style={{ flex: 1.1, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>SOURCE</Text>
+                  <Text style={{ flex: 1.1, fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>DESTINATION</Text>
+                  <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>START ODO</Text>
+                  <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>END ODO</Text>
+                  <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>DIST (KM)</Text>
+                  <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>START HMR</Text>
+                  <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>END HMR</Text>
+                  <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 12, fontWeight: '800', color: '#475569' }}>HMR WORKED</Text>
                 </View>
                 {filteredTrips.map((t, idx) => {
                   const d = drivers.find(drv => drv.id === t.driverId)?.name || 'Unknown';
                   const v = vehicles.find(veh => veh.id === t.vehicleId)?.number || 'Unknown';
-                  const start = parseFloat(t.startOdometer) || 0;
-                  const end = parseFloat(t.endOdometer) || 0;
-                  const dist = end >= start ? (end - start) : 0;
+                  const startOdoVal = parseFloat(t.startOdometer) || 0;
+                  const endOdoVal = parseFloat(t.endOdometer) || 0;
+                  const distVal = endOdoVal >= startOdoVal ? (endOdoVal - startOdoVal) : 0;
+                  
+                  const startHmrVal = parseFloat(t.startHmr) || 0;
+                  const endHmrVal = parseFloat(t.endHmr) || 0;
+                  const hmrWorkedVal = endHmrVal >= startHmrVal ? (endHmrVal - startHmrVal) : 0;
+
                   return (
                     <View key={t.id} style={[styles.tableRow, { paddingVertical: 12, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
-                      <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{idx + 1}</Text>
-                      <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{t.startDate}</Text>
-                      <Text style={{ flex: 1.8, fontWeight: '700', fontFamily: fontStyle, fontSize: 14, color: '#1E293B' }}>{d}</Text>
-                      <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{v}</Text>
-                      <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 14, color: '#334155' }} numberOfLines={1}>{t.sourceLocation}</Text>
-                      <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 14, color: '#334155' }} numberOfLines={1}>{t.destinationLocation}</Text>
-                      <Text style={{ flex: 1, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle, fontSize: 14, color: '#1E293B' }}>{dist} km</Text>
+                      <Text style={{ flex: 0.4, fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{idx + 1}</Text>
+                      <Text style={{ flex: 0.9, fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.startDate}</Text>
+                      <Text style={{ flex: 1.1, fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#1E293B' }} numberOfLines={1}>{d}</Text>
+                      <Text style={{ flex: 0.9, fontFamily: fontStyle, fontSize: 13, color: '#334155' }} numberOfLines={1}>{v}</Text>
+                      <Text style={{ flex: 1.1, fontFamily: fontStyle, fontSize: 13, color: '#334155' }} numberOfLines={1}>{t.sourceLocation}</Text>
+                      <Text style={{ flex: 1.1, fontFamily: fontStyle, fontSize: 13, color: '#334155' }} numberOfLines={1}>{t.destinationLocation}</Text>
+                      <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.startOdometer || '0'}</Text>
+                      <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.endOdometer || 'Active'}</Text>
+                      <Text style={{ flex: 0.9, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#1E293B' }}>{t.endOdometer ? `${distVal} km` : 'Active'}</Text>
+                      <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.startHmr || '0'}</Text>
+                      <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155' }}>{t.endHmr || 'Active'}</Text>
+                      <Text style={{ flex: 0.9, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#0284C7' }}>{t.endHmr ? `${hmrWorkedVal.toFixed(1)} hrs` : 'Active'}</Text>
                     </View>
                   );
                 })}
@@ -463,7 +540,7 @@ export default function ReportsTab() {
                       <Text style={{ flex: 1.5, fontWeight: '700', fontFamily: fontStyle, fontSize: 14, color: '#1E293B' }}>{v}</Text>
                       <Text style={{ flex: 1.8, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{d}</Text>
                       <Text style={{ flex: 1.2, textAlign: 'right', fontWeight: '700', color: '#0284C7', fontFamily: fontStyle, fontSize: 14 }}>{f.liters} L</Text>
-                      <Text style={{ flex: 1.2, textAlign: 'right', fontWeight: '700', color: '#10B981', fontFamily: fontStyle, fontSize: 14 }}>${f.cost}</Text>
+                      <Text style={{ flex: 1.2, textAlign: 'right', fontWeight: '700', color: '#10B981', fontFamily: fontStyle, fontSize: 14 }}>₹{f.cost}</Text>
                       <Text style={{ flex: 1.5, textAlign: 'right', fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{f.odometerReading} km</Text>
                     </View>
                   );
@@ -576,7 +653,7 @@ export default function ReportsTab() {
                         <Text style={{ flex: 2, fontFamily: fontStyle, fontSize: 14, color: '#334155' }} numberOfLines={1}>{t.destinationLocation}</Text>
                         <Text style={{ flex: 1.2, textAlign: 'right', fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{dist} km</Text>
                         <Text style={{ flex: 1.2, textAlign: 'right', color: '#0284C7', fontFamily: fontStyle, fontSize: 14 }}>{totalFuel > 0 ? `${totalFuel} L` : '—'}</Text>
-                        <Text style={{ flex: 1.2, textAlign: 'right', color: '#EF4444', fontFamily: fontStyle, fontSize: 14 }}>{totalMaint > 0 ? `$${totalMaint}` : '—'}</Text>
+                        <Text style={{ flex: 1.2, textAlign: 'right', color: '#EF4444', fontFamily: fontStyle, fontSize: 14 }}>{totalMaint > 0 ? `₹${totalMaint}` : '—'}</Text>
                       </View>
                     );
                   })}
@@ -632,7 +709,7 @@ export default function ReportsTab() {
                       <Text style={{ flex: 1.5, fontWeight: '700', fontFamily: fontStyle, fontSize: 14, color: '#1E293B' }}>{v}</Text>
                       <Text style={{ flex: 1.8, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{d}</Text>
                       <Text style={{ flex: 2, color: '#F59E0B', fontWeight: '700', fontFamily: fontStyle, fontSize: 14 }} numberOfLines={1}>{m.maintenanceType}</Text>
-                      <Text style={{ flex: 1.2, textAlign: 'right', fontWeight: '700', color: '#EF4444', fontFamily: fontStyle, fontSize: 14 }}>${m.cost}</Text>
+                      <Text style={{ flex: 1.2, textAlign: 'right', fontWeight: '700', color: '#EF4444', fontFamily: fontStyle, fontSize: 14 }}>₹{m.cost}</Text>
                     </View>
                   );
                 })}

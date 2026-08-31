@@ -59,7 +59,7 @@ export default function MaintenanceTab() {
           </View>
           <View style={{ marginLeft: 16, flex: 1 }}>
             <Text style={styles.statLabel}>Total Repair Cost</Text>
-            <Text style={styles.statValue}>${totalCost.toFixed(2)}</Text>
+            <Text style={styles.statValue}>₹{totalCost.toFixed(2)}</Text>
             <Text style={styles.statTrendText}>Accumulated service expenses</Text>
           </View>
         </View>
@@ -340,7 +340,7 @@ export default function MaintenanceTab() {
 
                   {/* Cost */}
                   <Text style={[styles.tableCell, { flex: 1, textAlign: 'right', fontWeight: '800', color: parseFloat(m.cost) > 0 ? '#8B5CF6' : '#94A3B8', fontFamily: fontStyle }]}>
-                    {parseFloat(m.cost) > 0 ? `$${m.cost}` : 'N/A'}
+                    {parseFloat(m.cost) > 0 ? `₹${m.cost}` : 'N/A'}
                   </Text>
                 </View>
               );
