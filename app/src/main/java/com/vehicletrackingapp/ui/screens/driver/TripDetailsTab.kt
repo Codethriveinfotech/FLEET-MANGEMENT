@@ -261,7 +261,7 @@ fun TripDetailsTab(driverId: String) {
                     Text(stringResource(R.string.vehicle_verification).uppercase(), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = TextHint, letterSpacing = 2.sp)
                     Spacer(modifier = Modifier.height(24.dp))
                     CameraOnlyPicker(
-                        label = "LICENSE PLATE IDENTIFICATION", 
+                        label = "LICENSE PLATE IDENTIFICATION *", 
                         imageUri = startPlateUri, 
                         onImageSelected = { startPlateUri = it; persistDraft() },
                         enabled = true
@@ -312,7 +312,12 @@ fun TripDetailsTab(driverId: String) {
                             onValueChange = {},
                             readOnly = true,
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text(stringResource(R.string.active_fleet_asset), fontWeight = FontWeight.Bold) },
+                            label = { 
+                                Row {
+                                    Text(stringResource(R.string.active_fleet_asset), fontWeight = FontWeight.Bold)
+                                    Text(" *", color = DangerCrimson, fontWeight = FontWeight.Bold)
+                                }
+                            },
                             trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, tint = BrandYellow) },
                             shape = RoundedCornerShape(20.dp),
                             enabled = true,
@@ -427,7 +432,7 @@ fun TripDetailsTab(driverId: String) {
                         EliteTextField(
                             value = if (isOcrReadingStart) "Reading from image..." else startOdo, 
                             onValueChange = { if (!isOcrReadingStart) { startOdo = it; persistDraft() } }, 
-                            label = stringResource(R.string.odometer_reading), 
+                            label = stringResource(R.string.odometer_reading) + " *", 
                             leadingIcon = if (isOcrReadingStart) Icons.Default.HourglassTop else Icons.Default.Speed, 
                             keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, 
                             enabled = !isLocked && !isOcrReadingStart,
@@ -446,7 +451,7 @@ fun TripDetailsTab(driverId: String) {
                     }
                     Spacer(modifier = Modifier.height(20.dp))
                     CameraOnlyPicker(
-                        label = "INITIAL ODOMETER EVIDENCE", 
+                        label = "INITIAL ODOMETER EVIDENCE *", 
                         imageUri = startOdoUri, 
                         onImageSelected = { uri -> 
                             startOdoUri = uri
@@ -528,7 +533,7 @@ fun TripDetailsTab(driverId: String) {
                     
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(modifier = Modifier.fillMaxWidth()) {
-                        EliteTextField(value = if (isOcrReadingEnd) "Reading from image..." else endOdo, onValueChange = { if (!isOcrReadingEnd) { endOdo = it; persistDraft() } }, label = stringResource(R.string.end_km), leadingIcon = if (isOcrReadingEnd) Icons.Default.HourglassTop else Icons.Default.Speed, keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, enabled = !isLocked && !isOcrReadingEnd, modifier = Modifier.weight(1f))
+                        EliteTextField(value = if (isOcrReadingEnd) "Reading from image..." else endOdo, onValueChange = { if (!isOcrReadingEnd) { endOdo = it; persistDraft() } }, label = stringResource(R.string.end_km) + " *", leadingIcon = if (isOcrReadingEnd) Icons.Default.HourglassTop else Icons.Default.Speed, keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, enabled = !isLocked && !isOcrReadingEnd, modifier = Modifier.weight(1f))
                         Spacer(modifier = Modifier.width(12.dp))
                         EliteTextField(
                             value = endHmr,
@@ -622,7 +627,7 @@ fun TripDetailsTab(driverId: String) {
                     }
                     Spacer(modifier = Modifier.height(20.dp))
                     CameraOnlyPicker(
-                        label = "FINAL ODOMETER EVIDENCE", 
+                        label = "FINAL ODOMETER EVIDENCE *", 
                         imageUri = endOdoUri, 
                         onImageSelected = { uri -> 
                             if (!isLocked) { 
@@ -657,7 +662,7 @@ fun TripDetailsTab(driverId: String) {
                     Spacer(modifier = Modifier.height(16.dp))
                     EliteTextField(value = notes, onValueChange = { notes = it; persistDraft() }, label = stringResource(R.string.mission_notes), leadingIcon = Icons.AutoMirrored.Filled.Notes, enabled = !isLocked)
                     Spacer(modifier = Modifier.height(20.dp))
-                    CameraOnlyPicker(label = "SHEET", imageUri = sheetUri, onImageSelected = { if (!isLocked) { sheetUri = it; persistDraft() } }, enabled = !isLocked)
+                    CameraOnlyPicker(label = "SHEET *", imageUri = sheetUri, onImageSelected = { if (!isLocked) { sheetUri = it; persistDraft() } }, enabled = !isLocked)
                 }
             }
 
