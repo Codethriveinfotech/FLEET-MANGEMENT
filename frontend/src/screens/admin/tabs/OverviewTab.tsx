@@ -235,34 +235,39 @@ export default function OverviewTab() {
                           </View>
                           
                           {resolvingVehicle?.id === v.id ? (
-                            <View style={{ marginTop: 12, backgroundColor: '#FFFFFF', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#E2E8F0' }}>
-                              <Text style={{ fontSize: 12, fontWeight: '800', color: '#1E293B', marginBottom: 8, fontFamily: fontStyle }}>RECORD BREAKDOWN DETAILS</Text>
-                              <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12, backgroundColor: '#F8FAFC', padding: 10, borderRadius: 8 }}>
-                                <View style={{ flex: 1 }}>
-                                  <Text style={{ fontSize: 10, fontWeight: '700', color: '#64748B', marginBottom: 2, fontFamily: fontStyle }}>TIME OF BREAKDOWN</Text>
-                                  <Text style={{ fontSize: 13, fontWeight: '800', color: '#DC2626', fontFamily: fontStyle }}>{breakdownData.breakdownTime}</Text>
+                            <View style={{ marginTop: 16, backgroundColor: '#FFFFFF', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#000', shadowOffset: {width: 0, height: 4}, shadowOpacity: 0.05, shadowRadius: 10 }}>
+                              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                                <Ionicons name="construct" size={16} color="#DC2626" style={{ marginRight: 8 }} />
+                                <Text style={{ fontSize: 13, fontWeight: '900', color: '#0F172A', fontFamily: fontStyle }}>BREAKDOWN RESOLUTION</Text>
+                              </View>
+                              
+                              <View style={{ flexDirection: 'row', gap: 12, marginBottom: 16 }}>
+                                <View style={{ flex: 1, backgroundColor: '#FEF2F2', padding: 12, borderRadius: 10, borderWidth: 1, borderColor: '#FECACA' }}>
+                                  <Text style={{ fontSize: 10, fontWeight: '800', color: '#991B1B', marginBottom: 4, fontFamily: fontStyle, opacity: 0.8 }}>TIME OF BREAKDOWN</Text>
+                                  <Text style={{ fontSize: 16, fontWeight: '900', color: '#991B1B', fontFamily: fontStyle }}>{breakdownData.breakdownTime || '--:--'}</Text>
                                 </View>
-                                <View style={{ flex: 1 }}>
-                                  <Text style={{ fontSize: 10, fontWeight: '700', color: '#64748B', marginBottom: 2, fontFamily: fontStyle }}>TIME MARKED ACTIVE</Text>
-                                  <Text style={{ fontSize: 13, fontWeight: '800', color: '#10B981', fontFamily: fontStyle }}>{breakdownData.activeTime}</Text>
+                                <View style={{ flex: 1, backgroundColor: '#ECFDF5', padding: 12, borderRadius: 10, borderWidth: 1, borderColor: '#A7F3D0' }}>
+                                  <Text style={{ fontSize: 10, fontWeight: '800', color: '#065F46', marginBottom: 4, fontFamily: fontStyle, opacity: 0.8 }}>TIME MARKED ACTIVE</Text>
+                                  <Text style={{ fontSize: 16, fontWeight: '900', color: '#065F46', fontFamily: fontStyle }}>{breakdownData.activeTime || '--:--'}</Text>
                                 </View>
                               </View>
-                              <Text style={{ fontSize: 10, fontWeight: '700', color: '#475569', marginBottom: 4, fontFamily: fontStyle }}>REMARKS / ISSUE DESCRIPTION</Text>
+                              
+                              <Text style={{ fontSize: 11, fontWeight: '800', color: '#475569', marginBottom: 6, fontFamily: fontStyle }}>RESOLUTION REMARKS</Text>
                               <input 
                                 type="text" 
-                                placeholder="What was fixed?" 
+                                placeholder="E.g. Replaced flat tire, engine oil topped up..." 
                                 value={breakdownData.remarks} 
                                 onChange={e => setBreakdownData({...breakdownData, remarks: e.target.value})} 
-                                style={{ width: '100%', padding: 8, borderRadius: 6, border: '1px solid #CBD5E1', outline: 'none', marginBottom: 12, fontFamily: fontStyle, fontSize: 12 } as any} 
+                                style={{ width: '100%', padding: 12, borderRadius: 8, border: '1px solid #CBD5E1', outline: 'none', marginBottom: 16, fontFamily: fontStyle, fontSize: 13, backgroundColor: '#F8FAFC' } as any} 
                               />
                               
-                              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8 }}>
-                                <TouchableOpacity onPress={() => setResolvingVehicle(null)} style={{ paddingVertical: 6, paddingHorizontal: 12 }}>
-                                  <Text style={{ color: '#64748B', fontWeight: 'bold', fontSize: 11, fontFamily: fontStyle }}>CANCEL</Text>
+                              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 12 }}>
+                                <TouchableOpacity onPress={() => setResolvingVehicle(null)} style={{ paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, backgroundColor: '#F1F5F9' }}>
+                                  <Text style={{ color: '#475569', fontWeight: '800', fontSize: 12, fontFamily: fontStyle }}>CANCEL</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => submitBreakdownResolution(v)} style={{ backgroundColor: '#10B981', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 6, flexDirection: 'row', alignItems: 'center' }}>
-                                  <Ionicons name="checkmark" size={14} color="#FFFFFF" style={{ marginRight: 4 }} />
-                                  <Text style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 11, fontFamily: fontStyle }}>SUBMIT</Text>
+                                <TouchableOpacity onPress={() => submitBreakdownResolution(v)} style={{ backgroundColor: '#10B981', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 8, flexDirection: 'row', alignItems: 'center', shadowColor: '#10B981', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 }}>
+                                  <Ionicons name="checkmark-circle" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+                                  <Text style={{ color: '#FFFFFF', fontWeight: '900', fontSize: 12, fontFamily: fontStyle }}>SUBMIT RESOLUTION</Text>
                                 </TouchableOpacity>
                               </View>
                             </View>
