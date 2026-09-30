@@ -44,7 +44,7 @@ backend is ready; no UI code needs to change.
 
 - **Driver:** Name `Sohith`, Phone `9876543210`, Password `1234`
   (or Name `Dimpal`, Phone `9876500000`, Password `1234`)
-- **Admin:** Username `admin`, Password `admin123`
+- **Admin:** Username `admin`, Password `fleet@123`
 - Or just use **Sign Up** to create a brand-new driver account.
 
 ## Project structure

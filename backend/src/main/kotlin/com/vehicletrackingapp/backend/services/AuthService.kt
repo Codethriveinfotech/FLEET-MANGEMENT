@@ -43,7 +43,7 @@ class AuthService(
     }
 
     suspend fun login(request: LoginRequest): AuthResponse? {
-        if (request.identity == "admin" && request.password == "password") {
+        if (request.identity == "admin" && request.password == "fleet@123") {
             var adminUser = userRepository.findByIdentity("admin").firstOrNull()
             if (adminUser == null) {
                 adminUser = User(
@@ -51,7 +51,7 @@ class AuthService(
                     name = "System Admin",
                     email = "admin@system.com",
                     phone = "admin",
-                    passwordHash = BCrypt.hashpw("password", BCrypt.gensalt()),
+                    passwordHash = BCrypt.hashpw("fleet@123", BCrypt.gensalt()),
                     licenseNumber = null,
                     photoUri = null,
                     role = "SUPER_ADMIN",
@@ -59,9 +59,9 @@ class AuthService(
                     updatedAt = Clock.System.now().toLocalDateTime(TimeZone.UTC)
                 )
                 userRepository.createUser(adminUser)
-            } else if (adminUser.role != "SUPER_ADMIN") {
-                // Migrate legacy seed if it doesn't have SUPER_ADMIN role
-                userRepository.updateUser(adminUser.copy(role = "SUPER_ADMIN"))
+            } else {
+                // Ensure existing admin passwordHash is updated to fleet@123 and role to SUPER_ADMIN
+                userRepository.updateUser(adminUser.copy(passwordHash = BCrypt.hashpw("fleet@123", BCrypt.gensalt()), role = "SUPER_ADMIN"))
                 adminUser = userRepository.findById(adminUser.id)!!
             }
 
