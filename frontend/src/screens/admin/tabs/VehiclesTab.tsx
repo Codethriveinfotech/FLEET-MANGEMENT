@@ -103,6 +103,11 @@ export default function VehiclesTab() {
 
     try {
       if (editingVehicle) {
+        const oldStatus = (editingVehicle.status || '').toLowerCase();
+        const newStatus = vehicleForm.status.toLowerCase();
+        const isNowProblematic = newStatus.includes('break') || newStatus.includes('main');
+        const wasProblematic = oldStatus.includes('break') || oldStatus.includes('main');
+
         await apiClient.put(`/vehicles/${editingVehicle.id}`, {
           ...editingVehicle,
           number: vehicleForm.number,
@@ -115,6 +120,24 @@ export default function VehiclesTab() {
           insuranceStatus: vehicleForm.insuranceStatus,
           place: vehicleForm.place,
         });
+
+        if (isNowProblematic && !wasProblematic) {
+          const dateStr = new Date().toISOString().split('T')[0];
+          const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          await apiClient.post('/maintenance', {
+            id: `maint_${Date.now()}`,
+            vehicleId: editingVehicle.id,
+            driverId: 'admin',
+            maintenanceType: 'Breakdown Report',
+            description: `Breakdown Reported`,
+            date: dateStr,
+            time: timeStr,
+            cost: '0',
+            serviceNotes: '',
+            status: 'reported',
+            isBreakdownReport: true,
+          });
+        }
       } else {
         await apiClient.post('/vehicles', {
           id: `veh_${Date.now()}`,
