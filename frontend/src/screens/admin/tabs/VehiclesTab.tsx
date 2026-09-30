@@ -41,7 +41,6 @@ export default function VehiclesTab() {
     number: '',
     model: '',
     type: 'Truck',
-    registrationNumber: '',
     fuelType: 'Diesel',
     status: 'Active',
     mileage: '0',
@@ -72,7 +71,6 @@ export default function VehiclesTab() {
         number: veh.number,
         model: veh.model,
         type: veh.type || 'Truck',
-        registrationNumber: veh.registrationNumber,
         fuelType: veh.fuelType || 'Diesel',
         status: veh.status || 'Active',
         mileage: String(veh.mileage || '0'),
@@ -84,7 +82,6 @@ export default function VehiclesTab() {
         number: '',
         model: '',
         type: 'Truck',
-        registrationNumber: '',
         fuelType: 'Diesel',
         status: 'Active',
         mileage: '0',
@@ -96,8 +93,8 @@ export default function VehiclesTab() {
   };
 
   const handleSaveVehicle = async () => {
-    if (!vehicleForm.number.trim() || !vehicleForm.model.trim() || !vehicleForm.registrationNumber.trim()) {
-      alert('Plate number, model and registration number are required');
+    if (!vehicleForm.number.trim() || !vehicleForm.model.trim()) {
+      alert('Plate number and model are required');
       return;
     }
 
@@ -113,7 +110,7 @@ export default function VehiclesTab() {
           number: vehicleForm.number,
           model: vehicleForm.model,
           type: vehicleForm.type,
-          registrationNumber: vehicleForm.registrationNumber,
+          registrationNumber: vehicleForm.number,
           fuelType: vehicleForm.fuelType,
           status: vehicleForm.status,
           mileage: parseInt(vehicleForm.mileage) || 0,
@@ -144,7 +141,7 @@ export default function VehiclesTab() {
           number: vehicleForm.number,
           model: vehicleForm.model,
           type: vehicleForm.type,
-          registrationNumber: vehicleForm.registrationNumber,
+          registrationNumber: vehicleForm.number,
           fuelType: vehicleForm.fuelType,
           status: vehicleForm.status,
           mileage: parseInt(vehicleForm.mileage) || 0,
@@ -263,8 +260,7 @@ export default function VehiclesTab() {
           <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Model</Text></View>
           <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Place</Text></View>
           <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Fuel Type</Text></View>
-          <View style={{ flex: 1.6 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Registration No.</Text></View>
-          <View style={{ flex: 1.3 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Mileage</Text></View>
+          <View style={{ flex: 1.6 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Consumption/km</Text></View>
           <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Status</Text></View>
           <View style={{ flex: 1.0, alignItems: 'center' }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Actions</Text></View>
         </View>
@@ -275,8 +271,7 @@ export default function VehiclesTab() {
             {filteredVehicles.map((veh) => {
               const displayPlate = veh.number || 'UNKNOWN';
               const modelName = veh.model || '—';
-              const regNo = veh.registrationNumber || '—';
-              const mileageVal = veh.mileage ? `${Number(veh.mileage).toLocaleString()} km` : '0 km';
+              const mileageVal = veh.mileage ? `${Number(veh.mileage).toLocaleString()}` : '0';
               
               // Resolve Type Icon & Color
               const vType = (veh.type || 'Sedan').toLowerCase();
@@ -386,13 +381,8 @@ export default function VehiclesTab() {
                     <Text style={{ fontSize: 14, color: '#475569', fontFamily: fontStyle }}>{veh.fuelType || 'Diesel'}</Text>
                   </View>
 
-                  {/* Registration No */}
-                  <View style={{ flex: 1.6 }}>
-                    <Text style={{ fontSize: 14, color: '#64748B', fontFamily: 'monospace' }}>{regNo}</Text>
-                  </View>
-
-                  {/* Mileage */}
-                  <View style={{ flex: 1.3, flexDirection: 'row', alignItems: 'center' }}>
+                  {/* Consumption/km */}
+                  <View style={{ flex: 1.6, flexDirection: 'row', alignItems: 'center' }}>
                     <Ionicons name="speedometer-outline" size={14} color="#24D164" style={{ marginRight: 6 }} />
                     <Text style={{ fontSize: 14, fontWeight: '700', color: '#334155', fontFamily: fontStyle }}>{mileageVal}</Text>
                   </View>
@@ -560,9 +550,6 @@ export default function VehiclesTab() {
                 </View>
               )}
 
-              <Text style={styles.inputLabel}>REGISTRATION NUMBER</Text>
-              <TextInput style={styles.modalInput} value={vehicleForm.registrationNumber} onChangeText={(val) => setVehicleForm({ ...vehicleForm, registrationNumber: val })} />
-              
               <Text style={styles.inputLabel}>FUEL TYPE</Text>
               <select
                 value={vehicleForm.fuelType}
@@ -587,7 +574,7 @@ export default function VehiclesTab() {
                 ))}
               </select>
 
-              <Text style={styles.inputLabel}>MILEAGE (KM)</Text>
+              <Text style={styles.inputLabel}>CONSUMPTION / KM</Text>
               <TextInput style={styles.modalInput} value={vehicleForm.mileage} onChangeText={(val) => setVehicleForm({ ...vehicleForm, mileage: val })} keyboardType="numeric" />
               
               <Text style={styles.inputLabel}>INSURANCE STATUS</Text>
