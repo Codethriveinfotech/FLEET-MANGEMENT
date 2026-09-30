@@ -5,6 +5,8 @@ import com.vehicletrackingapp.backend.utils.dbQuery
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import java.util.UUID
+
 
 interface RefreshTokenRepository {
     suspend fun saveToken(userId: String, token: String, expiresAt: LocalDateTime)
@@ -16,6 +18,7 @@ interface RefreshTokenRepository {
 class RefreshTokenRepositoryImpl : RefreshTokenRepository {
     override suspend fun saveToken(userId: String, token: String, expiresAt: LocalDateTime) = dbQuery {
         RefreshTokens.insert {
+            it[id] = UUID.randomUUID().toString()
             it[this.userId] = userId
             it[this.token] = token
             it[this.expiresAt] = expiresAt
