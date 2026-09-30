@@ -7,26 +7,88 @@ import { Ionicons } from '@expo/vector-icons';
 export default function ReportsTab() {
   const { trips, drivers, vehicles, maintenance, fuelLogs } = useDashboardData();
   const [selectedReportType, setSelectedReportType] = useState('Trip Summary Report');
-  const [duration, setDuration] = useState('1'); // '1' = 1 Month, '3' = 3 Months, '12' = 1 Year
+  const [duration, setDuration] = useState('month'); // 'today', 'yesterday', 'week', 'month', '3months', '6months', '1year', 'custom'
+  const [customFromDate, setCustomFromDate] = useState('');
+  const [customToDate, setCustomToDate] = useState('');
   const [selectedDriverId, setSelectedDriverId] = useState('');
   const [selectedVehicleId, setSelectedVehicleId] = useState('');
 
-  // Parse DD/MM/YYYY to Date
+  // Robust date parser (supports DD/MM/YYYY, YYYY-MM-DD, ISO strings)
   const parseDate = (str: string): Date | null => {
     if (!str) return null;
-    const parts = str.split('/');
-    if (parts.length !== 3) return null;
-    return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+    if (str.includes('/')) {
+      const parts = str.split('/');
+      if (parts.length === 3) {
+        return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+      }
+    }
+    if (str.includes('-')) {
+      const parts = str.split('-');
+      if (parts.length === 3) {
+        return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      }
+    }
+    const d = new Date(str);
+    return isNaN(d.getTime()) ? null : d;
   };
 
-  // Filter based on chosen duration (Months)
+  // Calculate start and end boundary dates based on selected duration preset
+  const getDateRange = (): { start: Date; end: Date } => {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+
+    if (duration === 'today') {
+      return { start: todayStart, end: todayEnd };
+    }
+    if (duration === 'yesterday') {
+      const yestStart = new Date(todayStart);
+      yestStart.setDate(yestStart.getDate() - 1);
+      const yestEnd = new Date(todayEnd);
+      yestEnd.setDate(yestEnd.getDate() - 1);
+      return { start: yestStart, end: yestEnd };
+    }
+    if (duration === 'week') {
+      const weekStart = new Date(todayStart);
+      weekStart.setDate(weekStart.getDate() - 7);
+      return { start: weekStart, end: todayEnd };
+    }
+    if (duration === 'month') {
+      const monthStart = new Date(todayStart);
+      monthStart.setMonth(monthStart.getMonth() - 1);
+      return { start: monthStart, end: todayEnd };
+    }
+    if (duration === '3months') {
+      const m3Start = new Date(todayStart);
+      m3Start.setMonth(m3Start.getMonth() - 3);
+      return { start: m3Start, end: todayEnd };
+    }
+    if (duration === '6months') {
+      const m6Start = new Date(todayStart);
+      m6Start.setMonth(m6Start.getMonth() - 6);
+      return { start: m6Start, end: todayEnd };
+    }
+    if (duration === '1year') {
+      const yrStart = new Date(todayStart);
+      yrStart.setFullYear(yrStart.getFullYear() - 1);
+      return { start: yrStart, end: todayEnd };
+    }
+    if (duration === 'custom') {
+      const start = customFromDate ? new Date(customFromDate + 'T00:00:00') : new Date(0);
+      const end = customToDate ? new Date(customToDate + 'T23:59:59') : new Date();
+      return { start, end };
+    }
+    return { start: new Date(0), end: todayEnd };
+  };
+
+  // Filter based on chosen duration & date range
   const getFilteredData = () => {
-    const cutoffDate = new Date();
-    cutoffDate.setMonth(cutoffDate.getMonth() - parseInt(duration));
+    const { start, end } = getDateRange();
 
     const isWithinRange = (dateStr: string) => {
+      if (!dateStr) return false;
       const d = parseDate(dateStr);
-      return d ? d >= cutoffDate : false;
+      return d ? d >= start && d <= end : false;
     };
 
     // Apply vehicle and driver filters if selected and report type supports it
@@ -66,7 +128,11 @@ export default function ReportsTab() {
   const handleDownloadExcel = () => {
     let headers: string[] = [];
     let rows: string[][] = [];
-    let filename = `${selectedReportType.replace(/\s+/g, '_')}_${duration}m_Report.csv`;
+    let rangeLabel = duration;
+    if (duration === 'custom') {
+      rangeLabel = `${customFromDate || 'Start'}_to_${customToDate || 'End'}`;
+    }
+    let filename = `${selectedReportType.replace(/\s+/g, '_')}_${rangeLabel}_Report.csv`;
 
     if (selectedReportType === 'Trip Summary Report') {
       headers = [
@@ -495,11 +561,75 @@ export default function ReportsTab() {
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
               >
-                <option value="1">Last Month</option>
-                <option value="3">Last 3 Months</option>
-                <option value="12">Last 1 Year</option>
+                <option value="today">Today</option>
+                <option value="yesterday">Yesterday</option>
+                <option value="week">This Week (Last 7 Days)</option>
+                <option value="month">This Month (Last 30 Days)</option>
+                <option value="3months">Last 3 Months</option>
+                <option value="6months">Last 6 Months</option>
+                <option value="1year">Last 1 Year</option>
+                <option value="custom">Custom Date Range...</option>
               </select>
             </View>
+
+            {/* Custom From & To Date Pickers */}
+            {duration === 'custom' && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <View style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  borderWidth: 1,
+                  borderColor: '#E2E8F0',
+                  borderRadius: 10,
+                  backgroundColor: '#FFFFFF',
+                  paddingHorizontal: 10,
+                  height: 38,
+                }}>
+                  <Text style={{ fontSize: 11, color: '#64748B', fontFamily: fontStyle, marginRight: 6, fontWeight: '700' }}>FROM:</Text>
+                  <input
+                    type="date"
+                    value={customFromDate}
+                    onChange={(e) => setCustomFromDate(e.target.value)}
+                    style={{
+                      fontSize: 12,
+                      border: 'none',
+                      outline: 'none',
+                      color: '#0F172A',
+                      backgroundColor: 'transparent',
+                      fontFamily: fontStyle,
+                      cursor: 'pointer',
+                    } as any}
+                  />
+                </View>
+
+                <View style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  borderWidth: 1,
+                  borderColor: '#E2E8F0',
+                  borderRadius: 10,
+                  backgroundColor: '#FFFFFF',
+                  paddingHorizontal: 10,
+                  height: 38,
+                }}>
+                  <Text style={{ fontSize: 11, color: '#64748B', fontFamily: fontStyle, marginRight: 6, fontWeight: '700' }}>TO:</Text>
+                  <input
+                    type="date"
+                    value={customToDate}
+                    onChange={(e) => setCustomToDate(e.target.value)}
+                    style={{
+                      fontSize: 12,
+                      border: 'none',
+                      outline: 'none',
+                      color: '#0F172A',
+                      backgroundColor: 'transparent',
+                      fontFamily: fontStyle,
+                      cursor: 'pointer',
+                    } as any}
+                  />
+                </View>
+              </View>
+            )}
 
             {/* Download Report Button */}
             <TouchableOpacity
