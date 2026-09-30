@@ -91,31 +91,27 @@ export default function ReportsTab() {
       return d ? d >= start && d <= end : false;
     };
 
-    // Apply vehicle and driver filters if selected and report type supports it
-    const showVehFilter = selectedReportType === 'Vehicle Utilization Report' || selectedReportType === 'Fuel Report' || selectedReportType === 'Maintenance Report';
-    const showDriverFilter = selectedReportType === 'Driver Performance Report' || selectedReportType === 'Fuel Report' || selectedReportType === 'Maintenance Report';
-
     const filteredTrips = trips.filter(t => {
       const dateOk = isWithinRange(t.startDate);
       if (!dateOk) return false;
-      if (showVehFilter && selectedVehicleId && t.vehicleId !== selectedVehicleId) return false;
-      if (showDriverFilter && selectedDriverId && t.driverId !== selectedDriverId) return false;
+      if (selectedVehicleId && t.vehicleId !== selectedVehicleId) return false;
+      if (selectedDriverId && t.driverId !== selectedDriverId) return false;
       return true;
     });
 
     const filteredMaint = maintenance.filter(m => {
       const dateOk = isWithinRange(m.date);
       if (!dateOk) return false;
-      if (showVehFilter && selectedVehicleId && m.vehicleId !== selectedVehicleId) return false;
-      if (showDriverFilter && selectedDriverId && m.driverId !== selectedDriverId) return false;
+      if (selectedVehicleId && m.vehicleId !== selectedVehicleId) return false;
+      if (selectedDriverId && m.driverId !== selectedDriverId) return false;
       return true;
     });
 
     const filteredFuel = fuelLogs.filter(f => {
       const dateOk = isWithinRange(f.date);
       if (!dateOk) return false;
-      if (showVehFilter && selectedVehicleId && f.vehicleId !== selectedVehicleId) return false;
-      if (showDriverFilter && selectedDriverId && f.driverId !== selectedDriverId) return false;
+      if (selectedVehicleId && f.vehicleId !== selectedVehicleId) return false;
+      if (selectedDriverId && f.driverId !== selectedDriverId) return false;
       return true;
     });
 
@@ -464,79 +460,75 @@ export default function ReportsTab() {
             <Text style={{ fontSize: 12, color: '#64748B', fontFamily: fontStyle, marginTop: 2 }}>Detailed live preview and customizable Excel exporting</Text>
           </View>
 
-          {/* Controls Toolbar Split into 2 Clean Lines */}
-          <View style={{ gap: 10, maxWidth: '100%' }}>
+          {/* Controls Toolbar Split strictly into 2 Clean Lines */}
+          <View style={{ gap: 8, width: '100%', marginBottom: 12 }}>
             {/* LINE 1: Filter Selectors (Driver, Vehicle, Duration) */}
-            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-              {/* Dynamic Selector for Driver inside Driver, Fuel, or Maintenance Report */}
-              {(selectedReportType === 'Driver Performance Report' || selectedReportType === 'Fuel Report' || selectedReportType === 'Maintenance Report') && (
-                <View style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  borderWidth: 1,
-                  borderColor: '#E2E8F0',
-                  borderRadius: 10,
-                  backgroundColor: '#FFFFFF',
-                  paddingHorizontal: 12,
-                  height: 38,
-                }}>
-                  <Ionicons name="person-outline" size={16} color="#64748B" style={{ marginRight: 8 }} />
-                  <select
-                    style={{
-                      padding: '8px 4px',
-                      fontSize: 13,
-                      border: 'none',
-                      outline: 'none',
-                      color: '#0F172A',
-                      backgroundColor: 'transparent',
-                      fontFamily: fontStyle,
-                      cursor: 'pointer',
-                    } as any}
-                    value={selectedDriverId}
-                    onChange={(e) => setSelectedDriverId(e.target.value)}
-                  >
-                    <option value="">All Drivers (Summary)</option>
-                    {drivers.map((d) => (
-                      <option key={d.id} value={d.id}>{d.name}</option>
-                    ))}
-                  </select>
-                </View>
-              )}
+            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', flexWrap: 'wrap', width: '100%' }}>
+              {/* Driver Filter Selector */}
+              <View style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                borderWidth: 1,
+                borderColor: '#E2E8F0',
+                borderRadius: 10,
+                backgroundColor: '#FFFFFF',
+                paddingHorizontal: 12,
+                height: 38,
+              }}>
+                <Ionicons name="person-outline" size={16} color="#64748B" style={{ marginRight: 8 }} />
+                <select
+                  style={{
+                    padding: '8px 4px',
+                    fontSize: 13,
+                    border: 'none',
+                    outline: 'none',
+                    color: '#0F172A',
+                    backgroundColor: 'transparent',
+                    fontFamily: fontStyle,
+                    cursor: 'pointer',
+                  } as any}
+                  value={selectedDriverId}
+                  onChange={(e) => setSelectedDriverId(e.target.value)}
+                >
+                  <option value="">All Drivers (Summary)</option>
+                  {drivers.map((d) => (
+                    <option key={d.id} value={d.id}>{d.name}</option>
+                  ))}
+                </select>
+              </View>
 
-              {/* Dynamic Selector for Vehicle inside Vehicle, Fuel, or Maintenance Report */}
-              {(selectedReportType === 'Vehicle Utilization Report' || selectedReportType === 'Fuel Report' || selectedReportType === 'Maintenance Report') && (
-                <View style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  borderWidth: 1,
-                  borderColor: '#E2E8F0',
-                  borderRadius: 10,
-                  backgroundColor: '#FFFFFF',
-                  paddingHorizontal: 12,
-                  height: 38,
-                }}>
-                  <Ionicons name="car-outline" size={16} color="#64748B" style={{ marginRight: 8 }} />
-                  <select
-                    style={{
-                      padding: '8px 4px',
-                      fontSize: 13,
-                      border: 'none',
-                      outline: 'none',
-                      color: '#0F172A',
-                      backgroundColor: 'transparent',
-                      fontFamily: fontStyle,
-                      cursor: 'pointer',
-                    } as any}
-                    value={selectedVehicleId}
-                    onChange={(e) => setSelectedVehicleId(e.target.value)}
-                  >
-                    <option value="">All Vehicles (Summary)</option>
-                    {vehicles.map((v) => (
-                      <option key={v.id} value={v.id}>{v.number} ({v.model})</option>
-                    ))}
-                  </select>
-                </View>
-              )}
+              {/* Vehicle Filter Selector */}
+              <View style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                borderWidth: 1,
+                borderColor: '#E2E8F0',
+                borderRadius: 10,
+                backgroundColor: '#FFFFFF',
+                paddingHorizontal: 12,
+                height: 38,
+              }}>
+                <Ionicons name="car-outline" size={16} color="#64748B" style={{ marginRight: 8 }} />
+                <select
+                  style={{
+                    padding: '8px 4px',
+                    fontSize: 13,
+                    border: 'none',
+                    outline: 'none',
+                    color: '#0F172A',
+                    backgroundColor: 'transparent',
+                    fontFamily: fontStyle,
+                    cursor: 'pointer',
+                  } as any}
+                  value={selectedVehicleId}
+                  onChange={(e) => setSelectedVehicleId(e.target.value)}
+                >
+                  <option value="">All Vehicles (Summary)</option>
+                  {vehicles.map((v) => (
+                    <option key={v.id} value={v.id}>{v.number} ({v.model})</option>
+                  ))}
+                </select>
+              </View>
 
               {/* Duration Selector */}
               <View style={{
@@ -577,7 +569,7 @@ export default function ReportsTab() {
             </View>
 
             {/* LINE 2: Custom Date Range Pickers & Download Button */}
-            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', flexWrap: 'wrap', width: '100%', marginTop: 4 }}>
               {duration === 'custom' && (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   <View style={{
