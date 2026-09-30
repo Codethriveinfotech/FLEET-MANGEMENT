@@ -394,6 +394,31 @@ export default function ReportsTab() {
       rows.push([
         'TOTAL', '', '', '', '', '', '', totalCost.toFixed(2)
       ]);
+    } else if (selectedReportType === 'Breakdown Report') {
+      headers = ['S.No', 'Vehicle No', 'Breakdown Date', 'Breakdown Time', 'Active Time', 'Issue / Remarks'];
+      const breakdowns = filteredMaint.filter(m => m.isBreakdownReport || m.maintenanceType === 'Breakdown Resolution');
+      rows = breakdowns.map((m, idx) => {
+        const v = vehicles.find(veh => veh.id === m.vehicleId)?.number || 'Unknown';
+        
+        let bdTime = m.time || '';
+        let actTime = '';
+        if (m.description?.includes('Breakdown Time:')) {
+          const matchBD = m.description.match(/Breakdown Time: (.*?) \|/);
+          if (matchBD) bdTime = matchBD[1];
+          const matchAct = m.description.match(/Active Time: (.*)/);
+          if (matchAct) actTime = matchAct[1];
+        }
+
+        return [
+          (idx + 1).toString(),
+          v,
+          m.date ? `="\t${m.date}"` : '',
+          bdTime,
+          actTime,
+          m.serviceNotes || m.description || ''
+        ];
+      });
+      rows.push(['TOTAL BREAKDOWNS', '', '', '', '', breakdowns.length.toString()]);
     }
 
     // Convert array to CSV format with UTF-8 BOM for perfect Excel compatibility
@@ -427,6 +452,7 @@ export default function ReportsTab() {
           { key: 'Driver Performance Report', label: 'Driver Performance Report', desc: 'Driver shift and billing analytics', icon: '👤' },
           { key: 'Vehicle Utilization Report', label: 'Vehicle Utilization Report', desc: 'Vehicle distance and usage stats', icon: '🚚' },
           { key: 'Maintenance Report', label: 'Maintenance Report', desc: 'Maintenance records and costs', icon: '🔧' },
+          { key: 'Breakdown Report', label: 'Breakdown Report', desc: 'Detailed breakdown history', icon: '🚨' },
         ].map((opt) => {
           const isSel = selectedReportType === opt.key;
           return (
@@ -903,6 +929,42 @@ export default function ReportsTab() {
                       <Text style={{ flex: 1.8, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{d}</Text>
                       <Text style={{ flex: 2, color: '#F59E0B', fontWeight: '700', fontFamily: fontStyle, fontSize: 14 }} numberOfLines={1}>{m.maintenanceType}</Text>
                       <Text style={{ flex: 1.2, textAlign: 'right', fontWeight: '700', color: '#EF4444', fontFamily: fontStyle, fontSize: 14 }}>₹{m.cost}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            )}
+
+            {selectedReportType === 'Breakdown Report' && (
+              <View>
+                <View style={[styles.tableHeaderRow, { borderBottomWidth: 1, borderColor: '#E2E8F0', paddingBottom: 10 }]}>
+                  <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>S.NO</Text>
+                  <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>VEHICLE NO</Text>
+                  <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DATE</Text>
+                  <Text style={{ flex: 1.2, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>DOWN TIME</Text>
+                  <Text style={{ flex: 1.2, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>ACTIVE TIME</Text>
+                  <Text style={{ flex: 2.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>REMARKS / ISSUE</Text>
+                </View>
+                {filteredMaint.filter(m => m.isBreakdownReport || m.maintenanceType === 'Breakdown Resolution').map((m, idx) => {
+                  const v = vehicles.find(veh => veh.id === m.vehicleId)?.number || 'Unknown';
+                  
+                  let bdTime = m.time || '—';
+                  let actTime = '—';
+                  if (m.description?.includes('Breakdown Time:')) {
+                    const matchBD = m.description.match(/Breakdown Time: (.*?) \|/);
+                    if (matchBD) bdTime = matchBD[1]?.trim();
+                    const matchAct = m.description.match(/Active Time: (.*)/);
+                    if (matchAct) actTime = matchAct[1]?.trim();
+                  }
+
+                  return (
+                    <View key={m.id} style={[styles.tableRow, { paddingVertical: 12, borderBottomWidth: 1, borderColor: '#F8FAFC' }]}>
+                      <Text style={{ flex: 0.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{idx + 1}</Text>
+                      <Text style={{ flex: 1.5, fontWeight: '700', fontFamily: fontStyle, fontSize: 14, color: '#1E293B' }}>{v}</Text>
+                      <Text style={{ flex: 1.5, fontFamily: fontStyle, fontSize: 14, color: '#334155' }}>{m.date}</Text>
+                      <Text style={{ flex: 1.2, fontFamily: fontStyle, fontSize: 14, color: '#DC2626', fontWeight: '700' }}>{bdTime}</Text>
+                      <Text style={{ flex: 1.2, fontFamily: fontStyle, fontSize: 14, color: '#10B981', fontWeight: '700' }}>{actTime}</Text>
+                      <Text style={{ flex: 2.5, fontFamily: fontStyle, fontSize: 14, color: '#334155', fontStyle: 'italic' }}>{m.serviceNotes || m.description || '—'}</Text>
                     </View>
                   );
                 })}
