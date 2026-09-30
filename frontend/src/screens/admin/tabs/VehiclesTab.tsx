@@ -145,6 +145,30 @@ export default function VehiclesTab() {
     }
   };
 
+  const handleMarkAsWorking = async () => {
+    if (!editingVehicle) return;
+    try {
+      await apiClient.put(`/vehicles/${editingVehicle.id}`, {
+        ...editingVehicle,
+        number: vehicleForm.number,
+        model: vehicleForm.model,
+        type: vehicleForm.type,
+        registrationNumber: vehicleForm.registrationNumber,
+        fuelType: vehicleForm.fuelType,
+        status: 'Active',
+        mileage: parseInt(vehicleForm.mileage) || 0,
+        insuranceStatus: vehicleForm.insuranceStatus,
+        place: vehicleForm.place,
+      });
+      setVehicleForm({ ...vehicleForm, status: 'Active' });
+      setVehicleModalVisible(false);
+      fetchData();
+      alert('Vehicle status updated to Active (Working)!');
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to update vehicle status');
+    }
+  };
+
   return (
     <View style={{ flex: 1 }}>
       {/* Vehicles Search & Action Card */}
@@ -287,13 +311,20 @@ export default function VehiclesTab() {
               let statusTextColor = '#2E7D32';
               let statusText = 'Active';
               let statusDotColor = '#10B981';
+              const isBreakdownStatus = vStatus.includes('break');
+              const isMaintenanceStatus = vStatus.includes('main') && !isBreakdownStatus;
               
               if (vStatus === 'running' || hasActiveTrip) {
                 statusBg = '#EFF6FF';
                 statusTextColor = '#1D4ED8';
                 statusText = 'Running';
                 statusDotColor = '#2563EB';
-              } else if (vStatus.includes('main') || vStatus.includes('break')) {
+              } else if (isBreakdownStatus) {
+                statusBg = '#FEF2F2';
+                statusTextColor = '#DC2626';
+                statusText = 'Breakdown';
+                statusDotColor = '#EF4444';
+              } else if (isMaintenanceStatus) {
                 statusBg = '#FFF3E0';
                 statusTextColor = '#E65100';
                 statusText = 'In Maintenance';
@@ -563,6 +594,58 @@ export default function VehiclesTab() {
               <Text style={styles.inputLabel}>ASSIGNED PLACE / DEPOT</Text>
               <TextInput style={styles.modalInput} value={vehicleForm.place} onChangeText={(val) => setVehicleForm({ ...vehicleForm, place: val })} placeholder="e.g. Chennai, Bangalore Hub, Depot 1" placeholderTextColor="#94A3B8" />
             </ScrollView>
+
+            {/* Mark as Working banner — shown only for breakdown/maintenance vehicles */}
+            {editingVehicle && (() => {
+              const st = (vehicleForm.status || '').toLowerCase();
+              const isProblematic = st.includes('break') || st.includes('main');
+              if (!isProblematic) return null;
+              return (
+                <View style={{
+                  backgroundColor: '#FEF2F2',
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  borderColor: '#FEE2E2',
+                  padding: 14,
+                  marginTop: 12,
+                  marginBottom: 4,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 12 }}>
+                    <Ionicons name="flash" size={18} color="#DC2626" style={{ marginRight: 8 }} />
+                    <View>
+                      <Text style={{ fontSize: 12, fontWeight: '800', color: '#DC2626', fontFamily: fontStyle }}>
+                        {st.includes('break') ? 'BREAKDOWN DETECTED' : 'UNDER MAINTENANCE'}
+                      </Text>
+                      <Text style={{ fontSize: 11, color: '#7F1D1D', fontFamily: fontStyle, marginTop: 2 }}>
+                        Mark vehicle as repaired and operational
+                      </Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: '#10B981',
+                      paddingVertical: 10,
+                      paddingHorizontal: 16,
+                      borderRadius: 8,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      shadowColor: '#10B981',
+                      shadowOffset: { width: 0, height: 3 },
+                      shadowOpacity: 0.25,
+                      shadowRadius: 6,
+                    }}
+                    onPress={handleMarkAsWorking}
+                  >
+                    <Ionicons name="checkmark-circle" size={15} color="#FFFFFF" style={{ marginRight: 6 }} />
+                    <Text style={{ fontSize: 12, fontWeight: '800', color: '#FFFFFF', fontFamily: fontStyle }}>MARK AS WORKING</Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            })()}
+
             <View style={styles.modalActionRow}>
               <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#F1F5F9' }]} onPress={() => setVehicleModalVisible(false)}>
                 <Text style={[styles.modalBtnText, { color: '#475569' }]}>CANCEL</Text>
