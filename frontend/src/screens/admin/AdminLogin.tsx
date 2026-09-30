@@ -27,17 +27,20 @@ export default function AdminLogin() {
     setError(null);
 
     try {
-      const res = await apiClient.post('/v1/auth/login', {
+      // The live backend is Kotlin (Render). It uses /api/auth/login (no /v1/)
+      const res = await apiClient.post('/auth/login', {
         identity: identity.trim(),
         password: password.trim(),
       });
 
-      if (res.data && res.data.success) {
-        const { user, accessToken, refreshToken } = res.data.data;
-        if (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN') {
+      if (res.data) {
+        const { user, accessToken, refreshToken } = res.data;
+        if (user && (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN')) {
           await setAuth(user, accessToken, refreshToken);
-        } else {
+        } else if (user) {
           setError('Access Denied: Enterprise Role Mismatch');
+        } else {
+          setError('Access Denied: Mismatched Credentials');
         }
       } else {
         setError(res.data.message || 'Access Denied: Mismatched Credentials');
