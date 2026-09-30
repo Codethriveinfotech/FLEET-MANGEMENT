@@ -34,7 +34,8 @@ export default function AdminLogin() {
       });
 
       if (res.data) {
-        const { user, accessToken, refreshToken } = res.data;
+        const payload = res.data.data || res.data;
+        const { user, accessToken, refreshToken } = payload;
         if (user && (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN')) {
           await setAuth(user, accessToken, refreshToken);
         } else if (user) {
@@ -43,7 +44,7 @@ export default function AdminLogin() {
           setError('Access Denied: Mismatched Credentials');
         }
       } else {
-        setError(res.data.message || 'Access Denied: Mismatched Credentials');
+        setError('Access Denied: Mismatched Credentials');
       }
     } catch (err: any) {
       console.error('Login error', err);
