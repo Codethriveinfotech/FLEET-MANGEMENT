@@ -464,9 +464,81 @@ export default function ReportsTab() {
             <Text style={{ fontSize: 12, color: '#64748B', fontFamily: fontStyle, marginTop: 2 }}>Detailed live preview and customizable Excel exporting</Text>
           </View>
 
-          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', flexWrap: 'wrap', maxWidth: '100%' }}>
-            {/* Dynamic Selector for Driver inside Driver, Fuel, or Maintenance Report */}
-            {(selectedReportType === 'Driver Performance Report' || selectedReportType === 'Fuel Report' || selectedReportType === 'Maintenance Report') && (
+          {/* Controls Toolbar Split into 2 Clean Lines */}
+          <View style={{ gap: 10, maxWidth: '100%' }}>
+            {/* LINE 1: Filter Selectors (Driver, Vehicle, Duration) */}
+            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+              {/* Dynamic Selector for Driver inside Driver, Fuel, or Maintenance Report */}
+              {(selectedReportType === 'Driver Performance Report' || selectedReportType === 'Fuel Report' || selectedReportType === 'Maintenance Report') && (
+                <View style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  borderWidth: 1,
+                  borderColor: '#E2E8F0',
+                  borderRadius: 10,
+                  backgroundColor: '#FFFFFF',
+                  paddingHorizontal: 12,
+                  height: 38,
+                }}>
+                  <Ionicons name="person-outline" size={16} color="#64748B" style={{ marginRight: 8 }} />
+                  <select
+                    style={{
+                      padding: '8px 4px',
+                      fontSize: 13,
+                      border: 'none',
+                      outline: 'none',
+                      color: '#0F172A',
+                      backgroundColor: 'transparent',
+                      fontFamily: fontStyle,
+                      cursor: 'pointer',
+                    } as any}
+                    value={selectedDriverId}
+                    onChange={(e) => setSelectedDriverId(e.target.value)}
+                  >
+                    <option value="">All Drivers (Summary)</option>
+                    {drivers.map((d) => (
+                      <option key={d.id} value={d.id}>{d.name}</option>
+                    ))}
+                  </select>
+                </View>
+              )}
+
+              {/* Dynamic Selector for Vehicle inside Vehicle, Fuel, or Maintenance Report */}
+              {(selectedReportType === 'Vehicle Utilization Report' || selectedReportType === 'Fuel Report' || selectedReportType === 'Maintenance Report') && (
+                <View style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  borderWidth: 1,
+                  borderColor: '#E2E8F0',
+                  borderRadius: 10,
+                  backgroundColor: '#FFFFFF',
+                  paddingHorizontal: 12,
+                  height: 38,
+                }}>
+                  <Ionicons name="car-outline" size={16} color="#64748B" style={{ marginRight: 8 }} />
+                  <select
+                    style={{
+                      padding: '8px 4px',
+                      fontSize: 13,
+                      border: 'none',
+                      outline: 'none',
+                      color: '#0F172A',
+                      backgroundColor: 'transparent',
+                      fontFamily: fontStyle,
+                      cursor: 'pointer',
+                    } as any}
+                    value={selectedVehicleId}
+                    onChange={(e) => setSelectedVehicleId(e.target.value)}
+                  >
+                    <option value="">All Vehicles (Summary)</option>
+                    {vehicles.map((v) => (
+                      <option key={v.id} value={v.id}>{v.number} ({v.model})</option>
+                    ))}
+                  </select>
+                </View>
+              )}
+
+              {/* Duration Selector */}
               <View style={{
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -477,7 +549,7 @@ export default function ReportsTab() {
                 paddingHorizontal: 12,
                 height: 38,
               }}>
-                <Ionicons name="person-outline" size={16} color="#64748B" style={{ marginRight: 8 }} />
+                <Ionicons name="time-outline" size={16} color="#64748B" style={{ marginRight: 8 }} />
                 <select
                   style={{
                     padding: '8px 4px',
@@ -489,156 +561,90 @@ export default function ReportsTab() {
                     fontFamily: fontStyle,
                     cursor: 'pointer',
                   } as any}
-                  value={selectedDriverId}
-                  onChange={(e) => setSelectedDriverId(e.target.value)}
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
                 >
-                  <option value="">All Drivers (Summary)</option>
-                  {drivers.map((d) => (
-                    <option key={d.id} value={d.id}>{d.name}</option>
-                  ))}
+                  <option value="today">Today</option>
+                  <option value="yesterday">Yesterday</option>
+                  <option value="week">This Week (Last 7 Days)</option>
+                  <option value="month">This Month (Last 30 Days)</option>
+                  <option value="3months">Last 3 Months</option>
+                  <option value="6months">Last 6 Months</option>
+                  <option value="1year">Last 1 Year</option>
+                  <option value="custom">Custom Date Range...</option>
                 </select>
               </View>
-            )}
-
-            {/* Dynamic Selector for Vehicle inside Vehicle, Fuel, or Maintenance Report */}
-            {(selectedReportType === 'Vehicle Utilization Report' || selectedReportType === 'Fuel Report' || selectedReportType === 'Maintenance Report') && (
-              <View style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                borderWidth: 1,
-                borderColor: '#E2E8F0',
-                borderRadius: 10,
-                backgroundColor: '#FFFFFF',
-                paddingHorizontal: 12,
-                height: 38,
-              }}>
-                <Ionicons name="car-outline" size={16} color="#64748B" style={{ marginRight: 8 }} />
-                <select
-                  style={{
-                    padding: '8px 4px',
-                    fontSize: 13,
-                    border: 'none',
-                    outline: 'none',
-                    color: '#0F172A',
-                    backgroundColor: 'transparent',
-                    fontFamily: fontStyle,
-                    cursor: 'pointer',
-                  } as any}
-                  value={selectedVehicleId}
-                  onChange={(e) => setSelectedVehicleId(e.target.value)}
-                >
-                  <option value="">All Vehicles (Summary)</option>
-                  {vehicles.map((v) => (
-                    <option key={v.id} value={v.id}>{v.number} ({v.model})</option>
-                  ))}
-                </select>
-              </View>
-            )}
-
-            {/* Duration Selector */}
-            <View style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              borderWidth: 1,
-              borderColor: '#E2E8F0',
-              borderRadius: 10,
-              backgroundColor: '#FFFFFF',
-              paddingHorizontal: 12,
-              height: 38,
-            }}>
-              <Ionicons name="time-outline" size={16} color="#64748B" style={{ marginRight: 8 }} />
-              <select
-                style={{
-                  padding: '8px 4px',
-                  fontSize: 13,
-                  border: 'none',
-                  outline: 'none',
-                  color: '#0F172A',
-                  backgroundColor: 'transparent',
-                  fontFamily: fontStyle,
-                  cursor: 'pointer',
-                } as any}
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-              >
-                <option value="today">Today</option>
-                <option value="yesterday">Yesterday</option>
-                <option value="week">This Week (Last 7 Days)</option>
-                <option value="month">This Month (Last 30 Days)</option>
-                <option value="3months">Last 3 Months</option>
-                <option value="6months">Last 6 Months</option>
-                <option value="1year">Last 1 Year</option>
-                <option value="custom">Custom Date Range...</option>
-              </select>
             </View>
 
-            {/* Custom From & To Date Pickers */}
-            {duration === 'custom' && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <View style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  borderWidth: 1,
-                  borderColor: '#E2E8F0',
-                  borderRadius: 10,
-                  backgroundColor: '#FFFFFF',
-                  paddingHorizontal: 10,
-                  height: 38,
-                }}>
-                  <Text style={{ fontSize: 11, color: '#64748B', fontFamily: fontStyle, marginRight: 6, fontWeight: '700' }}>FROM:</Text>
-                  <input
-                    type="date"
-                    value={customFromDate}
-                    onChange={(e) => setCustomFromDate(e.target.value)}
-                    style={{
-                      fontSize: 12,
-                      border: 'none',
-                      outline: 'none',
-                      color: '#0F172A',
-                      backgroundColor: 'transparent',
-                      fontFamily: fontStyle,
-                      cursor: 'pointer',
-                    } as any}
-                  />
-                </View>
+            {/* LINE 2: Custom Date Range Pickers & Download Button */}
+            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+              {duration === 'custom' && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    borderWidth: 1,
+                    borderColor: '#E2E8F0',
+                    borderRadius: 10,
+                    backgroundColor: '#FFFFFF',
+                    paddingHorizontal: 10,
+                    height: 38,
+                  }}>
+                    <Text style={{ fontSize: 11, color: '#64748B', fontFamily: fontStyle, marginRight: 6, fontWeight: '700' }}>FROM:</Text>
+                    <input
+                      type="date"
+                      value={customFromDate}
+                      onChange={(e) => setCustomFromDate(e.target.value)}
+                      style={{
+                        fontSize: 12,
+                        border: 'none',
+                        outline: 'none',
+                        color: '#0F172A',
+                        backgroundColor: 'transparent',
+                        fontFamily: fontStyle,
+                        cursor: 'pointer',
+                      } as any}
+                    />
+                  </View>
 
-                <View style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  borderWidth: 1,
-                  borderColor: '#E2E8F0',
-                  borderRadius: 10,
-                  backgroundColor: '#FFFFFF',
-                  paddingHorizontal: 10,
-                  height: 38,
-                }}>
-                  <Text style={{ fontSize: 11, color: '#64748B', fontFamily: fontStyle, marginRight: 6, fontWeight: '700' }}>TO:</Text>
-                  <input
-                    type="date"
-                    value={customToDate}
-                    onChange={(e) => setCustomToDate(e.target.value)}
-                    style={{
-                      fontSize: 12,
-                      border: 'none',
-                      outline: 'none',
-                      color: '#0F172A',
-                      backgroundColor: 'transparent',
-                      fontFamily: fontStyle,
-                      cursor: 'pointer',
-                    } as any}
-                  />
+                  <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    borderWidth: 1,
+                    borderColor: '#E2E8F0',
+                    borderRadius: 10,
+                    backgroundColor: '#FFFFFF',
+                    paddingHorizontal: 10,
+                    height: 38,
+                  }}>
+                    <Text style={{ fontSize: 11, color: '#64748B', fontFamily: fontStyle, marginRight: 6, fontWeight: '700' }}>TO:</Text>
+                    <input
+                      type="date"
+                      value={customToDate}
+                      onChange={(e) => setCustomToDate(e.target.value)}
+                      style={{
+                        fontSize: 12,
+                        border: 'none',
+                        outline: 'none',
+                        color: '#0F172A',
+                        backgroundColor: 'transparent',
+                        fontFamily: fontStyle,
+                        cursor: 'pointer',
+                      } as any}
+                    />
+                  </View>
                 </View>
-              </View>
-            )}
+              )}
 
-            {/* Download Report Button */}
-            <TouchableOpacity
-              style={[styles.panelAddBtn, { backgroundColor: '#10B981', flexDirection: 'row', alignItems: 'center', height: 38 }]}
-              onPress={handleDownloadExcel}
-            >
-              <Ionicons name="download-outline" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
-              <Text style={[styles.panelAddBtnText, { fontFamily: fontStyle, fontSize: 12 }]}>Download Excel Report</Text>
-            </TouchableOpacity>
+              {/* Download Report Button */}
+              <TouchableOpacity
+                style={[styles.panelAddBtn, { backgroundColor: '#10B981', flexDirection: 'row', alignItems: 'center', height: 38 }]}
+                onPress={handleDownloadExcel}
+              >
+                <Ionicons name="download-outline" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+                <Text style={[styles.panelAddBtnText, { fontFamily: fontStyle, fontSize: 12 }]}>Download Excel Report</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 
