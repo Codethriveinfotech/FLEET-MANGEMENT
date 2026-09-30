@@ -74,6 +74,13 @@ interface ApiService {
     
     @PUT("api/maintenance/{id}")
     suspend fun updateMaintenance(@Path("id") id: String, @Body record: MaintenanceRecord): Response<ApiResponse<Boolean>>
+
+    // Notifications
+    @GET("api/v1/notifications")
+    suspend fun getNotifications(): Response<ApiResponse<List<NotificationDto>>>
+
+    @PUT("api/v1/notifications/{id}/read")
+    suspend fun markNotificationRead(@Path("id") id: String): Response<ApiResponse<Boolean>>
 }
 
 // DTOs matching Backend
@@ -102,4 +109,13 @@ data class UserDto(
     val photoUri: String? = null,
     val role: String? = null,
     val password: String? = null
+)
+
+data class NotificationDto(
+    val id: String,
+    val title: String,
+    val message: String,
+    val type: String,
+    val isRead: Boolean,
+    val createdAt: String
 )

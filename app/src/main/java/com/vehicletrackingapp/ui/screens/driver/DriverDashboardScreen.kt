@@ -58,6 +58,58 @@ fun DriverDashboardScreen(driverId: String, onLogout: () -> Unit) {
     }
 
     var showLogoutDialog by remember { mutableStateOf(false) }
+    var showNotificationsDialog by remember { mutableStateOf(false) }
+    var notifications by remember { mutableStateOf<List<com.vehicletrackingapp.data.remote.NotificationDto>>(emptyList()) }
+    var unreadCount by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(showNotificationsDialog, driverId) {
+        try {
+            val res = AppRepository.api.getNotifications()
+            if (res.isSuccessful) {
+                val data = res.body()?.data ?: emptyList()
+                notifications = data
+                unreadCount = data.count { !it.isRead }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("DriverDashboard", "Failed to fetch notifications", e)
+        }
+    }
+
+    if (showNotificationsDialog) {
+        AlertDialog(
+            onDismissRequest = { showNotificationsDialog = false },
+            title = { Text("Notifications", fontWeight = FontWeight.Black) },
+            text = { 
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    if (notifications.isEmpty()) {
+                        Text("No notifications yet.", color = BrandGrey)
+                    } else {
+                        notifications.forEach { n ->
+                            val icon = if (n.type == "CRITICAL") "🚨" else if (n.type == "WARNING") "⚠️" else "ℹ️"
+                            val titleColor = if (n.type == "CRITICAL") DangerCrimson else if (!n.isRead) BrandYellow else BrandDark
+                            Text("$icon ${n.title}", fontWeight = FontWeight.Bold, color = titleColor)
+                            Text(n.message, fontSize = 12.sp, color = BrandGrey)
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { 
+                    showNotificationsDialog = false
+                    scope.launch {
+                        notifications.filter { !it.isRead }.forEach {
+                            try { AppRepository.api.markNotificationRead(it.id) } catch(e: Exception) {}
+                        }
+                    }
+                }) {
+                    Text("OK", color = BrandYellow, fontWeight = FontWeight.Black)
+                }
+            },
+            containerColor = BrandWhite,
+            shape = RoundedCornerShape(24.dp)
+        )
+    }
 
     if (showLogoutDialog) {
         AlertDialog(
@@ -176,8 +228,27 @@ fun DriverDashboardScreen(driverId: String, onLogout: () -> Unit) {
                             }
                         },
                         actions = {
-                            // ConnectionBeacon removed as requested
-                            Spacer(modifier = Modifier.width(12.dp))
+                            IconButton(onClick = { showNotificationsDialog = true }) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(38.dp)
+                                        .clip(CircleShape)
+                                        .background(BrandDark.copy(alpha = 0.05f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(Icons.Default.Notifications, contentDescription = "Notifications", tint = BrandDark, modifier = Modifier.size(22.dp))
+                                    if (unreadCount > 0) {
+                                        Box(
+                                            modifier = Modifier
+                                                .align(Alignment.TopEnd)
+                                                .padding(4.dp)
+                                                .size(8.dp)
+                                                .background(DangerCrimson, CircleShape)
+                                        )
+                                    }
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(4.dp))
                             IconButton(onClick = { scope.launch { drawerState.open() } }) {
                                 Box(
                                     modifier = Modifier

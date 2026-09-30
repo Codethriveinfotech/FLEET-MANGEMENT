@@ -4,6 +4,7 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import { errorMiddleware } from './middlewares/error';
 import { logger } from './utils/logger';
+import notificationRoutes from './routes/notificationRoutes';
 
 // Load environmental variables
 dotenv.config();
@@ -29,6 +30,9 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
+
+// API Routes
+app.use('/api/v1/notifications', notificationRoutes);
 
 // Global Error Handler
 app.use(errorMiddleware);

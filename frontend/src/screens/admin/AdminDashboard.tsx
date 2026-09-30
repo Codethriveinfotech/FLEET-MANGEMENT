@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, useWindowDimensions, Platform } from 'react-native';
 import { useAuthStore } from '../../store/auth';
 import { useNavigation, useNavigationState } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
+import { apiClient } from '../../api/client';
 
 // Context & Styles
 import { DashboardDataProvider, useDashboardData } from '../../context/DashboardDataContext';
@@ -32,6 +32,45 @@ function DashboardLayoutContent() {
   const isMobile = width < 768;
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+
+  // Fetch real notifications from the backend
+  React.useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const res = await apiClient.get('/v1/notifications');
+        if (res.data?.success) {
+          setNotifications(res.data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch notifications', error);
+      }
+    };
+    
+    // Fetch initially and then every 30 seconds
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleMarkAsRead = async (id: string) => {
+    try {
+      await apiClient.put(`/v1/notifications/${id}/read`);
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+    } catch (error) {
+      console.error('Failed to mark read', error);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    const unreadIds = notifications.filter(n => !n.isRead).map(n => n.id);
+    for (const id of unreadIds) {
+      await handleMarkAsRead(id);
+    }
+  };
+
+  const unreadCount = notifications.filter(n => !n.isRead).length;
 
   // Determine active tab route using React Navigation state
   const navState = useNavigationState((s) => s);
@@ -163,10 +202,73 @@ function DashboardLayoutContent() {
               </View>
             )}
             
-            <TouchableOpacity style={styles.iconCircle}>
-              <Ionicons name="notifications-outline" size={16} color="#64748B" />
-              <View style={styles.badgeAlertDot} />
-            </TouchableOpacity>
+            <View style={{ position: 'relative', zIndex: 9999 }}>
+              <TouchableOpacity 
+                style={styles.iconCircle}
+                onPress={() => setShowNotifications(!showNotifications)}
+              >
+                <Ionicons name="notifications-outline" size={16} color="#64748B" />
+                {unreadCount > 0 && <View style={styles.badgeAlertDot} />}
+              </TouchableOpacity>
+              
+              {showNotifications && (
+                <View style={{
+                  position: 'absolute',
+                  top: 40,
+                  right: 0,
+                  width: 320,
+                  maxHeight: 400,
+                  backgroundColor: '#FFFFFF',
+                  borderRadius: 12,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 12,
+                  elevation: 8,
+                  borderWidth: 1,
+                  borderColor: '#E2E8F0',
+                  overflow: 'hidden'
+                }}>
+                  <View style={{ padding: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9', backgroundColor: '#F8FAFC', flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Text style={{ fontWeight: '700', color: '#0F172A', fontSize: 14 }}>Notifications</Text>
+                    {unreadCount > 0 && (
+                      <Text style={{ fontSize: 12, color: '#3B82F6', fontWeight: '600' }}>{unreadCount} new</Text>
+                    )}
+                  </View>
+                  
+                  {notifications.length === 0 ? (
+                    <View style={{ padding: 20, alignItems: 'center' }}>
+                      <Text style={{ color: '#94A3B8', fontSize: 12 }}>No notifications yet.</Text>
+                    </View>
+                  ) : (
+                    <View style={{ maxHeight: 300, overflow: 'scroll' }}>
+                      {notifications.map(n => (
+                        <TouchableOpacity 
+                          key={n.id} 
+                          style={{ padding: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9', backgroundColor: n.isRead ? '#FFFFFF' : '#F0F9FF' }}
+                          onPress={() => !n.isRead && handleMarkAsRead(n.id)}
+                        >
+                          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                            <Text style={{ fontSize: 12, fontWeight: '700', color: n.type === 'CRITICAL' ? '#DC2626' : n.type === 'WARNING' ? '#D97706' : '#1D4ED8' }}>{n.title}</Text>
+                            {!n.isRead && <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#3B82F6' }} />}
+                          </View>
+                          <Text style={{ fontSize: 11, color: '#475569', lineHeight: 16 }}>{n.message}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                  
+                  {unreadCount > 0 && (
+                    <TouchableOpacity 
+                      style={{ padding: 12, alignItems: 'center', borderTopWidth: 1, borderTopColor: '#F1F5F9' }}
+                      onPress={handleMarkAllAsRead}
+                    >
+                      <Text style={{ fontSize: 12, color: '#3B82F6', fontWeight: '600' }}>Mark all as read</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
+            </View>
  
             <View style={styles.headerProfileBadge}>
               <View style={[styles.adminAvatar, { width: 28, height: 28, borderRadius: 14, backgroundColor: '#64748B' }]}>

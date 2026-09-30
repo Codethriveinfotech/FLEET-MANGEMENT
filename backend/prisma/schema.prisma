@@ -52,6 +52,7 @@ model User {
   driverLogs       DriverLog[]
   fuelLogs         FuelLog[]
   maintenanceReports MaintenanceLog[] @relation("ReportedByUser")
+  notifications    Notification[]
 
   @@map("users")
 }
@@ -135,4 +136,17 @@ model MaintenanceLog {
   updatedAt     DateTime          @updatedAt
 
   @@map("maintenance_logs")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  type      String   @default("INFO")
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
 }

@@ -116,3 +116,35 @@ connect a real backend:
 - Add real authentication/session handling (tokens, secure storage) when
   the backend is ready — current login is a plain in-memory check meant
   for demoing the frontend only.
+
+## Future Enhancements: Push Notifications
+
+Adding notifications is a great way to make the app more proactive! Since there is both an Admin Dashboard and a Driver Mobile App, different types of notifications can be sent to each user.
+
+### 📱 Notifications for Drivers (Mobile App)
+These will help keep drivers on track and ensure they don't forget important logs:
+
+- **Trip Reminders:**
+  - "Did you forget to end your trip?" (If a trip has been marked as ACTIVE for more than 12 hours).
+  - "Don't forget to log your start KM for today!" (Sent every morning at 8:00 AM).
+- **Maintenance Alerts:**
+  - "Your vehicle (TN-01-AB-1234) is scheduled for service tomorrow."
+  - "Your maintenance request has been Resolved by the Admin."
+- **Admin Messages:**
+  - Custom announcements from the Admin (e.g., "Heavy rain alert: Please drive safely" or "Route change").
+- **Document Expiry:**
+  - "Your driving license expires in 30 days. Please update it."
+
+### 💻 Notifications for Admins (Web/Desktop Dashboard)
+These will help the admin manage the fleet without constantly refreshing the dashboard:
+
+- **New Maintenance Reported:**
+  - "Urgent: Driver Sohith reported an issue (Brake failure) for vehicle TN-01-AB-1234." (This is the most critical notification to have).
+- **Fuel Anomalies:**
+  - "High fuel cost alert: A bill for ₹5,000 was submitted for vehicle TN-22-XY-9999."
+- **Trip Status:**
+  - "Driver Dimpal has not started any trip today."
+- **Service Due Reminders:**
+  - "Vehicle TN-01-AB-1234 has crossed 10,000 KM and needs an oil change."
+- **Weekly/Daily Summaries:**
+  - "Your fleet summary for today: 45 trips completed, 2 vehicles in maintenance."
