@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, useWindowDimensions, Platform } from 'react-native';
 import { useAuthStore } from '../../store/auth';
 import { useNavigation, useNavigationState } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { apiClient } from '../../api/client';
 
