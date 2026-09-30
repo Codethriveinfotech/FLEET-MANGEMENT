@@ -36,12 +36,6 @@ export default function VehiclesTab() {
   const [showCustomTypeInput, setShowCustomTypeInput] = useState(false);
   const [newCustomType, setNewCustomType] = useState('');
 
-  const [showBreakdownForm, setShowBreakdownForm] = useState(false);
-  const [breakdownData, setBreakdownData] = useState({
-    breakdownTime: '',
-    activeTime: '',
-    remarks: ''
-  });
 
   const [vehicleForm, setVehicleForm] = useState({
     number: '',
@@ -66,12 +60,6 @@ export default function VehiclesTab() {
     setEditingVehicle(veh);
     setShowCustomTypeInput(false);
     setNewCustomType('');
-    setShowBreakdownForm(false);
-    setBreakdownData({
-      breakdownTime: '',
-      activeTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      remarks: ''
-    });
     if (veh) {
       if (veh.type && !DEFAULT_VEHICLE_TYPES.includes(veh.type) && !customTypes.includes(veh.type)) {
         const updated = [...customTypes, veh.type];
@@ -158,54 +146,7 @@ export default function VehiclesTab() {
     }
   };
 
-  const handleMarkAsWorking = () => {
-    setShowBreakdownForm(true);
-  };
 
-  const submitBreakdownResolution = async () => {
-    if (!editingVehicle) return;
-    if (!breakdownData.breakdownTime || !breakdownData.activeTime || !breakdownData.remarks) {
-      alert('Please fill in all breakdown details (Time occurred, Time active, and Remarks)');
-      return;
-    }
-    try {
-      await apiClient.put(`/vehicles/${editingVehicle.id}`, {
-        ...editingVehicle,
-        number: vehicleForm.number,
-        model: vehicleForm.model,
-        type: vehicleForm.type,
-        registrationNumber: vehicleForm.registrationNumber,
-        fuelType: vehicleForm.fuelType,
-        status: 'Active',
-        mileage: parseInt(vehicleForm.mileage) || 0,
-        insuranceStatus: vehicleForm.insuranceStatus,
-        place: vehicleForm.place,
-      });
-
-      const dateStr = new Date().toISOString().split('T')[0];
-      await apiClient.post('/maintenance', {
-        id: `maint_${Date.now()}`,
-        vehicleId: editingVehicle.id,
-        driverId: 'admin', 
-        maintenanceType: 'Breakdown Resolution',
-        description: `Breakdown Time: ${breakdownData.breakdownTime} | Active Time: ${breakdownData.activeTime}`,
-        date: dateStr,
-        time: breakdownData.activeTime,
-        cost: '0',
-        serviceNotes: breakdownData.remarks,
-        status: 'resolved',
-        isBreakdownReport: true,
-      });
-
-      setVehicleForm({ ...vehicleForm, status: 'Active' });
-      setShowBreakdownForm(false);
-      setVehicleModalVisible(false);
-      fetchData();
-      alert('Vehicle status updated to Active and breakdown recorded!');
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to update vehicle status and record breakdown');
-    }
-  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -633,122 +574,7 @@ export default function VehiclesTab() {
               <TextInput style={styles.modalInput} value={vehicleForm.place} onChangeText={(val) => setVehicleForm({ ...vehicleForm, place: val })} placeholder="e.g. Chennai, Bangalore Hub, Depot 1" placeholderTextColor="#94A3B8" />
             </ScrollView>
 
-            {/* Breakdown Resolution Form */}
-            {showBreakdownForm && (
-              <View style={{
-                backgroundColor: '#F8FAFC',
-                borderRadius: 10,
-                borderWidth: 1,
-                borderColor: '#E2E8F0',
-                padding: 16,
-                marginTop: 12,
-                marginBottom: 4,
-              }}>
-                <Text style={{ fontSize: 13, fontWeight: '800', color: '#1E293B', fontFamily: fontStyle, marginBottom: 12 }}>
-                  RECORD BREAKDOWN DETAILS
-                </Text>
-
-                <View style={{ flexDirection: 'row', gap: 12 }}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.inputLabel, { marginTop: 0 }]}>TIME OF BREAKDOWN</Text>
-                    <input 
-                      type="time" 
-                      style={styles.modalInput as any}
-                      value={breakdownData.breakdownTime} 
-                      onChange={(e) => setBreakdownData({...breakdownData, breakdownTime: e.target.value})} 
-                    />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.inputLabel, { marginTop: 0 }]}>TIME MARKED ACTIVE</Text>
-                    <input 
-                      type="time" 
-                      style={styles.modalInput as any}
-                      value={breakdownData.activeTime} 
-                      onChange={(e) => setBreakdownData({...breakdownData, activeTime: e.target.value})} 
-                    />
-                  </View>
-                </View>
-
-                <Text style={styles.inputLabel}>REMARKS / ISSUE DESCRIPTION</Text>
-                <TextInput 
-                  style={[styles.modalInput, { height: 60, textAlignVertical: 'top' }]} 
-                  multiline
-                  placeholder="What was the breakdown? What was fixed?"
-                  value={breakdownData.remarks} 
-                  onChangeText={(val) => setBreakdownData({...breakdownData, remarks: val})} 
-                />
-
-                <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 12 }}>
-                  <TouchableOpacity 
-                    style={{ paddingVertical: 10, paddingHorizontal: 16, marginRight: 8 }} 
-                    onPress={() => setShowBreakdownForm(false)}
-                  >
-                    <Text style={{ color: '#64748B', fontWeight: 'bold', fontSize: 12, fontFamily: fontStyle }}>CANCEL</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={{ backgroundColor: '#10B981', paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, flexDirection: 'row', alignItems: 'center' }} 
-                    onPress={submitBreakdownResolution}
-                  >
-                    <Ionicons name="checkmark-circle" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
-                    <Text style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 12, fontFamily: fontStyle }}>SUBMIT & MARK WORKING</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )}
-
-            {/* Mark as Working banner — shown only for breakdown/maintenance vehicles */}
-            {!showBreakdownForm && editingVehicle && (() => {
-              const st = (vehicleForm.status || '').toLowerCase();
-              const isProblematic = st.includes('break') || st.includes('main');
-              if (!isProblematic) return null;
-              return (
-                <View style={{
-                  backgroundColor: '#FEF2F2',
-                  borderRadius: 10,
-                  borderWidth: 1,
-                  borderColor: '#FEE2E2',
-                  padding: 14,
-                  marginTop: 12,
-                  marginBottom: 4,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 12 }}>
-                    <Ionicons name="flash" size={18} color="#DC2626" style={{ marginRight: 8 }} />
-                    <View>
-                      <Text style={{ fontSize: 12, fontWeight: '800', color: '#DC2626', fontFamily: fontStyle }}>
-                        {st.includes('break') ? 'BREAKDOWN DETECTED' : 'UNDER MAINTENANCE'}
-                      </Text>
-                      <Text style={{ fontSize: 11, color: '#7F1D1D', fontFamily: fontStyle, marginTop: 2 }}>
-                        Mark vehicle as repaired and operational
-                      </Text>
-                    </View>
-                  </View>
-                  <TouchableOpacity
-                    style={{
-                      backgroundColor: '#10B981',
-                      paddingVertical: 10,
-                      paddingHorizontal: 16,
-                      borderRadius: 8,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      shadowColor: '#10B981',
-                      shadowOffset: { width: 0, height: 3 },
-                      shadowOpacity: 0.25,
-                      shadowRadius: 6,
-                    }}
-                    onPress={handleMarkAsWorking}
-                  >
-                    <Ionicons name="checkmark-circle" size={15} color="#FFFFFF" style={{ marginRight: 6 }} />
-                    <Text style={{ fontSize: 12, fontWeight: '800', color: '#FFFFFF', fontFamily: fontStyle }}>MARK AS WORKING</Text>
-                  </TouchableOpacity>
-                </View>
-              );
-            })()}
-
-            {!showBreakdownForm && (
-              <View style={styles.modalActionRow}>
+            <View style={styles.modalActionRow}>
                 <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#F1F5F9' }]} onPress={() => setVehicleModalVisible(false)}>
                   <Text style={[styles.modalBtnText, { color: '#475569' }]}>CANCEL</Text>
                 </TouchableOpacity>
@@ -756,7 +582,6 @@ export default function VehiclesTab() {
                   <Text style={[styles.modalBtnText, { color: '#FFFFFF' }]}>SAVE VEHICLE</Text>
                 </TouchableOpacity>
               </View>
-            )}
           </View>
         </View>
       </Modal>

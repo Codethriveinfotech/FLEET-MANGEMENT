@@ -4,6 +4,7 @@ import { useDashboardData } from '../../../context/DashboardDataContext';
 import { styles } from '../AdminStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { apiClient } from '../../../api/client';
 
 export default function OverviewTab() {
   const { drivers, vehicles, trips, maintenance, fuelLogs } = useDashboardData();
@@ -11,6 +12,48 @@ export default function OverviewTab() {
   const { width } = useWindowDimensions();
   const isCompact = width < 1024;
   const [showBreakdownModal, setShowBreakdownModal] = useState(false);
+  const [resolvingVehicle, setResolvingVehicle] = useState<any>(null);
+  const [breakdownData, setBreakdownData] = useState({
+    breakdownTime: '',
+    activeTime: '',
+    remarks: ''
+  });
+
+  const { fetchData } = useDashboardData();
+
+  const submitBreakdownResolution = async (v: any) => {
+    if (!breakdownData.breakdownTime || !breakdownData.activeTime || !breakdownData.remarks) {
+      alert('Please fill in all breakdown details');
+      return;
+    }
+    try {
+      await apiClient.put(`/vehicles/${v.id}`, {
+        ...v,
+        status: 'Active',
+      });
+
+      const dateStr = new Date().toISOString().split('T')[0];
+      await apiClient.post('/maintenance', {
+        id: `maint_${Date.now()}`,
+        vehicleId: v.id,
+        driverId: 'admin', 
+        maintenanceType: 'Breakdown Resolution',
+        description: `Breakdown Time: ${breakdownData.breakdownTime} | Active Time: ${breakdownData.activeTime}`,
+        date: dateStr,
+        time: breakdownData.activeTime,
+        cost: '0',
+        serviceNotes: breakdownData.remarks,
+        status: 'resolved',
+        isBreakdownReport: true,
+      });
+
+      setResolvingVehicle(null);
+      fetchData();
+      alert('Vehicle marked as Active and breakdown recorded!');
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to update vehicle');
+    }
+  };
 
   const activeTripsCount = trips.filter((t) => t.status === 'started').length;
 
@@ -157,10 +200,67 @@ export default function OverviewTab() {
                               <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFFFFF', letterSpacing: 0.5 }}>BREAKDOWN</Text>
                             </View>
                           </View>
-                          <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF7ED', borderRadius: 8, padding: 8 }}>
-                            <Ionicons name="information-circle-outline" size={14} color="#EA580C" />
-                            <Text style={{ fontSize: 11, color: '#EA580C', marginLeft: 6 }}>Awaiting recovery — driver can mark as active from app</Text>
-                          </View>
+                          
+                          {resolvingVehicle?.id === v.id ? (
+                            <View style={{ marginTop: 12, backgroundColor: '#FFFFFF', borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#E2E8F0' }}>
+                              <Text style={{ fontSize: 12, fontWeight: '800', color: '#1E293B', marginBottom: 8, fontFamily: styles.panelTitle.fontFamily }}>RECORD BREAKDOWN DETAILS</Text>
+                              <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
+                                <View style={{ flex: 1 }}>
+                                  <Text style={{ fontSize: 10, fontWeight: '700', color: '#475569', marginBottom: 4, fontFamily: styles.panelTitle.fontFamily }}>TIME OF BREAKDOWN</Text>
+                                  <input 
+                                    type="time" 
+                                    value={breakdownData.breakdownTime} 
+                                    onChange={e => setBreakdownData({...breakdownData, breakdownTime: e.target.value})} 
+                                    style={{ width: '100%', padding: 6, borderRadius: 6, border: '1px solid #CBD5E1', outline: 'none', fontFamily: styles.panelTitle.fontFamily, fontSize: 12 } as any} 
+                                  />
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                  <Text style={{ fontSize: 10, fontWeight: '700', color: '#475569', marginBottom: 4, fontFamily: styles.panelTitle.fontFamily }}>TIME MARKED ACTIVE</Text>
+                                  <input 
+                                    type="time" 
+                                    value={breakdownData.activeTime} 
+                                    onChange={e => setBreakdownData({...breakdownData, activeTime: e.target.value})} 
+                                    style={{ width: '100%', padding: 6, borderRadius: 6, border: '1px solid #CBD5E1', outline: 'none', fontFamily: styles.panelTitle.fontFamily, fontSize: 12 } as any} 
+                                  />
+                                </View>
+                              </View>
+                              <Text style={{ fontSize: 10, fontWeight: '700', color: '#475569', marginBottom: 4, fontFamily: styles.panelTitle.fontFamily }}>REMARKS / ISSUE DESCRIPTION</Text>
+                              <input 
+                                type="text" 
+                                placeholder="What was fixed?" 
+                                value={breakdownData.remarks} 
+                                onChange={e => setBreakdownData({...breakdownData, remarks: e.target.value})} 
+                                style={{ width: '100%', padding: 8, borderRadius: 6, border: '1px solid #CBD5E1', outline: 'none', marginBottom: 12, fontFamily: styles.panelTitle.fontFamily, fontSize: 12 } as any} 
+                              />
+                              
+                              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8 }}>
+                                <TouchableOpacity onPress={() => setResolvingVehicle(null)} style={{ paddingVertical: 6, paddingHorizontal: 12 }}>
+                                  <Text style={{ color: '#64748B', fontWeight: 'bold', fontSize: 11, fontFamily: styles.panelTitle.fontFamily }}>CANCEL</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => submitBreakdownResolution(v)} style={{ backgroundColor: '#10B981', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 6, flexDirection: 'row', alignItems: 'center' }}>
+                                  <Ionicons name="checkmark" size={14} color="#FFFFFF" style={{ marginRight: 4 }} />
+                                  <Text style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 11, fontFamily: styles.panelTitle.fontFamily }}>SUBMIT</Text>
+                                </TouchableOpacity>
+                              </View>
+                            </View>
+                          ) : (
+                            <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFF7ED', borderRadius: 8, padding: 8, paddingLeft: 12 }}>
+                              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                                <Ionicons name="information-circle-outline" size={16} color="#EA580C" />
+                                <Text style={{ fontSize: 11, color: '#EA580C', marginLeft: 6, fontWeight: '500', fontFamily: styles.panelTitle.fontFamily }}>Awaiting recovery</Text>
+                              </View>
+                              <TouchableOpacity 
+                                style={{ backgroundColor: '#10B981', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 6, flexDirection: 'row', alignItems: 'center' }}
+                                onPress={() => {
+                                  setResolvingVehicle(v);
+                                  setBreakdownData({ breakdownTime: '', activeTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), remarks: '' });
+                                }}
+                              >
+                                <Ionicons name="construct" size={12} color="#FFFFFF" style={{ marginRight: 4 }} />
+                                <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '700', fontFamily: styles.panelTitle.fontFamily }}>MARK AS WORKING</Text>
+                              </TouchableOpacity>
+                            </View>
+                          )}
                         </View>
                       );
                     })}
