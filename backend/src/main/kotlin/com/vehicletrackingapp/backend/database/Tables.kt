@@ -22,10 +22,12 @@ object Users : Table("users") {
 }
 
 object RefreshTokens : Table("refresh_tokens") {
-    val id = integer("id").autoIncrement()
+    val id = text("id")
     val userId = text("user_id").references(Users.id, onDelete = ReferenceOption.CASCADE)
     val token = text("token").uniqueIndex()
+    val isRevoked = bool("is_revoked").default(false)
     val expiresAt = datetime("expires_at")
+    val createdAt = datetime("created_at").default(Clock.System.now().toLocalDateTime(TimeZone.UTC))
     override val primaryKey = PrimaryKey(id)
 }
 
