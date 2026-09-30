@@ -421,9 +421,9 @@ export default function ReportsTab() {
   };
 
   return (
-    <View style={{ flex: 1, flexDirection: 'row' }}>
+    <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 20 }}>
       {/* Left Pane: Report Types */}
-      <View style={[styles.rightVehiclesPanel, { width: 280, marginRight: 24 }]}>
+      <View style={[styles.rightVehiclesPanel, { width: 280, maxWidth: '100%' }]}>
         <Text style={[styles.panelTitle, { marginBottom: 16, fontFamily: fontStyle, fontSize: 17 }]}>Report Types</Text>
         {[
           { key: 'Trip Summary Report', label: 'Trip Summary Report', desc: 'Summary of all trips', icon: '📋' },
@@ -457,14 +457,14 @@ export default function ReportsTab() {
       </View>
 
       {/* Right Pane: Report Dashboard & Preview */}
-      <View style={{ flex: 1 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
-          <View style={{ flex: 1, minWidth: 200 }}>
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <View style={{ marginBottom: 20 }}>
+          <View style={{ marginBottom: 10 }}>
             <Text style={{ fontSize: 20, fontWeight: '800', color: '#0F172A', fontFamily: fontStyle }}>{selectedReportType}</Text>
-            <Text style={{ fontSize: 12, color: '#64748B', fontFamily: fontStyle, marginTop: 4 }}>Detailed live preview and customizable Excel exporting</Text>
+            <Text style={{ fontSize: 12, color: '#64748B', fontFamily: fontStyle, marginTop: 2 }}>Detailed live preview and customizable Excel exporting</Text>
           </View>
 
-          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', flexWrap: 'wrap', maxWidth: '100%' }}>
             {/* Dynamic Selector for Driver inside Driver, Fuel, or Maintenance Report */}
             {(selectedReportType === 'Driver Performance Report' || selectedReportType === 'Fuel Report' || selectedReportType === 'Maintenance Report') && (
               <View style={{
@@ -574,7 +574,7 @@ export default function ReportsTab() {
 
             {/* Custom From & To Date Pickers */}
             {duration === 'custom' && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 <View style={{
                   flexDirection: 'row',
                   alignItems: 'center',
