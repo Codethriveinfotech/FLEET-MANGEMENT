@@ -255,11 +255,12 @@ export default function VehiclesTab() {
           alignItems: 'center'
         }]}>
           <View style={{ flex: 1.3 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Plate Number</Text></View>
-          <View style={{ flex: 1.8 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Type</Text></View>
-          <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Model</Text></View>
-          <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Place</Text></View>
-          <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Fuel Type</Text></View>
-          <View style={{ flex: 1.6 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Consumption/km</Text></View>
+          <View style={{ flex: 1.5 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Type</Text></View>
+          <View style={{ flex: 1.3 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Model</Text></View>
+          <View style={{ flex: 1.3 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Place</Text></View>
+          <View style={{ flex: 1.0 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Fuel</Text></View>
+          <View style={{ flex: 1.3 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Cons/km</Text></View>
+          <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Ins. Exp</Text></View>
           <View style={{ flex: 1.2 }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Status</Text></View>
           <View style={{ flex: 1.0, alignItems: 'center' }}><Text style={{ fontSize: 13, fontWeight: '800', color: '#475569', fontFamily: fontStyle, letterSpacing: 0.3 }}>Actions</Text></View>
         </View>
@@ -271,6 +272,33 @@ export default function VehiclesTab() {
               const displayPlate = veh.number || 'UNKNOWN';
               const modelName = veh.model || '—';
               const mileageVal = veh.mileage ? `${Number(veh.mileage).toLocaleString()}Km/L` : '0 Km/L';
+
+              // Insurance Expiry Logic
+              let insuranceText = veh.insuranceStatus || 'No Date';
+              let insuranceColor = veh.insuranceStatus ? '#475569' : '#94A3B8';
+              let insuranceBg = 'transparent';
+              
+              if (veh.insuranceStatus && /^\\d{4}-\\d{2}-\\d{2}$/.test(veh.insuranceStatus)) {
+                const expiry = new Date(veh.insuranceStatus);
+                const now = new Date();
+                // Set hours to zero for fair comparison
+                now.setHours(0,0,0,0);
+                
+                const parts = veh.insuranceStatus.split('-');
+                const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                insuranceText = `${parts[2]} ${monthNames[parseInt(parts[1])-1]} ${parts[0]}`;
+
+                if (expiry < now) {
+                  insuranceColor = '#EF4444';
+                  insuranceBg = '#FEF2F2';
+                } else if (expiry.getTime() - now.getTime() <= 30 * 24 * 60 * 60 * 1000) {
+                  insuranceColor = '#F59E0B';
+                  insuranceBg = '#FFFBEB';
+                }
+              } else if (veh.insuranceStatus && veh.insuranceStatus.toLowerCase().includes('expir')) {
+                insuranceColor = '#EF4444';
+                insuranceBg = '#FEF2F2';
+              }
 
               // Resolve Type Icon & Color
               const vType = (veh.type || 'Sedan').toLowerCase();
@@ -360,30 +388,44 @@ export default function VehiclesTab() {
                   </View>
 
                   {/* Type */}
-                  <View style={{ flex: 1.8, flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ flex: 1.5, flexDirection: 'row', alignItems: 'center' }}>
                     <Ionicons name={typeIcon} size={15} color={typeColor} style={{ marginRight: 6 }} />
                     <Text style={{ fontSize: 14, color: typeColor, fontWeight: '700', fontFamily: fontStyle }}>{typeLabel}</Text>
                   </View>
 
                   {/* Model */}
-                  <View style={{ flex: 1.5 }}>
+                  <View style={{ flex: 1.3 }}>
                     <Text style={{ fontSize: 14, color: '#475569', fontFamily: fontStyle, fontWeight: '600' }}>{modelName}</Text>
                   </View>
 
                   {/* Place */}
-                  <View style={{ flex: 1.5 }}>
+                  <View style={{ flex: 1.3 }}>
                     <Text style={{ fontSize: 14, color: '#0F172A', fontFamily: fontStyle, fontWeight: '700' }}>{veh.place || '—'}</Text>
                   </View>
 
                   {/* Fuel Type */}
-                  <View style={{ flex: 1.2 }}>
+                  <View style={{ flex: 1.0 }}>
                     <Text style={{ fontSize: 14, color: '#475569', fontFamily: fontStyle }}>{veh.fuelType || 'Diesel'}</Text>
                   </View>
 
                   {/* Consumption/km */}
-                  <View style={{ flex: 1.6, flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ flex: 1.3, flexDirection: 'row', alignItems: 'center' }}>
                     <Ionicons name="speedometer-outline" size={14} color="#24D164" style={{ marginRight: 6 }} />
                     <Text style={{ fontSize: 14, fontWeight: '700', color: '#334155', fontFamily: fontStyle }}>{mileageVal}</Text>
+                  </View>
+
+                  {/* Insurance Expiry */}
+                  <View style={{ flex: 1.2, flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{
+                      backgroundColor: insuranceBg,
+                      paddingVertical: 4,
+                      paddingHorizontal: insuranceBg !== 'transparent' ? 8 : 0,
+                      borderRadius: 12,
+                    }}>
+                      <Text style={{ fontSize: 13, color: insuranceColor, fontFamily: fontStyle, fontWeight: '700' }}>
+                        {insuranceText}
+                      </Text>
+                    </View>
                   </View>
 
                   {/* Status */}
@@ -579,8 +621,27 @@ export default function VehiclesTab() {
               <Text style={styles.inputLabel}>CONSUMPTION / KM</Text>
               <TextInput style={styles.modalInput} value={vehicleForm.mileage} onChangeText={(val) => setVehicleForm({ ...vehicleForm, mileage: val })} keyboardType="numeric" autoComplete="off" />
 
-              <Text style={styles.inputLabel}>INSURANCE STATUS</Text>
-              <TextInput style={styles.modalInput} value={vehicleForm.insuranceStatus} onChangeText={(val) => setVehicleForm({ ...vehicleForm, insuranceStatus: val })} autoComplete="off" />
+              <Text style={styles.inputLabel}>INSURANCE EXPIRY DATE</Text>
+              <input 
+                type="date"
+                style={{
+                  width: '100%',
+                  height: 45,
+                  backgroundColor: '#FFFFFF',
+                  borderColor: '#E2E8F0',
+                  borderWidth: 1,
+                  borderRadius: 10,
+                  paddingHorizontal: 16,
+                  fontSize: 14,
+                  color: vehicleForm.insuranceStatus ? '#0F172A' : '#94A3B8',
+                  marginBottom: 16,
+                  outlineStyle: 'none',
+                  fontFamily: fontStyle,
+                  cursor: 'pointer',
+                } as any}
+                value={vehicleForm.insuranceStatus}
+                onChange={(e) => setVehicleForm({ ...vehicleForm, insuranceStatus: e.target.value })}
+              />
 
               <Text style={styles.inputLabel}>ASSIGNED PLACE / DEPOT</Text>
               <TextInput style={styles.modalInput} value={vehicleForm.place} onChangeText={(val) => setVehicleForm({ ...vehicleForm, place: val })} placeholder="e.g. Chennai, Bangalore Hub, Depot 1" placeholderTextColor="#94A3B8" autoComplete="off" />
