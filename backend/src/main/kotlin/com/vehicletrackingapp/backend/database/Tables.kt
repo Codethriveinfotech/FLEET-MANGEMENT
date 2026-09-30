@@ -33,7 +33,7 @@ object RefreshTokens : Table("refresh_tokens") {
 
 object Vehicles : Table("vehicles") {
     val id = text("id")
-    val number = text("number").nullable()
+    val number = text("number").default("")
     val model = text("model").default("")
     val imageUri = text("image_uri").nullable()
     val assignedUserId = text("assigned_user_id").references(Users.id, onDelete = ReferenceOption.SET_NULL).nullable()
