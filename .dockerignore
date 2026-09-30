@@ -1,0 +1,10 @@
+node_modules
+frontend
+app
+jdk17
+*.apk
+.git
+.git-rewrite
+backend/dist
+backend/node_modules
+**/.env
