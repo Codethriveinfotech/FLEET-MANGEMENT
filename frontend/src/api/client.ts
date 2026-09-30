@@ -4,14 +4,14 @@ import { useAuthStore } from '../store/auth';
 
 import { Platform } from 'react-native';
 
-let API_URL = 'https://vehicletrackingapp-fdy2.onrender.com/api';
+let API_URL = 'https://vehicletrackingapp-fdy2.onrender.com/api/';
 
 if (Platform.OS === 'web') {
   if (typeof window !== 'undefined' && 
       (window.location.hostname === 'localhost' || 
        window.location.hostname === '127.0.0.1' || 
        window.location.hostname.startsWith('192.168.'))) {
-    API_URL = 'http://localhost:8080/api';
+    API_URL = 'http://localhost:8080/api/';
   }
 }
 

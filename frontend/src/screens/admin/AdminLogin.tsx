@@ -27,7 +27,7 @@ export default function AdminLogin() {
     setError(null);
 
     try {
-      const res = await apiClient.post('/auth/login', {
+      const res = await apiClient.post('/v1/auth/login', {
         identity: identity.trim(),
         password: password.trim(),
       });

@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { errorMiddleware } from './middlewares/error';
 import { logger } from './utils/logger';
 import notificationRoutes from './routes/notificationRoutes';
+import authRoutes from './routes/authRoutes';
 
 // Load environmental variables
 dotenv.config();
@@ -26,12 +27,19 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Debug Request Logger
+app.use((req, res, next) => {
+  console.log(`[INCOMING] ${req.method} ${req.url}`);
+  next();
+});
+
 // Health Check Route
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
 // API Routes
+app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 
 // Global Error Handler
