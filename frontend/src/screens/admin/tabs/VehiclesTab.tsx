@@ -19,7 +19,7 @@ const DEFAULT_VEHICLE_TYPES = [
 ];
 
 export default function VehiclesTab() {
-  const { vehicles, trips, fetchData } = useDashboardData();
+  const { vehicles, trips, fetchData, admins, drivers } = useDashboardData();
   const [vehicleSearch, setVehicleSearch] = useState('');
   const [vehicleModalVisible, setVehicleModalVisible] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
@@ -127,7 +127,7 @@ export default function VehiclesTab() {
           await apiClient.post('/maintenance', {
             id: `maint_${Date.now()}`,
             vehicleId: editingVehicle.id,
-            driverId: 'admin',
+            driverId: (editingVehicle as any).assignedUserId || admins[0]?.id || drivers[0]?.id || '',
             maintenanceType: 'Breakdown Report',
             description: `Breakdown Reported`,
             date: dateStr,

@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { apiClient } from '../../../api/client';
 
 export default function OverviewTab() {
-  const { drivers, vehicles, trips, maintenance, fuelLogs } = useDashboardData();
+  const { drivers, vehicles, trips, maintenance, fuelLogs, admins } = useDashboardData();
   const navigation = useNavigation<any>();
   const { width } = useWindowDimensions();
   const isCompact = width < 1024;
@@ -68,7 +68,7 @@ export default function OverviewTab() {
         await apiClient.post('/maintenance', {
           id: `maint_${Date.now()}`,
           vehicleId: v.id,
-          driverId: 'admin', 
+          driverId: (v as any).assignedUserId || admins[0]?.id || drivers[0]?.id || '', 
           maintenanceType: 'Breakdown Resolution',
           description: `Breakdown Time: ${breakdownData.breakdownTime} | Active Time: ${breakdownData.activeTime}`,
           date: dateStr,
