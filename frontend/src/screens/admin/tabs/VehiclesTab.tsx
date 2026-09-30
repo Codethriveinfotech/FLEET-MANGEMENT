@@ -23,7 +23,7 @@ export default function VehiclesTab() {
   const [vehicleSearch, setVehicleSearch] = useState('');
   const [vehicleModalVisible, setVehicleModalVisible] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
-  
+
   const [customTypes, setCustomTypes] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('custom_vehicle_types');
@@ -40,11 +40,11 @@ export default function VehiclesTab() {
   const [vehicleForm, setVehicleForm] = useState({
     number: '',
     model: '',
-    type: 'Truck',
-    fuelType: 'Diesel',
+    type: '',
+    fuelType: '',
     status: 'Active',
-    mileage: '0',
-    insuranceStatus: 'Valid',
+    mileage: '',
+    insuranceStatus: '',
     place: '',
   });
 
@@ -65,7 +65,7 @@ export default function VehiclesTab() {
         setCustomTypes(updated);
         try {
           localStorage.setItem('custom_vehicle_types', JSON.stringify(updated));
-        } catch (e) {}
+        } catch (e) { }
       }
       setVehicleForm({
         number: veh.number,
@@ -81,11 +81,11 @@ export default function VehiclesTab() {
       setVehicleForm({
         number: '',
         model: '',
-        type: 'Truck',
-        fuelType: 'Diesel',
+        type: '',
+        fuelType: '',
         status: 'Active',
-        mileage: '0',
-        insuranceStatus: 'Valid',
+        mileage: '',
+        insuranceStatus: '',
         place: '',
       });
     }
@@ -132,7 +132,6 @@ export default function VehiclesTab() {
             cost: '0',
             serviceNotes: '',
             status: 'reported',
-            isBreakdownReport: true,
           });
         }
       } else {
@@ -271,14 +270,14 @@ export default function VehiclesTab() {
             {filteredVehicles.map((veh) => {
               const displayPlate = veh.number || 'UNKNOWN';
               const modelName = veh.model || '—';
-              const mileageVal = veh.mileage ? `${Number(veh.mileage).toLocaleString()}` : '0';
-              
+              const mileageVal = veh.mileage ? `${Number(veh.mileage).toLocaleString()}Km/L` : '0 Km/L';
+
               // Resolve Type Icon & Color
               const vType = (veh.type || 'Sedan').toLowerCase();
               let typeIcon: any = 'car-sport';
               let typeColor = '#3B82F6';
               let typeLabel = veh.type || 'Sedan';
-              
+
               if (vType.includes('sedan')) {
                 typeIcon = 'car-sport';
                 typeColor = '#3B82F6';
@@ -300,7 +299,7 @@ export default function VehiclesTab() {
                 typeColor = '#EC4899';
                 typeLabel = veh.type;
               }
-              
+
               // Resolve Status Badge styling
               const hasActiveTrip = (trips || []).some((t) => t.vehicleId === veh.id && t.status === 'started');
               const vStatus = (veh.status || 'Active').toLowerCase();
@@ -310,7 +309,7 @@ export default function VehiclesTab() {
               let statusDotColor = '#10B981';
               const isBreakdownStatus = vStatus.includes('break');
               const isMaintenanceStatus = vStatus.includes('main') && !isBreakdownStatus;
-              
+
               if (vStatus === 'running' || hasActiveTrip) {
                 statusBg = '#EFF6FF';
                 statusTextColor = '#1D4ED8';
@@ -450,11 +449,11 @@ export default function VehiclesTab() {
             <Text style={styles.modalTitle}>{editingVehicle ? 'EDIT SYSTEM VEHICLE' : 'REGISTER NEW VEHICLE'}</Text>
             <ScrollView style={{ maxHeight: 400 }}>
               <Text style={styles.inputLabel}>PLATE NUMBER</Text>
-              <TextInput style={styles.modalInput} value={vehicleForm.number} onChangeText={(val) => setVehicleForm({ ...vehicleForm, number: val })} />
-              
+              <TextInput style={styles.modalInput} value={vehicleForm.number} onChangeText={(val) => setVehicleForm({ ...vehicleForm, number: val })} autoComplete="off" />
+
               <Text style={styles.inputLabel}>MODEL</Text>
-              <TextInput style={styles.modalInput} value={vehicleForm.model} onChangeText={(val) => setVehicleForm({ ...vehicleForm, model: val })} />
-              
+              <TextInput style={styles.modalInput} value={vehicleForm.model} onChangeText={(val) => setVehicleForm({ ...vehicleForm, model: val })} autoComplete="off" />
+
               <Text style={styles.inputLabel}>VEHICLE TYPE</Text>
               <select
                 value={vehicleForm.type}
@@ -480,6 +479,7 @@ export default function VehiclesTab() {
                   fontFamily: fontStyle,
                 } as any}
               >
+                <option value="" disabled>Select Vehicle Type</option>
                 {[...DEFAULT_VEHICLE_TYPES, ...customTypes].map((t) => (
                   <option key={t} value={t}>{t}</option>
                 ))}
@@ -496,6 +496,7 @@ export default function VehiclesTab() {
                       onChangeText={setNewCustomType}
                       placeholder="e.g. Excavator, Tipper, Tractor"
                       placeholderTextColor="#94A3B8"
+                      autoComplete="off"
                     />
                     <TouchableOpacity
                       style={{
@@ -516,7 +517,7 @@ export default function VehiclesTab() {
                             setCustomTypes(updated);
                             try {
                               localStorage.setItem('custom_vehicle_types', JSON.stringify(updated));
-                            } catch (e) {}
+                            } catch (e) { }
                           }
                           setVehicleForm({ ...vehicleForm, type: cleanType });
                           setShowCustomTypeInput(false);
@@ -569,29 +570,30 @@ export default function VehiclesTab() {
                   fontFamily: fontStyle,
                 } as any}
               >
+                <option value="" disabled>Select Fuel Type</option>
                 {['Diesel', 'Petrol', 'CNG', 'Electric'].map((f) => (
                   <option key={f} value={f}>{f}</option>
                 ))}
               </select>
 
               <Text style={styles.inputLabel}>CONSUMPTION / KM</Text>
-              <TextInput style={styles.modalInput} value={vehicleForm.mileage} onChangeText={(val) => setVehicleForm({ ...vehicleForm, mileage: val })} keyboardType="numeric" />
-              
+              <TextInput style={styles.modalInput} value={vehicleForm.mileage} onChangeText={(val) => setVehicleForm({ ...vehicleForm, mileage: val })} keyboardType="numeric" autoComplete="off" />
+
               <Text style={styles.inputLabel}>INSURANCE STATUS</Text>
-              <TextInput style={styles.modalInput} value={vehicleForm.insuranceStatus} onChangeText={(val) => setVehicleForm({ ...vehicleForm, insuranceStatus: val })} />
+              <TextInput style={styles.modalInput} value={vehicleForm.insuranceStatus} onChangeText={(val) => setVehicleForm({ ...vehicleForm, insuranceStatus: val })} autoComplete="off" />
 
               <Text style={styles.inputLabel}>ASSIGNED PLACE / DEPOT</Text>
-              <TextInput style={styles.modalInput} value={vehicleForm.place} onChangeText={(val) => setVehicleForm({ ...vehicleForm, place: val })} placeholder="e.g. Chennai, Bangalore Hub, Depot 1" placeholderTextColor="#94A3B8" />
+              <TextInput style={styles.modalInput} value={vehicleForm.place} onChangeText={(val) => setVehicleForm({ ...vehicleForm, place: val })} placeholder="e.g. Chennai, Bangalore Hub, Depot 1" placeholderTextColor="#94A3B8" autoComplete="off" />
             </ScrollView>
 
             <View style={styles.modalActionRow}>
-                <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#F1F5F9' }]} onPress={() => setVehicleModalVisible(false)}>
-                  <Text style={[styles.modalBtnText, { color: '#475569' }]}>CANCEL</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#1D4ED8' }]} onPress={handleSaveVehicle}>
-                  <Text style={[styles.modalBtnText, { color: '#FFFFFF' }]}>SAVE VEHICLE</Text>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#F1F5F9' }]} onPress={() => setVehicleModalVisible(false)}>
+                <Text style={[styles.modalBtnText, { color: '#475569' }]}>CANCEL</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#1D4ED8' }]} onPress={handleSaveVehicle}>
+                <Text style={[styles.modalBtnText, { color: '#FFFFFF' }]}>SAVE VEHICLE</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>

@@ -210,15 +210,15 @@ export default function DriversTab() {
             <Text style={styles.modalTitle}>{editingDriver ? 'EDIT SYSTEM DRIVER' : 'REGISTER NEW DRIVER'}</Text>
             <ScrollView style={{ maxHeight: 400 }}>
               <Text style={styles.inputLabel}>FULL NAME</Text>
-              <TextInput style={styles.modalInput} value={driverForm.name} onChangeText={(val) => setDriverForm({ ...driverForm, name: val })} />
+              <TextInput style={styles.modalInput} value={driverForm.name} onChangeText={(val) => setDriverForm({ ...driverForm, name: val })} autoComplete="off" />
               <Text style={styles.inputLabel}>PHONE NUMBER</Text>
-              <TextInput style={styles.modalInput} value={driverForm.phone} onChangeText={(val) => setDriverForm({ ...driverForm, phone: val })} keyboardType="phone-pad" />
+              <TextInput style={styles.modalInput} value={driverForm.phone} onChangeText={(val) => setDriverForm({ ...driverForm, phone: val })} keyboardType="phone-pad" autoComplete="off" />
               <Text style={styles.inputLabel}>EMAIL ADDRESS</Text>
-              <TextInput style={styles.modalInput} value={driverForm.email} onChangeText={(val) => setDriverForm({ ...driverForm, email: val })} />
+              <TextInput style={styles.modalInput} value={driverForm.email} onChangeText={(val) => setDriverForm({ ...driverForm, email: val })} autoComplete="off" />
               <Text style={styles.inputLabel}>LICENSE NUMBER</Text>
-              <TextInput style={styles.modalInput} value={driverForm.licenseNumber} onChangeText={(val) => setDriverForm({ ...driverForm, licenseNumber: val })} />
+              <TextInput style={styles.modalInput} value={driverForm.licenseNumber} onChangeText={(val) => setDriverForm({ ...driverForm, licenseNumber: val })} autoComplete="off" />
               <Text style={styles.inputLabel}>{editingDriver ? 'PASSWORD (LEAVE EMPTY)' : 'PASSWORD'}</Text>
-              <TextInput style={styles.modalInput} value={driverForm.password} onChangeText={(val) => setDriverForm({ ...driverForm, password: val })} secureTextEntry={true} />
+              <TextInput style={styles.modalInput} value={driverForm.password} onChangeText={(val) => setDriverForm({ ...driverForm, password: val })} secureTextEntry={true} autoComplete="new-password" />
             </ScrollView>
             <View style={styles.modalActionRow}>
               <TouchableOpacity style={[styles.modalBtn, { backgroundColor: '#F1F5F9' }]} onPress={() => setDriverModalVisible(false)}>
