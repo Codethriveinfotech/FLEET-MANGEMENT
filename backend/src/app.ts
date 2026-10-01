@@ -2,13 +2,14 @@ import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
+
+// Load environmental variables BEFORE importing custom modules that rely on them
+dotenv.config();
+
 import { errorMiddleware } from './middlewares/error';
 import { logger } from './utils/logger';
 import notificationRoutes from './routes/notificationRoutes';
 import authRoutes from './routes/authRoutes';
-
-// Load environmental variables
-dotenv.config();
 
 const app = express();
 
@@ -36,7 +37,7 @@ app.use((req, res, next) => {
 
 // Health Check Route
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
+  res.status(200).json({ status: 'healthy', version: 'v2-debian', timestamp: new Date().toISOString() });
 });
 
 import apiRoutes from './routes/api';
