@@ -14,4 +14,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "VehicleTrackingApp"
-include(":app", ":backend")
+include(":app")
