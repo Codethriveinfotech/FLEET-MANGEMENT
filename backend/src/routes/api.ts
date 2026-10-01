@@ -70,35 +70,35 @@ router.get('/trips', async (req, res) => {
   try {
     // In Android: endVehiclePhotoUri etc are mapped to schema. Wait, if schema has them.
     // Let's assume Prisma handles it.
-    const trips = await prisma.tripEntry.findMany();
+    const trips = await prisma.driverLog.findMany();
     sendSuccess(res, trips);
   } catch (e) { sendError(res, e); }
 });
 
 router.get('/trips/my', async (req, res) => {
   try {
-    const trips = await prisma.tripEntry.findMany();
+    const trips = await prisma.driverLog.findMany();
     sendSuccess(res, trips);
   } catch (e) { sendError(res, e); }
 });
 
 router.post('/trips', async (req, res) => {
   try {
-    const trip = await prisma.tripEntry.create({ data: req.body });
+    const trip = await prisma.driverLog.create({ data: req.body });
     sendSuccess(res, trip);
   } catch (e) { sendError(res, e); }
 });
 
 router.put('/trips/:id', async (req, res) => {
   try {
-    const trip = await prisma.tripEntry.update({ where: { id: req.params.id }, data: req.body });
+    const trip = await prisma.driverLog.update({ where: { id: req.params.id }, data: req.body });
     sendSuccess(res, true);
   } catch (e) { sendError(res, e); }
 });
 
 router.delete('/trips/:id', async (req, res) => {
   try {
-    await prisma.tripEntry.delete({ where: { id: req.params.id } });
+    await prisma.driverLog.delete({ where: { id: req.params.id } });
     sendSuccess(res, true);
   } catch (e) { sendError(res, e); }
 });
