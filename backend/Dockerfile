@@ -1,9 +1,9 @@
-FROM node:22-alpine
+FROM node:22-slim
 
 WORKDIR /app
 
 # Install openssl required for Prisma engine
-RUN apk add --no-cache openssl
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 # Copy root package.json and workspace package.jsons
 COPY package.json package-lock.json ./
 COPY shared/package.json shared/
