@@ -26,8 +26,8 @@ const limiter = rateLimit({
 app.set('trust proxy', 1); // Trust Render load balancer to get real IPs
 app.use(cors());
 app.use(limiter);
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Debug Request Logger
 app.use((req, res, next) => {
@@ -37,7 +37,7 @@ app.use((req, res, next) => {
 
 // Health Check Route
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'healthy', version: 'v20-api-fix', timestamp: new Date().toISOString() });
+  res.status(200).json({ status: 'healthy', version: 'v21-payload-limit-fix', timestamp: new Date().toISOString() });
 });
 
 import net from 'net';
