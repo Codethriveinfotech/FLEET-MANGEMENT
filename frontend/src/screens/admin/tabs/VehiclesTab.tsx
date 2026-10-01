@@ -338,12 +338,7 @@ export default function VehiclesTab() {
               const isBreakdownStatus = vStatus.includes('break');
               const isMaintenanceStatus = vStatus.includes('main') && !isBreakdownStatus;
 
-              if (vStatus === 'running' || hasActiveTrip) {
-                statusBg = '#EFF6FF';
-                statusTextColor = '#1D4ED8';
-                statusText = 'Running';
-                statusDotColor = '#2563EB';
-              } else if (isBreakdownStatus) {
+              if (isBreakdownStatus) {
                 statusBg = '#FEF2F2';
                 statusTextColor = '#DC2626';
                 statusText = 'Breakdown';
@@ -353,6 +348,11 @@ export default function VehiclesTab() {
                 statusTextColor = '#E65100';
                 statusText = 'In Maintenance';
                 statusDotColor = '#EA580C';
+              } else if (vStatus === 'running' || hasActiveTrip) {
+                statusBg = '#EFF6FF';
+                statusTextColor = '#1D4ED8';
+                statusText = 'Running';
+                statusDotColor = '#2563EB';
               } else if (vStatus.includes('inact')) {
                 statusBg = '#ECEFF1';
                 statusTextColor = '#455A64';
