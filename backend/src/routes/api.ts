@@ -516,7 +516,7 @@ router.post('/maintenance', async (req, res) => {
 router.put('/maintenance/:id', async (req, res) => {
   try {
     const b = req.body;
-    await prisma.$executeRawUnsafe(
+    const updatedCount = await prisma.$executeRawUnsafe(
       `UPDATE maintenance SET maintenance_type = $1, description = $2, date = $3, time = $4,
         cost = $5, service_notes = $6, bill_image_uri = $7, status = $8,
         oil_change_done = $9, tyre_status_ok = $10, battery_status_ok = $11, is_breakdown_report = $12
@@ -526,6 +526,9 @@ router.put('/maintenance/:id', async (req, res) => {
       b.oilChangeDone || false, b.tyreStatusOk || false, b.batteryStatusOk || false, b.isBreakdownReport || false,
       req.params.id
     );
+    if (updatedCount === 0) {
+      return res.status(404).json({ success: false, message: 'Maintenance record not found' });
+    }
     sendSuccess(res, true);
   } catch (e) { sendError(res, e); }
 });
