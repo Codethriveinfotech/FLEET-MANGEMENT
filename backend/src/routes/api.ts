@@ -86,8 +86,15 @@ router.get('/vehicles', async (req, res) => {
 
 router.post('/vehicles', async (req, res) => {
   try {
-    const vehicle = await prisma.vehicle.create({ data: req.body });
-    sendSuccess(res, vehicle);
+    const v = req.body;
+    const newId = v.id || require('crypto').randomUUID();
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO vehicles (id, "plateNumber", make, model, year, status, "fuelType", "currentMileage", "createdAt", "updatedAt", number, type, registration_number, mileage, insurance_status, place, fuel_type, image_uri)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW(), $9, $10, $11, $12, $13, $14, $15, $16)`,
+      newId, v.plateNumber || v.number || '', v.make || v.type || '', v.model || '', parseInt(v.year) || 2020, 'ACTIVE', 'DIESEL', 0,
+      v.number || v.registrationNumber || '', v.type || 'Vehicle', v.registrationNumber || v.number || '', v.mileage || '0', 'Valid', v.place || 'HQ', v.fuelType || 'Diesel', v.imageUri || null
+    );
+    sendSuccess(res, { id: newId });
   } catch (e) { sendError(res, e); }
 });
 
@@ -379,49 +386,7 @@ router.delete('/trips/:id', async (req, res) => {
   } catch (e) { sendError(res, e); }
 });
 
-// ================= MAINTENANCE =================
-router.get('/maintenance', async (req, res) => {
-  try {
-    const records = await prisma.maintenanceLog.findMany();
-    sendSuccess(res, records);
-  } catch (e) { sendError(res, e); }
-});
 
-router.get('/maintenance/my', async (req, res) => {
-  try {
-    const records = await prisma.maintenanceLog.findMany();
-    sendSuccess(res, records);
-  } catch (e) { sendError(res, e); }
-});
-
-router.post('/maintenance', async (req, res) => {
-  try {
-    const record = await prisma.maintenanceLog.create({ data: req.body });
-    sendSuccess(res, record);
-  } catch (e) { sendError(res, e); }
-});
-
-router.put('/maintenance/:id', async (req, res) => {
-  try {
-    const record = await prisma.maintenanceLog.update({ where: { id: req.params.id }, data: req.body });
-    sendSuccess(res, true);
-  } catch (e) { sendError(res, e); }
-});
-
-// ================= FUEL =================
-router.get('/fuel', async (req, res) => {
-  try {
-    const records = await prisma.fuelLog.findMany();
-    sendSuccess(res, records);
-  } catch (e) { sendError(res, e); }
-});
-
-router.post('/fuel', async (req, res) => {
-  try {
-    const record = await prisma.fuelLog.create({ data: req.body });
-    sendSuccess(res, record);
-  } catch (e) { sendError(res, e); }
-});
 
 // ================= NOTIFICATIONS =================
 router.get('/v1/notifications', async (req, res) => {
@@ -565,4 +530,40 @@ router.put('/maintenance/:id', async (req, res) => {
   } catch (e) { sendError(res, e); }
 });
 
+// ================= FUEL =================
+router.get('/fuel', async (req, res) => {
+  try {
+    const rows: any[] = await prisma.$queryRawUnsafe(`SELECT * FROM fuel_logs ORDER BY date DESC`);
+    const records = rows.map((r: any) => ({
+      id: r.id,
+      vehicleId: r.vehicle_id,
+      driverId: r.driver_id,
+      date: r.date,
+      gallonsOrLiters: r.gallonsOrLiters || 0,
+      cost: r.cost,
+      odometerReading: r.odometerReading || 0,
+      receiptUrl: r.receiptUrl || null,
+      time: r.time,
+      liters: r.liters || '',
+      odometer_reading: r.odometer_reading || ''
+    }));
+    sendSuccess(res, records);
+  } catch (e) { sendError(res, e); }
+});
+
+router.post('/fuel', async (req, res) => {
+  try {
+    const b = req.body;
+    const newId = b.id || require('crypto').randomUUID();
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO fuel_logs (id, "vehicleId", "driverId", date, "gallonsOrLiters", cost, "odometerReading", "receiptUrl", "createdAt", time, liters, vehicle_id, driver_id, odometer_reading)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), $9, $10, $11, $12, $13)`,
+      newId, b.vehicleId, b.driverId, b.date || '', parseFloat(b.gallonsOrLiters) || 0, b.cost || '', parseFloat(b.odometerReading) || 0, b.receiptUrl || null,
+      b.time || '', b.liters || '', b.vehicleId, b.driverId, String(b.odometerReading || '')
+    );
+    sendSuccess(res, { id: newId });
+  } catch (e) { sendError(res, e); }
+});
+
 export default router;
+
