@@ -221,9 +221,89 @@ router.get('/trips/:id', async (req, res) => {
   } catch (e) { sendError(res, e); }
 });
 
+router.post('/trips', async (req, res) => {
+  try {
+    const b = req.body;
+    // Insert into the trips table (the one the Android app uses)
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO trips (id, driver_id, vehicle_id, start_date, start_time, start_odometer,
+        start_odometer_photo_uri, start_vehicle_photo_uri, start_vehicle_plate_photo_uri,
+        day, shift, start_hmr, end_date, end_time, end_odometer,
+        end_odometer_photo_uri, end_vehicle_photo_uri, end_vehicle_plate_photo_uri,
+        sheet_photo_uri, end_hmr, source_location, destination_location,
+        fuel_level, trip_purpose, notes, status, is_breakdown)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27)
+       ON CONFLICT (id) DO UPDATE SET
+         status = EXCLUDED.status, end_date = EXCLUDED.end_date, end_time = EXCLUDED.end_time,
+         end_odometer = EXCLUDED.end_odometer, end_odometer_photo_uri = EXCLUDED.end_odometer_photo_uri,
+         end_vehicle_photo_uri = EXCLUDED.end_vehicle_photo_uri, end_vehicle_plate_photo_uri = EXCLUDED.end_vehicle_plate_photo_uri,
+         sheet_photo_uri = EXCLUDED.sheet_photo_uri, end_hmr = EXCLUDED.end_hmr,
+         source_location = EXCLUDED.source_location, destination_location = EXCLUDED.destination_location,
+         fuel_level = EXCLUDED.fuel_level, notes = EXCLUDED.notes, is_breakdown = EXCLUDED.is_breakdown`,
+      b.id, b.driverId, b.vehicleId, b.startDate, b.startTime, b.startOdometer,
+      b.startOdometerPhotoUri || null, b.startVehiclePhotoUri || null, b.startVehiclePlatePhotoUri || null,
+      b.day || '', b.shift || '', b.startHmr || '',
+      b.endDate || '', b.endTime || '', b.endOdometer || '',
+      b.endOdometerPhotoUri || null, b.endVehiclePhotoUri || null, b.endVehiclePlatePhotoUri || null,
+      b.sheetPhotoUri || null, b.endHmr || '',
+      b.sourceLocation || '', b.destinationLocation || '',
+      b.fuelLevel || '', b.tripPurpose || '', b.notes || '', b.status || 'draft',
+      b.isBreakdown || false
+    );
+
+    // Update vehicle status based on trip status (matching old Kotlin backend logic)
+    if (b.vehicleId) {
+      let newStatus: string | null = null;
+      if (b.isBreakdown) newStatus = 'Breakdown';
+      else if (b.status === 'started') newStatus = 'Running';
+      else if (b.status === 'submitted') newStatus = 'Active';
+
+      if (newStatus) {
+        await prisma.$executeRawUnsafe(`UPDATE vehicles SET status = $1 WHERE id = $2`, newStatus, b.vehicleId);
+      }
+      if (b.status === 'submitted' && b.endOdometer) {
+        await prisma.$executeRawUnsafe(`UPDATE vehicles SET mileage = $1 WHERE id = $2`, b.endOdometer, b.vehicleId);
+      }
+    }
+
+    sendSuccess(res, b);
+  } catch (e) { sendError(res, e); }
+});
+
 router.put('/trips/:id', async (req, res) => {
   try {
-    await prisma.$executeRawUnsafe(`UPDATE trips SET status = $1 WHERE id = $2`, req.body.status || 'submitted', req.params.id);
+    const b = req.body;
+    // Full update of all trip fields
+    await prisma.$executeRawUnsafe(
+      `UPDATE trips SET status = $1, end_date = $2, end_time = $3, end_odometer = $4,
+        end_odometer_photo_uri = $5, end_vehicle_photo_uri = $6, end_vehicle_plate_photo_uri = $7,
+        sheet_photo_uri = $8, end_hmr = $9, source_location = $10, destination_location = $11,
+        fuel_level = $12, notes = $13, is_breakdown = $14
+       WHERE id = $15`,
+      b.status || 'submitted',
+      b.endDate || '', b.endTime || '', b.endOdometer || '',
+      b.endOdometerPhotoUri || null, b.endVehiclePhotoUri || null, b.endVehiclePlatePhotoUri || null,
+      b.sheetPhotoUri || null, b.endHmr || '',
+      b.sourceLocation || '', b.destinationLocation || '',
+      b.fuelLevel || '', b.notes || '', b.isBreakdown || false,
+      req.params.id
+    );
+
+    // Update vehicle status (matching old Kotlin backend logic)
+    if (b.vehicleId) {
+      let newStatus: string | null = null;
+      if (b.isBreakdown) newStatus = 'Breakdown';
+      else if (b.status === 'started') newStatus = 'Running';
+      else if (b.status === 'submitted') newStatus = 'Active';
+
+      if (newStatus) {
+        await prisma.$executeRawUnsafe(`UPDATE vehicles SET status = $1 WHERE id = $2`, newStatus, b.vehicleId);
+      }
+      if (b.status === 'submitted' && b.endOdometer) {
+        await prisma.$executeRawUnsafe(`UPDATE vehicles SET mileage = $1 WHERE id = $2`, b.endOdometer, b.vehicleId);
+      }
+    }
+
     sendSuccess(res, true);
   } catch (e) { sendError(res, e); }
 });
