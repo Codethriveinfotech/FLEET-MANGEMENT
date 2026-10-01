@@ -156,8 +156,8 @@ export default function ReportsTab() {
           t.sourceLocation || '',
           t.destinationLocation || '',
           t.startOdometer || '0',
-          t.endOdometer || (t.status === 'started' ? 'Active' : '0'),
-          t.endOdometer ? dist.toString() : 'Active',
+          t.endOdometer || '0',
+          t.endOdometer ? dist.toString() : '0',
           t.startHmr || '0',
           t.endHmr || (t.status === 'started' ? 'Active' : '0'),
           t.endHmr ? hmr.toFixed(1) : 'Active',
@@ -753,8 +753,8 @@ export default function ReportsTab() {
                       <Text style={{ flex: 1.2, fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#1E293B' }} numberOfLines={1}>{d}</Text>
                       <Text style={{ flex: 1.1, fontFamily: fontStyle, fontSize: 13, color: '#334155' }} numberOfLines={1}>{v}</Text>
                       <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155', paddingRight: 6 }}>{t.startOdometer || '0'}</Text>
-                      <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155', paddingRight: 6 }}>{t.endOdometer || 'Active'}</Text>
-                      <Text style={{ flex: 0.9, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#1E293B', paddingRight: 6 }}>{t.endOdometer ? `${distVal} km` : 'Active'}</Text>
+                      <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155', paddingRight: 6 }}>{t.endOdometer || '0'}</Text>
+                      <Text style={{ flex: 0.9, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#1E293B', paddingRight: 6 }}>{t.endOdometer ? `${distVal} km` : '0 km'}</Text>
                       <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155', paddingRight: 6 }}>{t.startHmr || '0'}</Text>
                       <Text style={{ flex: 0.9, textAlign: 'right', fontFamily: fontStyle, fontSize: 13, color: '#334155', paddingRight: 6 }}>{t.endHmr || 'Active'}</Text>
                       <Text style={{ flex: 1.0, textAlign: 'right', fontWeight: '700', fontFamily: fontStyle, fontSize: 13, color: '#0284C7', paddingRight: 6 }}>{t.endHmr ? `${hmrWorkedVal.toFixed(1)} hrs` : 'Active'}</Text>

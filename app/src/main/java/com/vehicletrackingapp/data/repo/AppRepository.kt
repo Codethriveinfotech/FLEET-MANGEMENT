@@ -383,8 +383,11 @@ object AppRepository {
     }
     
     suspend fun upsertTrip(trip: TripEntry): Boolean { 
-        return try { 
+        return try {
+            // 1. Save to local DB instantly — this is what the user waits for
             dao.upsertTrip(trip)
+
+            // 2. Update vehicle mileage locally (fast, in-memory DB)
             val vehicleId = trip.vehicleId
             if (trip.status == "submitted" && vehicleId != null && trip.endOdometer.isNotBlank()) {
                 try {
@@ -395,22 +398,25 @@ object AppRepository {
                     Log.e("AppRepository", "Failed to update local vehicle mileage", e)
                 }
             }
-            if (trip.status == "started") {
+
+            // 3. Fire-and-forget: push to server in background WITHOUT blocking the caller
+            CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    api.createTrip(trip)
-                } catch (e: Exception) {
-                    Log.e("AppRepository", "Failed to sync started trip online", e)
-                }
-            } else if (trip.status == "submitted") {
-                try {
-                    val response = api.updateTrip(trip.id, trip)
-                    if (!response.isSuccessful) {
+                    if (trip.status == "started") {
                         api.createTrip(trip)
+                    } else if (trip.status == "submitted") {
+                        val response = api.updateTrip(trip.id, trip)
+                        if (!response.isSuccessful) {
+                            api.createTrip(trip)
+                        }
                     }
                 } catch (e: Exception) {
-                    Log.e("AppRepository", "Failed to sync submitted trip online", e)
+                    // Background sync failed — syncPendingData() will retry on next launch
+                    Log.e("AppRepository", "Background sync failed for trip ${trip.id}, will retry later", e)
                 }
             }
+
+            // Return true immediately after local save — no waiting for network
             true
         } catch (e: Exception) {
             Log.e("AppRepository", "Database error in upsertTrip", e)

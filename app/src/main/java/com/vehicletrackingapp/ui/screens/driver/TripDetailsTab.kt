@@ -74,6 +74,8 @@ fun TripDetailsTab(driverId: String) {
     
     var error by remember { mutableStateOf<String?>(null) }
     var submitted by remember { mutableStateOf(false) }
+    var isSubmitting by remember { mutableStateOf(false) }
+    var showSubmitSuccess by remember { mutableStateOf(false) }
     var vehicleMenuExpanded by remember { mutableStateOf(false) }
     var selectedPlace by remember { mutableStateOf<String?>(null) }
     var placeMenuExpanded by remember { mutableStateOf(false) }
@@ -236,6 +238,93 @@ fun TripDetailsTab(driverId: String) {
         }
     }
 
+    // ── Loading Dialog (shown while submitting) ─────────────────────────
+    if (isSubmitting) {
+        AlertDialog(
+            onDismissRequest = {},
+            confirmButton = {},
+            title = null,
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator(
+                        color = BrandYellow,
+                        strokeWidth = 4.dp,
+                        modifier = Modifier.size(52.dp)
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Text(
+                        "SUBMITTING TRIP...",
+                        fontWeight = FontWeight.Black,
+                        fontSize = 14.sp,
+                        color = BrandDark,
+                        letterSpacing = 1.sp
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        "Saving and syncing to server.",
+                        fontSize = 12.sp,
+                        color = TextHint
+                    )
+                }
+            },
+            containerColor = Color.White,
+            shape = RoundedCornerShape(24.dp)
+        )
+    }
+
+    // ── Success Dialog (shown after trip is saved) ─────────────────────
+    if (showSubmitSuccess) {
+        AlertDialog(
+            onDismissRequest = { showSubmitSuccess = false },
+            confirmButton = {
+                Button(
+                    onClick = { showSubmitSuccess = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = SuccessEmerald),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("OK", fontWeight = FontWeight.Black, color = Color.White, letterSpacing = 2.sp)
+                }
+            },
+            icon = {
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .background(SuccessEmerald.copy(alpha = 0.12f), androidx.compose.foundation.shape.CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.CheckCircle,
+                        contentDescription = null,
+                        tint = SuccessEmerald,
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
+            },
+            title = {
+                Text(
+                    "TRIP SUBMITTED!",
+                    fontWeight = FontWeight.Black,
+                    fontSize = 16.sp,
+                    color = BrandDark,
+                    letterSpacing = 1.sp
+                )
+            },
+            text = {
+                Text(
+                    "Your trip has been saved and synced successfully. The form will reset for a new trip.",
+                    fontSize = 13.sp,
+                    color = TextHint
+                )
+            },
+            containerColor = Color.White,
+            shape = RoundedCornerShape(28.dp)
+        )
+    }
+
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         SectionTitle(stringResource(R.string.trip_registration).uppercase())
         AttractiveHorizontalDivider()
@@ -343,17 +432,17 @@ fun TripDetailsTab(driverId: String) {
                                             selectedVehicleId = vehicle.id
                                             vehicleMenuExpanded = false
                                             
-                                            // Prefill from last trip or vehicle mileage
+                                            // Prefill from last trip or default to 0
                                             scope.launch {
                                                 val last = AppRepository.getLastTripForVehicle(vehicle.id)
-                                                if (last != null) {
-                                                    startOdo = if (last.endOdometer.isNotBlank()) last.endOdometer else vehicle.mileage.ifBlank { "0" }
+                                                if (last != null && last.endOdometer.isNotBlank()) {
+                                                    startOdo = last.endOdometer
                                                     startHmr = if (last.endHmr.isNotBlank()) last.endHmr else "0"
                                                 } else {
-                                                    startOdo = vehicle.mileage.ifBlank { "0" }
+                                                    startOdo = "0"
                                                     startHmr = "0"
                                                 }
-                                                isOdoFetched = startOdo.isNotBlank()
+                                                isOdoFetched = true
                                                 persistDraft()
                                             }
                                         }
@@ -660,7 +749,7 @@ fun TripDetailsTab(driverId: String) {
                     Spacer(modifier = Modifier.height(16.dp))
                     EliteTextField(value = purpose, onValueChange = { purpose = it; persistDraft() }, label = stringResource(R.string.trip_purpose), leadingIcon = Icons.Default.Work, enabled = !isLocked)
                     Spacer(modifier = Modifier.height(16.dp))
-                    EliteTextField(value = notes, onValueChange = { notes = it; persistDraft() }, label = stringResource(R.string.mission_notes), leadingIcon = Icons.AutoMirrored.Filled.Notes, enabled = !isLocked)
+                    EliteTextField(value = notes, onValueChange = { notes = it; persistDraft() }, label = "FUEL FILLING HMR", leadingIcon = Icons.Default.Timer, keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, enabled = !isLocked)
                     Spacer(modifier = Modifier.height(20.dp))
                     CameraOnlyPicker(label = "SHEET *", imageUri = sheetUri, onImageSelected = { if (!isLocked) { sheetUri = it; persistDraft() } }, enabled = !isLocked)
                 }
@@ -761,7 +850,10 @@ fun TripDetailsTab(driverId: String) {
             } else {
                 StaggeredItem(visible, 4) {
                     Column {
-                        GradientButton(text = stringResource(R.string.validate_submit).uppercase()) {
+                        GradientButton(
+                            text = if (isSubmitting) "SUBMITTING..." else stringResource(R.string.validate_submit).uppercase(),
+                            enabled = !isSubmitting
+                        ) {
                             val sOdo = startOdo.toDoubleOrNull() ?: 0.0
                             val eOdo = endOdo.toDoubleOrNull() ?: 0.0
                             val sH = startHmr.toDoubleOrNull()
@@ -802,6 +894,8 @@ fun TripDetailsTab(driverId: String) {
 
                             // All validations passed - submit trip:
                             scope.launch {
+                                isSubmitting = true
+                                error = null
                                 val trip = TripEntry(
                                     id = tripId, driverId = driverId, vehicleId = selectedVehicleId,
                                     day = dayOfWeek, shift = shiftType, startHmr = startHmr, endHmr = endHmr,
@@ -812,6 +906,7 @@ fun TripDetailsTab(driverId: String) {
                                     sheetPhotoUri = sheetUri?.toString(), fuelLevel = fuel, tripPurpose = purpose, notes = notes, status = "submitted"
                                 )
                                 val success = AppRepository.upsertTrip(trip)
+                                isSubmitting = false
                                 if (success) {
                                     // Set vehicle status back to Active
                                     selectedVehicleId?.let { vId ->
@@ -820,11 +915,11 @@ fun TripDetailsTab(driverId: String) {
                                         }
                                     }
                                     submitted = true
-                                    error = null
                                     tripStatus = "submitted"
-                                    
-                                    // Auto-reset after short delay to show success state
-                                    delay(2000)
+                                    showSubmitSuccess = true
+                                    // Auto-reset after showing success popup
+                                    delay(3000)
+                                    showSubmitSuccess = false
                                     reInitializeForm()
                                 } else {
                                     error = "DATABASE ERROR: Failed to save trip locally."
