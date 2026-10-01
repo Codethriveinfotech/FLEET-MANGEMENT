@@ -15,15 +15,16 @@ const app = express();
 // Rate limiter for safety
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 500, // limit each IP to 500 requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
   message: 'Too many requests from this IP, please try again later.',
 });
 
 // Configure Middlewares
-app.use(limiter);
+app.set('trust proxy', 1); // Trust Render load balancer to get real IPs
 app.use(cors());
+app.use(limiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -38,9 +39,12 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
+import apiRoutes from './routes/api';
+
 // API Routes
-app.use('/api/v1/auth', authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
+app.use('/api', apiRoutes);
 
 // Global Error Handler
 app.use(errorMiddleware);
