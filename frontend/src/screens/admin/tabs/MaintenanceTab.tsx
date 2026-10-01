@@ -36,7 +36,7 @@ export default function MaintenanceTab() {
 
   // Card stats — always reflect the filtered set
   const totalCost = filtered.reduce((acc, m) => acc + (parseFloat(m.cost) || 0), 0);
-  const breakdowns = filtered.filter((m) => m.maintenanceType === 'Breakdown Report' || m.maintenanceType === 'Breakdown Resolution').length;
+  const breakdowns = filtered.filter((m) => m.isBreakdownReport || m.maintenanceType === 'Breakdown Report' || m.maintenanceType === 'Breakdown' || m.maintenanceType === 'Breakdown Resolution').length;
   const oilChanges = filtered.filter((m) => m.oilChangeDone).length;
 
   return (
@@ -280,7 +280,7 @@ export default function MaintenanceTab() {
               const vehicleNo = vehicles.find((v) => v.id === m.vehicleId)?.number || 'Unknown';
               const driverName = drivers.find((d) => d.id === m.driverId)?.name || 'Unknown';
               const initials = driverName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
-              const isBreakdown = m.maintenanceType === 'Breakdown Report' || m.maintenanceType === 'Breakdown Resolution';
+              const isBreakdown = m.isBreakdownReport || m.maintenanceType === 'Breakdown Report' || m.maintenanceType === 'Breakdown' || m.maintenanceType === 'Breakdown Resolution';
 
               return (
                 <TouchableOpacity

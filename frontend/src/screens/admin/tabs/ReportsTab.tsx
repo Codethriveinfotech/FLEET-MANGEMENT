@@ -405,7 +405,7 @@ export default function ReportsTab() {
       ]);
     } else if (selectedReportType === 'Breakdown Report') {
       headers = ['S.No', 'Vehicle No', 'Breakdown Date', 'Breakdown Time', 'Active Time', 'Issue / Remarks'];
-      const breakdowns = filteredMaint.filter(m => m.isBreakdownReport || m.maintenanceType === 'Breakdown Resolution');
+      const breakdowns = filteredMaint.filter(m => m.isBreakdownReport || m.maintenanceType === 'Breakdown Report' || m.maintenanceType === 'Breakdown' || m.maintenanceType === 'Breakdown Resolution');
       rows = breakdowns.map((m, idx) => {
         const v = vehicles.find(veh => veh.id === m.vehicleId)?.number || 'Unknown';
         
@@ -966,7 +966,7 @@ export default function ReportsTab() {
                   <Text style={{ flex: 1.2, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>ACTIVE TIME</Text>
                   <Text style={{ flex: 2.5, fontFamily: fontStyle, fontSize: 13, fontWeight: '800', color: '#475569' }}>REMARKS / ISSUE</Text>
                 </View>
-                {filteredMaint.filter(m => m.maintenanceType === 'Breakdown Report' || m.maintenanceType === 'Breakdown Resolution').map((m, idx) => {
+                {filteredMaint.filter(m => m.isBreakdownReport || m.maintenanceType === 'Breakdown Report' || m.maintenanceType === 'Breakdown' || m.maintenanceType === 'Breakdown Resolution').map((m, idx) => {
                   const v = vehicles.find(veh => veh.id === m.vehicleId)?.number || 'Unknown';
                   
                   let bdTime = m.time || '—';
