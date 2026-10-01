@@ -265,7 +265,7 @@ router.post('/trips', async (req, res) => {
     const old = oldRows.length ? oldRows[0] : {};
 
     const getImg = (newImg: any, oldImg: any) => {
-      if (typeof newImg === 'string' && newImg.startsWith('http')) return oldImg || null;
+      if (typeof newImg === 'string' && (newImg.startsWith('http') || newImg === 'has_image')) return oldImg || null;
       return newImg || oldImg || null;
     };
 
@@ -328,7 +328,7 @@ router.put('/trips/:id', async (req, res) => {
     const old = oldRows[0];
 
     const getImg = (newImg: any, oldImg: any) => {
-      if (typeof newImg === 'string' && newImg.startsWith('http')) return oldImg || null;
+      if (typeof newImg === 'string' && (newImg.startsWith('http') || newImg === 'has_image')) return oldImg || null;
       return newImg || oldImg || null;
     };
 
