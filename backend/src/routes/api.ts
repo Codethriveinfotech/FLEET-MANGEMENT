@@ -100,8 +100,33 @@ router.post('/vehicles', async (req, res) => {
 
 router.put('/vehicles/:id', async (req, res) => {
   try {
-    const vehicle = await prisma.vehicle.update({ where: { id: req.params.id }, data: req.body });
-    sendSuccess(res, vehicle);
+    const b = req.body;
+    const oldRows: any[] = await prisma.$queryRawUnsafe(`SELECT * FROM vehicles WHERE id = $1`, req.params.id);
+    if (!oldRows.length) return res.status(404).json({ success: false, message: 'Vehicle not found' });
+    const old = oldRows[0];
+
+    await prisma.$executeRawUnsafe(
+      `UPDATE vehicles SET
+         "plateNumber" = $1, make = $2, model = $3, year = $4, status = $5,
+         number = $6, type = $7, registration_number = $8, mileage = $9, place = $10,
+         fuel_type = $11, image_uri = $12, assigned_driver_id = $13, "updatedAt" = NOW()
+       WHERE id = $14`,
+      b.plateNumber !== undefined ? b.plateNumber : old.plateNumber,
+      b.make !== undefined ? b.make : old.make,
+      b.model !== undefined ? b.model : old.model,
+      b.year !== undefined ? parseInt(b.year) : old.year,
+      b.status !== undefined ? b.status : old.status,
+      b.number !== undefined ? b.number : old.number,
+      b.type !== undefined ? b.type : old.type,
+      b.registrationNumber !== undefined ? b.registrationNumber : old.registration_number,
+      b.mileage !== undefined ? b.mileage : old.mileage,
+      b.place !== undefined ? b.place : old.place,
+      b.fuelType !== undefined ? b.fuelType : old.fuel_type,
+      b.imageUri !== undefined ? b.imageUri : old.image_uri,
+      b.assignedDriverId !== undefined ? b.assignedDriverId : old.assigned_driver_id,
+      req.params.id
+    );
+    sendSuccess(res, { id: req.params.id, status: b.status !== undefined ? b.status : old.status });
   } catch (e) { sendError(res, e); }
 });
 
