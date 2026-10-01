@@ -26,6 +26,32 @@ const mapUser = (u: any) => ({
   phone: u.phoneNumber || '',
 });
 
+const toDateStr = (iso: string | null | undefined): string => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+};
+
+const toTimeStr = (iso: string | null | undefined): string => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false });
+};
+
+const mapTrip = (t: any) => ({
+  ...t,
+  startDate: toDateStr(t.startTime),
+  startTime: toTimeStr(t.startTime),
+  endDate: t.endTime ? toDateStr(t.endTime) : null,
+  endTime: t.endTime ? toTimeStr(t.endTime) : null,
+  startOdometer: t.startMileage != null ? String(t.startMileage) : '',
+  endOdometer: t.endMileage != null ? String(t.endMileage) : null,
+  status: t.status === 'COMPLETED' ? 'submitted' : t.status === 'ACTIVE' ? 'started' : t.status,
+});
+
 // ================= VEHICLES =================
 router.get('/vehicles', async (req, res) => {
   try {
@@ -80,17 +106,23 @@ router.delete('/users/:id', async (req, res) => {
 // ================= TRIPS =================
 router.get('/trips', async (req, res) => {
   try {
-    // In Android: endVehiclePhotoUri etc are mapped to schema. Wait, if schema has them.
-    // Let's assume Prisma handles it.
-    const trips = await prisma.driverLog.findMany();
-    sendSuccess(res, trips);
+    const trips = await prisma.driverLog.findMany({ orderBy: { startTime: 'desc' } });
+    sendSuccess(res, trips.map(mapTrip));
   } catch (e) { sendError(res, e); }
 });
 
 router.get('/trips/my', async (req, res) => {
   try {
-    const trips = await prisma.driverLog.findMany();
-    sendSuccess(res, trips);
+    const trips = await prisma.driverLog.findMany({ orderBy: { startTime: 'desc' } });
+    sendSuccess(res, trips.map(mapTrip));
+  } catch (e) { sendError(res, e); }
+});
+
+router.get('/trips/:id', async (req, res) => {
+  try {
+    const trip = await prisma.driverLog.findUnique({ where: { id: req.params.id } });
+    if (!trip) return res.status(404).json({ success: false, message: 'Trip not found' });
+    sendSuccess(res, mapTrip(trip));
   } catch (e) { sendError(res, e); }
 });
 
