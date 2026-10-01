@@ -283,7 +283,7 @@ router.put('/trips/:id', async (req, res) => {
   try {
     const b = req.body;
     // Full update of all trip fields
-    await prisma.$executeRawUnsafe(
+    const updatedCount = await prisma.$executeRawUnsafe(
       `UPDATE trips SET status = $1, end_date = $2, end_time = $3, end_odometer = $4,
         end_odometer_photo_uri = $5, end_vehicle_photo_uri = $6, end_vehicle_plate_photo_uri = $7,
         sheet_photo_uri = $8, end_hmr = $9, source_location = $10, destination_location = $11,
@@ -297,6 +297,10 @@ router.put('/trips/:id', async (req, res) => {
       b.fuelLevel || '', b.notes || '', b.isBreakdown || false,
       req.params.id
     );
+
+    if (updatedCount === 0) {
+      return res.status(404).json({ success: false, message: 'Trip not found' });
+    }
 
     // Update vehicle status (matching old Kotlin backend logic)
     if (b.vehicleId) {
