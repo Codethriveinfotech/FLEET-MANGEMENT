@@ -1,8 +1,7 @@
 import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../config/db';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 // Helper to format responses
 const sendSuccess = (res: any, data: any, message = 'Success') => {
@@ -129,6 +128,29 @@ router.put('/maintenance/:id', async (req, res) => {
   try {
     const record = await prisma.maintenanceLog.update({ where: { id: req.params.id }, data: req.body });
     sendSuccess(res, true);
+  } catch (e) { sendError(res, e); }
+});
+
+// ================= FUEL =================
+router.get('/fuel', async (req, res) => {
+  try {
+    const records = await prisma.fuelLog.findMany();
+    sendSuccess(res, records);
+  } catch (e) { sendError(res, e); }
+});
+
+router.post('/fuel', async (req, res) => {
+  try {
+    const record = await prisma.fuelLog.create({ data: req.body });
+    sendSuccess(res, record);
+  } catch (e) { sendError(res, e); }
+});
+
+// ================= NOTIFICATIONS =================
+router.get('/v1/notifications', async (req, res) => {
+  try {
+    const notifications = await prisma.notification.findMany();
+    sendSuccess(res, notifications);
   } catch (e) { sendError(res, e); }
 });
 
