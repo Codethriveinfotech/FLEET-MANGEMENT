@@ -42,6 +42,12 @@ const toTimeStr = (iso: string | null | undefined): string => {
   return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
+const getImgUrl = (req: any, path: string) => {
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+  const host = req.headers['x-forwarded-host'] || req.get('host');
+  return `${protocol}://${host}/api${path}`;
+};
+
 const mapTrip = (t: any) => ({
   ...t,
   startDate: toDateStr(t.startTime),
@@ -122,6 +128,26 @@ router.delete('/users/:id', async (req, res) => {
 });
 
 // ================= TRIPS =================
+// Image rendering endpoints
+router.get('/trips/:id/image/:type', async (req, res) => {
+  try {
+    const { id, type } = req.params;
+    const allowedTypes = ['start_odometer', 'start_vehicle_plate', 'end_odometer', 'sheet'];
+    if (!allowedTypes.includes(type)) return res.status(400).send('Invalid image type');
+    
+    const rows: any[] = await prisma.$queryRawUnsafe(`SELECT ${type}_photo_uri as uri FROM trips WHERE id = $1`, id);
+    if (!rows.length || !rows[0].uri) return res.status(404).send('Image not found');
+    
+    const uri = rows[0].uri;
+    const base64Str = uri.includes('base64,') ? uri.split('base64,').pop() : uri;
+    const imgBuffer = Buffer.from(base64Str, 'base64');
+    
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+    res.send(imgBuffer);
+  } catch (e) { res.status(500).send('Error loading image'); }
+});
+
 // NOTE: Android app saves to "trips" table (not "driver_logs").
 // We read directly from it with raw SQL to avoid schema mismatch.
 router.get('/trips', async (req, res) => {
@@ -149,10 +175,10 @@ router.get('/trips', async (req, res) => {
       day: t.day || '',
       tripPurpose: t.trip_purpose || '',
       fuelLevel: t.fuel_level || '',
-      startOdometerPhotoUri: t.start_odometer_photo_uri ? 'has_image' : null,
-      startVehiclePlatePhotoUri: t.start_vehicle_plate_photo_uri ? 'has_image' : null,
-      endOdometerPhotoUri: t.end_odometer_photo_uri ? 'has_image' : null,
-      sheetPhotoUri: t.sheet_photo_uri ? 'has_image' : null,
+      startOdometerPhotoUri: t.start_odometer_photo_uri ? getImgUrl(req, `/trips/${t.id}/image/start_odometer`) : null,
+      startVehiclePlatePhotoUri: t.start_vehicle_plate_photo_uri ? getImgUrl(req, `/trips/${t.id}/image/start_vehicle_plate`) : null,
+      endOdometerPhotoUri: t.end_odometer_photo_uri ? getImgUrl(req, `/trips/${t.id}/image/end_odometer`) : null,
+      sheetPhotoUri: t.sheet_photo_uri ? getImgUrl(req, `/trips/${t.id}/image/sheet`) : null,
       isBreakdown: !!t.is_breakdown
     }));
     sendSuccess(res, trips);
@@ -188,10 +214,10 @@ router.get('/trips/my', requireAuth, async (req: any, res: any) => {
       day: t.day || '',
       tripPurpose: t.trip_purpose || '',
       fuelLevel: t.fuel_level || '',
-      startOdometerPhotoUri: t.start_odometer_photo_uri ? 'has_image' : null,
-      startVehiclePlatePhotoUri: t.start_vehicle_plate_photo_uri ? 'has_image' : null,
-      endOdometerPhotoUri: t.end_odometer_photo_uri ? 'has_image' : null,
-      sheetPhotoUri: t.sheet_photo_uri ? 'has_image' : null,
+      startOdometerPhotoUri: t.start_odometer_photo_uri ? getImgUrl(req, `/trips/${t.id}/image/start_odometer`) : null,
+      startVehiclePlatePhotoUri: t.start_vehicle_plate_photo_uri ? getImgUrl(req, `/trips/${t.id}/image/start_vehicle_plate`) : null,
+      endOdometerPhotoUri: t.end_odometer_photo_uri ? getImgUrl(req, `/trips/${t.id}/image/end_odometer`) : null,
+      sheetPhotoUri: t.sheet_photo_uri ? getImgUrl(req, `/trips/${t.id}/image/sheet`) : null,
       isBreakdown: !!t.is_breakdown
     }));
     sendSuccess(res, trips);
@@ -223,10 +249,10 @@ router.get('/trips/:id', async (req, res) => {
       day: t.day || '',
       tripPurpose: t.trip_purpose || '',
       fuelLevel: t.fuel_level || '',
-      startOdometerPhotoUri: t.start_odometer_photo_uri,
-      startVehiclePlatePhotoUri: t.start_vehicle_plate_photo_uri,
-      endOdometerPhotoUri: t.end_odometer_photo_uri,
-      sheetPhotoUri: t.sheet_photo_uri,
+      startOdometerPhotoUri: t.start_odometer_photo_uri ? getImgUrl(req, `/trips/${t.id}/image/start_odometer`) : null,
+      startVehiclePlatePhotoUri: t.start_vehicle_plate_photo_uri ? getImgUrl(req, `/trips/${t.id}/image/start_vehicle_plate`) : null,
+      endOdometerPhotoUri: t.end_odometer_photo_uri ? getImgUrl(req, `/trips/${t.id}/image/end_odometer`) : null,
+      sheetPhotoUri: t.sheet_photo_uri ? getImgUrl(req, `/trips/${t.id}/image/sheet`) : null,
       isBreakdown: !!t.is_breakdown
     });
   } catch (e) { sendError(res, e); }
@@ -384,6 +410,22 @@ router.get('/v1/notifications', async (req, res) => {
 });
 
 // ================= MAINTENANCE =================
+router.get('/maintenance/:id/image', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const rows: any[] = await prisma.$queryRawUnsafe(`SELECT bill_image_uri as uri FROM maintenance WHERE id = $1`, id);
+    if (!rows.length || !rows[0].uri) return res.status(404).send('Image not found');
+    
+    const uri = rows[0].uri;
+    const base64Str = uri.includes('base64,') ? uri.split('base64,').pop() : uri;
+    const imgBuffer = Buffer.from(base64Str, 'base64');
+    
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.send(imgBuffer);
+  } catch (e) { res.status(500).send('Error'); }
+});
+
 router.get('/maintenance', async (req, res) => {
   try {
     const rows: any[] = await prisma.$queryRawUnsafe(`SELECT * FROM maintenance ORDER BY date DESC, time DESC`);
@@ -398,7 +440,7 @@ router.get('/maintenance', async (req, res) => {
       time: r.time,
       cost: r.cost,
       serviceNotes: r.service_notes,
-      billImageUri: r.bill_image_uri ? 'has_image' : null,
+      billImageUri: r.bill_image_uri ? getImgUrl(req, `/maintenance/${r.id}/image`) : null,
       status: r.status,
       oilChangeDone: r.oil_change_done,
       tyreStatusOk: r.tyre_status_ok,
@@ -425,7 +467,7 @@ router.get('/maintenance/my', requireAuth, async (req: any, res: any) => {
       time: r.time,
       cost: r.cost,
       serviceNotes: r.service_notes,
-      billImageUri: r.bill_image_uri ? 'has_image' : null,
+      billImageUri: r.bill_image_uri ? getImgUrl(req, `/maintenance/${r.id}/image`) : null,
       status: r.status,
       oilChangeDone: r.oil_change_done,
       tyreStatusOk: r.tyre_status_ok,
@@ -452,7 +494,7 @@ router.get('/maintenance/:id', async (req, res) => {
       time: r.time,
       cost: r.cost,
       serviceNotes: r.service_notes,
-      billImageUri: r.bill_image_uri,
+      billImageUri: r.bill_image_uri ? getImgUrl(req, `/maintenance/${r.id}/image`) : null,
       status: r.status,
       oilChangeDone: r.oil_change_done,
       tyreStatusOk: r.tyre_status_ok,
