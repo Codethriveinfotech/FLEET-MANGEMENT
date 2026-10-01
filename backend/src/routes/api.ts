@@ -53,10 +53,27 @@ const mapTrip = (t: any) => ({
 });
 
 // ================= VEHICLES =================
+// Use raw SQL to get ALL columns including legacy ones (place, type, number, assigned_user_id)
 router.get('/vehicles', async (req, res) => {
   try {
-    const vehicles = await prisma.vehicle.findMany();
-    sendSuccess(res, vehicles.map(mapVehicle));
+    const rows: any[] = await prisma.$queryRawUnsafe(`SELECT * FROM vehicles`);
+    const vehicles = rows.map((v: any) => ({
+      id: v.id,
+      number: v.number || v.plateNumber || v.plate_number || '',
+      plateNumber: v.plate_number || v.plateNumber || v.number || '',
+      model: v.model || '',
+      make: v.make || '',
+      type: v.type || v.make || 'Vehicle',
+      status: v.status || 'Active',
+      fuelType: v.fuel_type || v.fuelType || 'Diesel',
+      mileage: v.mileage || v.currentMileage || '0',
+      insuranceStatus: v.insurance_status || v.insuranceStatus || 'Valid',
+      place: v.place || '',
+      assignedUserId: v.assigned_user_id || v.assignedUserId || null,
+      registrationNumber: v.registration_number || v.registrationNumber || '',
+      imageUri: v.image_uri || v.imageUri || null,
+    }));
+    sendSuccess(res, vehicles);
   } catch (e) { sendError(res, e); }
 });
 
