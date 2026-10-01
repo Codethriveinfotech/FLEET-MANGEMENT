@@ -37,7 +37,24 @@ app.use((req, res, next) => {
 
 // Health Check Route
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'healthy', version: 'v3-certs', timestamp: new Date().toISOString() });
+  res.status(200).json({ status: 'healthy', version: 'v4-nettest', timestamp: new Date().toISOString() });
+});
+
+import net from 'net';
+app.get('/test-db-network', (req, res) => {
+  const host = 'ep-frosty-butterfly-ax6itycw-pooler.c-4.us-east-2.aws.neon.tech';
+  const port = 5432;
+  const client = net.connect({ host, port, timeout: 5000 }, () => {
+    res.json({ success: true, message: `Successfully connected to ${host}:${port}` });
+    client.end();
+  });
+  client.on('error', (err) => {
+    res.status(500).json({ success: false, error: err.message, stack: err.stack });
+  });
+  client.on('timeout', () => {
+    res.status(500).json({ success: false, error: 'Connection timed out' });
+    client.destroy();
+  });
 });
 
 import apiRoutes from './routes/api';
