@@ -3,6 +3,36 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../config/db';
 
+export const register = async (req: Request, res: Response) => {
+  try {
+    const { email, password, name, role, phone } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Email and password are required' });
+    }
+    const existingUser = await prisma.user.findFirst({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: 'User already exists' });
+    }
+    const passwordHash = await bcrypt.hash(password, 10);
+    const names = (name || '').split(' ');
+    const firstName = names[0] || '';
+    const lastName = names.slice(1).join(' ') || '';
+
+    const newId = require('crypto').randomUUID();
+
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO users (id, email, "passwordHash", "firstName", "lastName", role, "phoneNumber", "isActive", "createdAt", "updatedAt", name, phone, password_hash, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, true, NOW(), NOW(), $8, $9, $10, NOW(), NOW())`,
+      newId, email, passwordHash, firstName, lastName, (role || 'DRIVER').toUpperCase(), phone || null,
+      name || '', phone || '', passwordHash
+    );
+    return res.status(201).json({ success: true, message: 'User registered successfully', data: { id: newId } });
+  } catch (error: any) {
+    console.error('Register error:', error);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
 export const login = async (req: Request, res: Response) => {
   try {
     const { identity, password } = req.body;
