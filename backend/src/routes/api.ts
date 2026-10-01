@@ -109,8 +109,8 @@ router.put('/vehicles/:id', async (req, res) => {
       `UPDATE vehicles SET
          "plateNumber" = $1, make = $2, model = $3, year = $4, status = $5,
          number = $6, type = $7, registration_number = $8, mileage = $9, place = $10,
-         fuel_type = $11, image_uri = $12, assigned_driver_id = $13, "updatedAt" = NOW()
-       WHERE id = $14`,
+         fuel_type = $11, image_uri = $12, "updatedAt" = NOW()
+       WHERE id = $13`,
       b.plateNumber !== undefined ? b.plateNumber : old.plateNumber,
       b.make !== undefined ? b.make : old.make,
       b.model !== undefined ? b.model : old.model,
@@ -123,7 +123,6 @@ router.put('/vehicles/:id', async (req, res) => {
       b.place !== undefined ? b.place : old.place,
       b.fuelType !== undefined ? b.fuelType : old.fuel_type,
       b.imageUri !== undefined ? b.imageUri : old.image_uri,
-      b.assignedDriverId !== undefined ? b.assignedDriverId : old.assigned_driver_id,
       req.params.id
     );
     sendSuccess(res, { id: req.params.id, status: b.status !== undefined ? b.status : old.status });
