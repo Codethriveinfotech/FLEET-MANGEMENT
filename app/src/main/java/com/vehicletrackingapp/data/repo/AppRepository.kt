@@ -180,26 +180,10 @@ object AppRepository {
             if (response.isSuccessful) {
                 val remoteData = response.body()?.data
                 if (remoteData != null) {
-                    val localVehicles = dao.getAllVehicles().firstOrNull() ?: emptyList()
-                    val localMap = localVehicles.associateBy { it.id }
-                    val toUpsert = mutableListOf<Vehicle>()
-
-                    remoteData.forEach { remoteVehicle ->
-                        val localVehicle = localMap[remoteVehicle.id]
-                        if (localVehicle != null && localVehicle.status != remoteVehicle.status) {
-                            try {
-                                api.updateVehicle(localVehicle.id, localVehicle)
-                                toUpsert.add(localVehicle)
-                            } catch (e: Exception) {
-                                toUpsert.add(localVehicle) // Keep local modified status to try next sync
-                            }
-                        } else {
-                            toUpsert.add(remoteVehicle)
-                        }
-                    }
-
+                    // Server is the source of truth for vehicle status.
+                    // Always accept the server's data.
                     dao.deleteAllVehicles()
-                    toUpsert.forEach { dao.upsertVehicle(it) }
+                    remoteData.forEach { dao.upsertVehicle(it) }
                 }
             }
         } catch (e: Exception) {
