@@ -372,4 +372,122 @@ router.get('/v1/notifications', async (req, res) => {
   } catch (e) { sendError(res, e); }
 });
 
+// ================= MAINTENANCE =================
+router.get('/maintenance', async (req, res) => {
+  try {
+    const rows: any[] = await prisma.$queryRawUnsafe(`SELECT * FROM maintenance ORDER BY date DESC, time DESC`);
+    const records = rows.map((r: any) => ({
+      id: r.id,
+      vehicleId: r.vehicle_id,
+      driverId: r.driver_id,
+      tripId: r.trip_id || null,
+      maintenanceType: r.maintenance_type,
+      description: r.description,
+      date: r.date,
+      time: r.time,
+      cost: r.cost,
+      serviceNotes: r.service_notes,
+      billImageUri: r.bill_image_uri ? 'has_image' : null,
+      status: r.status,
+      oilChangeDone: r.oil_change_done,
+      tyreStatusOk: r.tyre_status_ok,
+      batteryStatusOk: r.battery_status_ok,
+      isBreakdownReport: r.is_breakdown_report
+    }));
+    sendSuccess(res, records);
+  } catch (e) { sendError(res, e); }
+});
+
+router.get('/maintenance/my', requireAuth, async (req: any, res: any) => {
+  try {
+    const driverId = req.user?.id;
+    if (!driverId) return sendError(res, new Error("Not authenticated"));
+    const rows: any[] = await prisma.$queryRawUnsafe(`SELECT * FROM maintenance WHERE driver_id = $1 ORDER BY date DESC, time DESC`, driverId);
+    const records = rows.map((r: any) => ({
+      id: r.id,
+      vehicleId: r.vehicle_id,
+      driverId: r.driver_id,
+      tripId: r.trip_id || null,
+      maintenanceType: r.maintenance_type,
+      description: r.description,
+      date: r.date,
+      time: r.time,
+      cost: r.cost,
+      serviceNotes: r.service_notes,
+      billImageUri: r.bill_image_uri ? 'has_image' : null,
+      status: r.status,
+      oilChangeDone: r.oil_change_done,
+      tyreStatusOk: r.tyre_status_ok,
+      batteryStatusOk: r.battery_status_ok,
+      isBreakdownReport: r.is_breakdown_report
+    }));
+    sendSuccess(res, records);
+  } catch (e) { sendError(res, e); }
+});
+
+router.get('/maintenance/:id', async (req, res) => {
+  try {
+    const rows: any[] = await prisma.$queryRawUnsafe(`SELECT * FROM maintenance WHERE id = $1`, req.params.id);
+    if (!rows.length) return res.status(404).json({ success: false, message: 'Maintenance not found' });
+    const r = rows[0];
+    sendSuccess(res, {
+      id: r.id,
+      vehicleId: r.vehicle_id,
+      driverId: r.driver_id,
+      tripId: r.trip_id || null,
+      maintenanceType: r.maintenance_type,
+      description: r.description,
+      date: r.date,
+      time: r.time,
+      cost: r.cost,
+      serviceNotes: r.service_notes,
+      billImageUri: r.bill_image_uri,
+      status: r.status,
+      oilChangeDone: r.oil_change_done,
+      tyreStatusOk: r.tyre_status_ok,
+      batteryStatusOk: r.battery_status_ok,
+      isBreakdownReport: r.is_breakdown_report
+    });
+  } catch (e) { sendError(res, e); }
+});
+
+router.post('/maintenance', async (req, res) => {
+  try {
+    const b = req.body;
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO maintenance (id, vehicle_id, driver_id, trip_id, maintenance_type, description,
+        date, time, cost, service_notes, bill_image_uri, status, oil_change_done, tyre_status_ok, battery_status_ok, is_breakdown_report)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+       ON CONFLICT (id) DO UPDATE SET
+         maintenance_type = EXCLUDED.maintenance_type, description = EXCLUDED.description,
+         date = EXCLUDED.date, time = EXCLUDED.time, cost = EXCLUDED.cost,
+         service_notes = EXCLUDED.service_notes, bill_image_uri = EXCLUDED.bill_image_uri,
+         status = EXCLUDED.status, oil_change_done = EXCLUDED.oil_change_done,
+         tyre_status_ok = EXCLUDED.tyre_status_ok, battery_status_ok = EXCLUDED.battery_status_ok,
+         is_breakdown_report = EXCLUDED.is_breakdown_report`,
+      b.id, b.vehicleId, b.driverId, b.tripId || null, b.maintenanceType || '', b.description || '',
+      b.date || '', b.time || '', b.cost || '', b.serviceNotes || '', b.billImageUri || null, b.status || 'draft',
+      b.oilChangeDone || false, b.tyreStatusOk || false, b.batteryStatusOk || false, b.isBreakdownReport || false
+    );
+    sendSuccess(res, b);
+  } catch (e) { sendError(res, e); }
+});
+
+router.put('/maintenance/:id', async (req, res) => {
+  try {
+    const b = req.body;
+    await prisma.$executeRawUnsafe(
+      `UPDATE maintenance SET maintenance_type = $1, description = $2, date = $3, time = $4,
+        cost = $5, service_notes = $6, bill_image_uri = $7, status = $8,
+        oil_change_done = $9, tyre_status_ok = $10, battery_status_ok = $11, is_breakdown_report = $12
+       WHERE id = $13`,
+      b.maintenanceType || '', b.description || '', b.date || '', b.time || '',
+      b.cost || '', b.serviceNotes || '', b.billImageUri || null, b.status || 'draft',
+      b.oilChangeDone || false, b.tyreStatusOk || false, b.batteryStatusOk || false, b.isBreakdownReport || false,
+      req.params.id
+    );
+    sendSuccess(res, true);
+  } catch (e) { sendError(res, e); }
+});
+
 export default router;

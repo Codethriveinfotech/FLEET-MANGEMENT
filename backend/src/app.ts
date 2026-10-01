@@ -37,7 +37,7 @@ app.use((req, res, next) => {
 
 // Health Check Route
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'healthy', version: 'v17-trips-payload-fix', timestamp: new Date().toISOString() });
+  res.status(200).json({ status: 'healthy', version: 'v18-maintenance', timestamp: new Date().toISOString() });
 });
 
 import net from 'net';
