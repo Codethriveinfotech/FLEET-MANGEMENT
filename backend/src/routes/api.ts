@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import prisma from '../config/db';
+import { requireAuth, AuthenticatedRequest } from '../middlewares/auth';
 
 const router = Router();
 
@@ -147,19 +148,23 @@ router.get('/trips', async (req, res) => {
       shift: t.shift,
       day: t.day,
       tripPurpose: t.trip_purpose,
-      startOdometerPhotoUri: t.start_odometer_photo_uri,
-      startVehiclePlatePhotoUri: t.start_vehicle_plate_photo_uri,
-      endOdometerPhotoUri: t.end_odometer_photo_uri,
-      sheetPhotoUri: t.sheet_photo_uri,
+      startOdometerPhotoUri: t.start_odometer_photo_uri ? 'has_image' : null,
+      startVehiclePlatePhotoUri: t.start_vehicle_plate_photo_uri ? 'has_image' : null,
+      endOdometerPhotoUri: t.end_odometer_photo_uri ? 'has_image' : null,
+      sheetPhotoUri: t.sheet_photo_uri ? 'has_image' : null,
     }));
     sendSuccess(res, trips);
   } catch (e) { sendError(res, e); }
 });
 
-router.get('/trips/my', async (req, res) => {
+router.get('/trips/my', requireAuth, async (req: any, res: any) => {
   try {
+    const driverId = req.user?.id;
+    if (!driverId) return sendError(res, new Error("Not authenticated"));
+    
     const rows: any[] = await prisma.$queryRawUnsafe(
-      `SELECT * FROM trips ORDER BY start_date DESC, start_time DESC`
+      `SELECT * FROM trips WHERE driver_id = $1 ORDER BY start_date DESC, start_time DESC`,
+      driverId
     );
     const trips = rows.map((t: any) => ({
       id: t.id,
@@ -180,10 +185,10 @@ router.get('/trips/my', async (req, res) => {
       shift: t.shift,
       day: t.day,
       tripPurpose: t.trip_purpose,
-      startOdometerPhotoUri: t.start_odometer_photo_uri,
-      startVehiclePlatePhotoUri: t.start_vehicle_plate_photo_uri,
-      endOdometerPhotoUri: t.end_odometer_photo_uri,
-      sheetPhotoUri: t.sheet_photo_uri,
+      startOdometerPhotoUri: t.start_odometer_photo_uri ? 'has_image' : null,
+      startVehiclePlatePhotoUri: t.start_vehicle_plate_photo_uri ? 'has_image' : null,
+      endOdometerPhotoUri: t.end_odometer_photo_uri ? 'has_image' : null,
+      sheetPhotoUri: t.sheet_photo_uri ? 'has_image' : null,
     }));
     sendSuccess(res, trips);
   } catch (e) { sendError(res, e); }
