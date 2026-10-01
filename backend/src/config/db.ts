@@ -1,5 +1,10 @@
 import { PrismaClient } from '@prisma/client';
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { PrismaNeon } from '@prisma/adapter-neon';
+import ws from 'ws';
 import { logger } from '../utils/logger';
+
+neonConfig.webSocketConstructor = ws;
 
 let dbUrl = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_Njtby5QdhCf0@ep-frosty-butterfly-ax6itycw-pooler.c-4.us-east-2.aws.neon.tech/neondb?sslmode=require';
 dbUrl = dbUrl.replace(/^["']|["']$/g, '').trim(); // Remove accidental quotes or whitespace
@@ -14,23 +19,11 @@ if (dbUrl.includes('ep-frosty-butterfly-ax6itycw.c-4') && !dbUrl.includes('-pool
   dbUrl = dbUrl.replace('ep-frosty-butterfly-ax6itycw.c-4', 'ep-frosty-butterfly-ax6itycw-pooler.c-4');
 }
 
-let prismaUrl = dbUrl.includes('pgbouncer=true') ? dbUrl : (dbUrl.includes('?') ? `${dbUrl}&pgbouncer=true` : `${dbUrl}?pgbouncer=true`);
-
-// Ensure SSL is required for Neon Serverless DB
-if (!prismaUrl.includes('sslmode=require')) {
-  prismaUrl = `${prismaUrl}&sslmode=require`;
-}
-
-// Ensure a longer connect timeout for Serverless DB cold starts (30 seconds)
-if (!prismaUrl.includes('connect_timeout')) {
-  prismaUrl = `${prismaUrl}&connect_timeout=30`;
-}
-
-// VERY IMPORTANT: Overwrite the OS environment variable so the Prisma Rust Engine sees the fixed URL!
-process.env.DATABASE_URL = prismaUrl;
+const pool = new Pool({ connectionString: dbUrl });
+const adapter = new PrismaNeon(pool);
 
 export const prisma = new PrismaClient({
-  datasources: { db: { url: prismaUrl } },
+  adapter,
   log: [
     { emit: 'event', level: 'query' },
     { emit: 'stdout', level: 'error' },
