@@ -13,11 +13,24 @@ const sendError = (res: any, error: any, message = 'Error') => {
   res.status(500).json({ success: false, message, error: error.message });
 };
 
+// Field mapper: DB -> Frontend shape
+const mapVehicle = (v: any) => ({
+  ...v,
+  number: v.plateNumber,       // frontend uses v.number
+  type: v.make || 'Vehicle',   // frontend uses v.type
+});
+
+const mapUser = (u: any) => ({
+  ...u,
+  name: `${u.firstName || ''} ${u.lastName || ''}`.trim(),
+  phone: u.phoneNumber || '',
+});
+
 // ================= VEHICLES =================
 router.get('/vehicles', async (req, res) => {
   try {
     const vehicles = await prisma.vehicle.findMany();
-    sendSuccess(res, vehicles);
+    sendSuccess(res, vehicles.map(mapVehicle));
   } catch (e) { sendError(res, e); }
 });
 
@@ -46,7 +59,7 @@ router.delete('/vehicles/:id', async (req, res) => {
 router.get('/users', async (req, res) => {
   try {
     const users = await prisma.user.findMany();
-    sendSuccess(res, users);
+    sendSuccess(res, users.map(mapUser));
   } catch (e) { sendError(res, e); }
 });
 
