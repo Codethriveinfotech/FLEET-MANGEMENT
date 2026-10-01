@@ -16,6 +16,11 @@ if (dbUrl.includes('ep-frosty-butterfly-ax6itycw.c-4') && !dbUrl.includes('-pool
 
 let prismaUrl = dbUrl.includes('pgbouncer=true') ? dbUrl : (dbUrl.includes('?') ? `${dbUrl}&pgbouncer=true` : `${dbUrl}?pgbouncer=true`);
 
+// Ensure SSL is required for Neon Serverless DB
+if (!prismaUrl.includes('sslmode=require')) {
+  prismaUrl = `${prismaUrl}&sslmode=require`;
+}
+
 // Ensure a longer connect timeout for Serverless DB cold starts (30 seconds)
 if (!prismaUrl.includes('connect_timeout')) {
   prismaUrl = `${prismaUrl}&connect_timeout=30`;
