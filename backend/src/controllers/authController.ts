@@ -11,14 +11,17 @@ export const login = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Identity and password are required' });
     }
 
+    console.log(`[LOGIN ATTEMPT] Identity: ${identity}`);
     const user = await prisma.user.findFirst({
       where: { 
         OR: [
           { email: identity },
-          { firstName: { equals: identity, mode: 'insensitive' } }
+          { firstName: { equals: identity, mode: 'insensitive' } },
+          { phoneNumber: identity }
         ]
       }
     });
+    console.log(`[LOGIN RESULT] User found: ${user ? user.email : 'NONE'}`);
 
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
