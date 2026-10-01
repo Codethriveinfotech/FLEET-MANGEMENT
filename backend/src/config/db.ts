@@ -1,7 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import { logger } from '../utils/logger';
 
-const dbUrl = process.env.DATABASE_URL || '';
+let dbUrl = process.env.DATABASE_URL || '';
+dbUrl = dbUrl.replace(/^["']|["']$/g, '').trim(); // Remove accidental quotes or whitespace
 const prismaUrl = dbUrl.includes('pgbouncer=true') ? dbUrl : (dbUrl.includes('?') ? `${dbUrl}&pgbouncer=true` : `${dbUrl}?pgbouncer=true`);
 
 export const prisma = new PrismaClient({
