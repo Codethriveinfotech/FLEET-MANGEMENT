@@ -104,45 +104,116 @@ router.delete('/users/:id', async (req, res) => {
 });
 
 // ================= TRIPS =================
+// NOTE: Android app saves to "trips" table (not "driver_logs").
+// We read directly from it with raw SQL to avoid schema mismatch.
 router.get('/trips', async (req, res) => {
   try {
-    const trips = await prisma.driverLog.findMany({ orderBy: { startTime: 'desc' } });
-    sendSuccess(res, trips.map(mapTrip));
+    const rows: any[] = await prisma.$queryRawUnsafe(
+      `SELECT * FROM trips ORDER BY start_date DESC, start_time DESC`
+    );
+    const trips = rows.map((t: any) => ({
+      id: t.id,
+      driverId: t.driver_id,
+      vehicleId: t.vehicle_id,
+      startDate: t.start_date,
+      startTime: t.start_time,
+      endDate: t.end_date || null,
+      endTime: t.end_time || null,
+      startOdometer: t.start_odometer,
+      endOdometer: t.end_odometer || null,
+      startHmr: t.start_hmr,
+      endHmr: t.end_hmr || null,
+      sourceLocation: t.source_location,
+      destinationLocation: t.destination_location,
+      notes: t.notes,
+      status: t.status,
+      shift: t.shift,
+      day: t.day,
+      tripPurpose: t.trip_purpose,
+      startOdometerPhotoUri: t.start_odometer_photo_uri,
+      startVehiclePlatePhotoUri: t.start_vehicle_plate_photo_uri,
+      endOdometerPhotoUri: t.end_odometer_photo_uri,
+      sheetPhotoUri: t.sheet_photo_uri,
+    }));
+    sendSuccess(res, trips);
   } catch (e) { sendError(res, e); }
 });
 
 router.get('/trips/my', async (req, res) => {
   try {
-    const trips = await prisma.driverLog.findMany({ orderBy: { startTime: 'desc' } });
-    sendSuccess(res, trips.map(mapTrip));
+    const rows: any[] = await prisma.$queryRawUnsafe(
+      `SELECT * FROM trips ORDER BY start_date DESC, start_time DESC`
+    );
+    const trips = rows.map((t: any) => ({
+      id: t.id,
+      driverId: t.driver_id,
+      vehicleId: t.vehicle_id,
+      startDate: t.start_date,
+      startTime: t.start_time,
+      endDate: t.end_date || null,
+      endTime: t.end_time || null,
+      startOdometer: t.start_odometer,
+      endOdometer: t.end_odometer || null,
+      startHmr: t.start_hmr,
+      endHmr: t.end_hmr || null,
+      sourceLocation: t.source_location,
+      destinationLocation: t.destination_location,
+      notes: t.notes,
+      status: t.status,
+      shift: t.shift,
+      day: t.day,
+      tripPurpose: t.trip_purpose,
+      startOdometerPhotoUri: t.start_odometer_photo_uri,
+      startVehiclePlatePhotoUri: t.start_vehicle_plate_photo_uri,
+      endOdometerPhotoUri: t.end_odometer_photo_uri,
+      sheetPhotoUri: t.sheet_photo_uri,
+    }));
+    sendSuccess(res, trips);
   } catch (e) { sendError(res, e); }
 });
 
 router.get('/trips/:id', async (req, res) => {
   try {
-    const trip = await prisma.driverLog.findUnique({ where: { id: req.params.id } });
-    if (!trip) return res.status(404).json({ success: false, message: 'Trip not found' });
-    sendSuccess(res, mapTrip(trip));
-  } catch (e) { sendError(res, e); }
-});
-
-router.post('/trips', async (req, res) => {
-  try {
-    const trip = await prisma.driverLog.create({ data: req.body });
-    sendSuccess(res, trip);
+    const rows: any[] = await prisma.$queryRawUnsafe(`SELECT * FROM trips WHERE id = $1`, req.params.id);
+    if (!rows.length) return res.status(404).json({ success: false, message: 'Trip not found' });
+    const t = rows[0];
+    sendSuccess(res, {
+      id: t.id,
+      driverId: t.driver_id,
+      vehicleId: t.vehicle_id,
+      startDate: t.start_date,
+      startTime: t.start_time,
+      endDate: t.end_date || null,
+      endTime: t.end_time || null,
+      startOdometer: t.start_odometer,
+      endOdometer: t.end_odometer || null,
+      startHmr: t.start_hmr,
+      endHmr: t.end_hmr || null,
+      sourceLocation: t.source_location,
+      destinationLocation: t.destination_location,
+      notes: t.notes,
+      status: t.status,
+      shift: t.shift,
+      day: t.day,
+      tripPurpose: t.trip_purpose,
+      startOdometerPhotoUri: t.start_odometer_photo_uri,
+      startVehiclePlatePhotoUri: t.start_vehicle_plate_photo_uri,
+      endOdometerPhotoUri: t.end_odometer_photo_uri,
+      sheetPhotoUri: t.sheet_photo_uri,
+    });
   } catch (e) { sendError(res, e); }
 });
 
 router.put('/trips/:id', async (req, res) => {
   try {
-    const trip = await prisma.driverLog.update({ where: { id: req.params.id }, data: req.body });
+    await prisma.$executeRawUnsafe(`UPDATE trips SET status = $1 WHERE id = $2`, req.body.status || 'submitted', req.params.id);
     sendSuccess(res, true);
   } catch (e) { sendError(res, e); }
 });
 
 router.delete('/trips/:id', async (req, res) => {
   try {
-    await prisma.driverLog.delete({ where: { id: req.params.id } });
+    await prisma.$executeRawUnsafe(`DELETE FROM trips WHERE id = $1`, req.params.id);
     sendSuccess(res, true);
   } catch (e) { sendError(res, e); }
 });
