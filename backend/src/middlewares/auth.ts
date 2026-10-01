@@ -25,7 +25,7 @@ export const requireAuth = (
   try {
     const decoded = jwt.verify(
       token,
-      process.env.JWT_ACCESS_SECRET || 'super-secret-access-token-key-change-in-production'
+      process.env.JWT_SECRET || 'your_super_secret_key_here'
     ) as { id: string; email: string; role: UserRole };
 
     req.user = decoded;
