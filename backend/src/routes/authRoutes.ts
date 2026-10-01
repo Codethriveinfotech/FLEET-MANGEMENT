@@ -1,9 +1,10 @@
 import { Router } from 'express';
-import { login } from '../controllers/authController';
+import { login, register } from '../controllers/authController';
 
 const router = Router();
 
 router.post('/login', login);
+router.post('/register', register);
 
 router.post('/refresh', (req, res) => {
   // A mock refresh endpoint to prevent 404s and keep the app running.
