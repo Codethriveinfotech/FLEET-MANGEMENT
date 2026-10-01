@@ -1,7 +1,11 @@
 import { PrismaClient } from '@prisma/client';
 import { logger } from '../utils/logger';
 
+const dbUrl = process.env.DATABASE_URL || '';
+const prismaUrl = dbUrl.includes('pgbouncer=true') ? dbUrl : (dbUrl.includes('?') ? `${dbUrl}&pgbouncer=true` : `${dbUrl}?pgbouncer=true`);
+
 export const prisma = new PrismaClient({
+  datasources: { db: { url: prismaUrl } },
   log: [
     { emit: 'event', level: 'query' },
     { emit: 'stdout', level: 'error' },
