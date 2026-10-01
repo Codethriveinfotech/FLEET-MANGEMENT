@@ -2,6 +2,8 @@ FROM node:22-alpine
 
 WORKDIR /app
 
+# Install openssl required for Prisma engine
+RUN apk add --no-cache openssl
 # Copy root package.json and workspace package.jsons
 COPY package.json package-lock.json ./
 COPY shared/package.json shared/
