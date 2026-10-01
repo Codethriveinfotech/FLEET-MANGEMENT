@@ -261,7 +261,14 @@ router.get('/trips/:id', async (req, res) => {
 router.post('/trips', async (req, res) => {
   try {
     const b = req.body;
-    // Insert into the trips table (the one the Android app uses)
+    const oldRows: any[] = await prisma.$queryRawUnsafe(`SELECT * FROM trips WHERE id = $1`, b.id);
+    const old = oldRows.length ? oldRows[0] : {};
+
+    const getImg = (newImg: any, oldImg: any) => {
+      if (typeof newImg === 'string' && newImg.startsWith('http')) return oldImg || null;
+      return newImg || oldImg || null;
+    };
+
     await prisma.$executeRawUnsafe(
       `INSERT INTO trips (id, driver_id, vehicle_id, start_date, start_time, start_odometer,
         start_odometer_photo_uri, start_vehicle_photo_uri, start_vehicle_plate_photo_uri,
@@ -278,12 +285,16 @@ router.post('/trips', async (req, res) => {
          source_location = EXCLUDED.source_location, destination_location = EXCLUDED.destination_location,
          fuel_level = EXCLUDED.fuel_level, notes = EXCLUDED.notes, is_breakdown = EXCLUDED.is_breakdown`,
       b.id, b.driverId, b.vehicleId, b.startDate || '', b.startTime || '', b.startOdometer || '',
-      b.startOdometerPhotoUri || null, b.startVehiclePhotoUri || null, b.startVehiclePlatePhotoUri || null,
+      getImg(b.startOdometerPhotoUri, old.start_odometer_photo_uri),
+      getImg(b.startVehiclePhotoUri, old.start_vehicle_photo_uri),
+      getImg(b.startVehiclePlatePhotoUri, old.start_vehicle_plate_photo_uri),
       b.day || '', b.shift || '', b.startHmr || '',
 
       b.endDate || '', b.endTime || '', b.endOdometer || '',
-      b.endOdometerPhotoUri || null, b.endVehiclePhotoUri || null, b.endVehiclePlatePhotoUri || null,
-      b.sheetPhotoUri || null, b.endHmr || '',
+      getImg(b.endOdometerPhotoUri, old.end_odometer_photo_uri),
+      getImg(b.endVehiclePhotoUri, old.end_vehicle_photo_uri),
+      getImg(b.endVehiclePlatePhotoUri, old.end_vehicle_plate_photo_uri),
+      getImg(b.sheetPhotoUri, old.sheet_photo_uri), b.endHmr || '',
       b.sourceLocation || '', b.destinationLocation || '',
       b.fuelLevel || '', b.tripPurpose || '', b.notes || '', b.status || 'draft',
       b.isBreakdown || false
@@ -312,6 +323,15 @@ router.put('/trips/:id', async (req, res) => {
   try {
     const b = req.body;
     // Full update of all trip fields
+    const oldRows: any[] = await prisma.$queryRawUnsafe(`SELECT * FROM trips WHERE id = $1`, req.params.id);
+    if (!oldRows.length) return res.status(404).json({ success: false, message: 'Trip not found' });
+    const old = oldRows[0];
+
+    const getImg = (newImg: any, oldImg: any) => {
+      if (typeof newImg === 'string' && newImg.startsWith('http')) return oldImg || null;
+      return newImg || oldImg || null;
+    };
+
     const updatedCount = await prisma.$executeRawUnsafe(
       `UPDATE trips SET status = $1, end_date = $2, end_time = $3, end_odometer = $4,
         end_odometer_photo_uri = $5, end_vehicle_photo_uri = $6, end_vehicle_plate_photo_uri = $7,
@@ -320,8 +340,10 @@ router.put('/trips/:id', async (req, res) => {
        WHERE id = $15`,
       b.status || 'submitted',
       b.endDate || '', b.endTime || '', b.endOdometer || '',
-      b.endOdometerPhotoUri || null, b.endVehiclePhotoUri || null, b.endVehiclePlatePhotoUri || null,
-      b.sheetPhotoUri || null, b.endHmr || '',
+      getImg(b.endOdometerPhotoUri, old.end_odometer_photo_uri),
+      getImg(b.endVehiclePhotoUri, old.end_vehicle_photo_uri),
+      getImg(b.endVehiclePlatePhotoUri, old.end_vehicle_plate_photo_uri),
+      getImg(b.sheetPhotoUri, old.sheet_photo_uri), b.endHmr || '',
       b.sourceLocation || '', b.destinationLocation || '',
       b.fuelLevel || '', b.notes || '', b.isBreakdown || false,
       req.params.id
