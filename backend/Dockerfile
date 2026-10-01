@@ -1,13 +1,26 @@
-# Build stage
-FROM gradle:8.9-jdk17 AS build
-COPY --chown=gradle:gradle . /home/gradle/src
-WORKDIR /home/gradle/src
-RUN chmod +x ./gradlew
-RUN ./gradlew :backend:buildFatJar --no-daemon
+FROM node:18-alpine
 
-# Run stage
-FROM eclipse-temurin:17-jre
+WORKDIR /app
+
+# Copy root package.json and workspace package.jsons
+COPY package.json package-lock.json ./
+COPY shared/package.json shared/
+COPY backend/package.json backend/
+COPY frontend/package.json frontend/
+
+# Install dependencies (ignoring scripts during install to avoid premature prisma generation if schema isn't copied yet)
+RUN npm ci --ignore-scripts
+
+# Copy source code
+COPY shared/ shared/
+COPY backend/ backend/
+
+# Build shared first
+RUN npm run build --workspace=shared
+
+# Build backend and generate prisma client
+RUN npm run build --workspace=backend
+
 EXPOSE 8080
-RUN mkdir /app
-COPY --from=build /home/gradle/src/backend/build/libs/*.jar /app/ktor-app.jar
-ENTRYPOINT ["sh", "-c", "java -jar /app/ktor-app.jar -port=${PORT:-8080}"]
+
+CMD ["npm", "run", "start", "--workspace=backend"]
